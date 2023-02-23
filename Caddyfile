@@ -1,0 +1,3 @@
+local.test
+
+reverse_proxy :9000
