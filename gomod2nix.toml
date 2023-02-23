@@ -1,33 +1,27 @@
 schema = 3
 
 [mod]
-  [mod."github.com/fatih/color"]
-    version = "v1.14.1"
-    hash = "sha256-cCjkicVuBK19gkNKHU4BhKNKETfGKPx72Rus473HbcY="
-  [mod."github.com/hashicorp/go-cleanhttp"]
-    version = "v0.5.2"
-    hash = "sha256-N9GOKYo7tK6XQUFhvhImtL7PZW/mr4C4Manx/yPVvcQ="
-  [mod."github.com/hashicorp/go-retryablehttp"]
-    version = "v0.7.2"
-    hash = "sha256-PcLyolWF7G409rs7j3tnwgQK6xhgWYk9/iK2bO13TGQ="
+  [mod."github.com/davecgh/go-spew"]
+    version = "v1.1.1"
+    hash = "sha256-nhzSUrE1fCkN0+RL04N4h8jWmRFPPPWbCuDc7Ss0akI="
   [mod."github.com/inconshreveable/mousetrap"]
     version = "v1.0.1"
     hash = "sha256-ZTP9pLgwAAvHYK5A4PqwWCHGt00x5zMSOpCPoomQ3Sg="
-  [mod."github.com/mattn/go-colorable"]
-    version = "v0.1.13"
-    hash = "sha256-qb3Qbo0CELGRIzvw7NVM1g/aayaz4Tguppk9MD2/OI8="
-  [mod."github.com/mattn/go-isatty"]
-    version = "v0.0.17"
-    hash = "sha256-c1u9eiMF9wLXgGvPTB5DH6S8uuCPqWZJTa6tCGuB3Ek="
-  [mod."github.com/snugfox/ansi-escapes"]
-    version = "v0.2.0"
-    hash = "sha256-3+ZD0fE0TQUhEpTrFJQlQ7DpYXDHGQrWHBw0ucAgOjg="
+  [mod."github.com/pmezard/go-difflib"]
+    version = "v1.0.0"
+    hash = "sha256-/FtmHnaGjdvEIKAJtrUfEhV7EVo5A/eYrtdnUkuxLDA="
   [mod."github.com/spf13/cobra"]
     version = "v1.6.1"
     hash = "sha256-80B5HcYdFisz6QLYkTyka7f9Dr6AfcVyPwp3QChoXwU="
   [mod."github.com/spf13/pflag"]
     version = "v1.0.5"
     hash = "sha256-w9LLYzxxP74WHT4ouBspH/iQZXjuAh2WQCHsuvyEjAw="
-  [mod."golang.org/x/sys"]
-    version = "v0.5.0"
-    hash = "sha256-0LTr3KeJ1OMQAwYUQo1513dXJtQAJn5Dq8sFkc8ps1U="
+  [mod."github.com/stretchr/testify"]
+    version = "v1.8.1"
+    hash = "sha256-3e0vOJLgCMAan+GfaGN8RGZdarh5iCavM6flf6YMNPk="
+  [mod."golang.org/x/exp"]
+    version = "v0.0.0-20230223201515-30ed42f936dd"
+    hash = "sha256-IF0LTUZVi2ZcEL+FwrZH6PifsfW7A+nfPeWwBPsZrVY="
+  [mod."gopkg.in/yaml.v3"]
+    version = "v3.0.1"
+    hash = "sha256-FqL9TKYJ0XkNwJFnq9j0VvJ5ZUU1RvH/52h/f5bkYAU="

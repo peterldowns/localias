@@ -12,10 +12,9 @@ func TestParseUncontrolledRoundtrips(t *testing.T) {
 # just a comment     
 
 
-127.0.0.1 localhost host.local
+127.0.0.1	localhost	host.local
 `)
-	f, err := Parse(strings.NewReader(contents))
-	require.NoError(t, err)
+	f := Parse(strings.NewReader(contents))
 	require.NotNil(t, f)
 	require.Len(t, f.Lines, 4)
 	require.Equal(t, contents, f.Contents())
@@ -30,16 +29,14 @@ func TestParseControlled(t *testing.T) {
 127.0.0.1 example.test # comment and spaces, but not controlled
 127.0.0.1	pfpro.test	#{"controller":"pfpro"}
 `)
-	f, err := Parse(strings.NewReader(contents))
-	require.NoError(t, err)
+	f := Parse(strings.NewReader(contents))
 	require.NotNil(t, f)
 	require.Equal(t, contents, f.Contents())
 }
 
 func TestMeta(t *testing.T) {
 	contents := etcfile(`127.0.0.1 localhost #{"controller":"pfpro", "garbage": "hashtag#"}`)
-	f, err := Parse(strings.NewReader(contents))
-	require.NoError(t, err)
+	f := Parse(strings.NewReader(contents))
 	require.NotNil(t, f)
 	require.Len(t, f.Lines, 1)
 	require.NotNil(t, f.Lines[0].Entry)

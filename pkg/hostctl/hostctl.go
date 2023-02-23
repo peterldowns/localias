@@ -6,59 +6,48 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"strings"
+
+	"golang.org/x/exp/slices"
 )
-
-const SigilController = "pfpro"
-
-type Line struct {
-	Raw   string
-	Entry *Entry
-}
-
-func (l *Line) String() string {
-	if l.Controlled() {
-		return l.Entry.String()
-	}
-	return l.Raw
-}
-
-func (l *Line) Controlled() bool {
-	return l.Entry != nil && l.Entry.Meta != nil && l.Entry.Meta.Controller == SigilController
-}
-
-type Entry struct {
-	IPAddress string
-	Aliases   []string
-	Meta      *Meta
-}
-
-func (e *Entry) String() string {
-	l := ""
-	l += e.IPAddress + "\t"
-	l += strings.Join(e.Aliases, "\t")
-	if e.Meta != nil {
-		b, _ := json.Marshal(e.Meta)
-		l += "\t#" + string(b)
-	}
-	return l
-}
 
 type File struct {
 	Path  string
 	Lines []*Line
 }
 
-type Meta struct {
-	Controller string `json:"controller"`
+func (f *File) Add(e *Entry) (*Line, error) {
+	line := &Line{Entry: e}
+	f.Lines = append(f.Lines, line)
+	return line, nil
 }
 
-func (f *File) Add(_ Entry) error {
-	return fmt.Errorf("not yet implemented")
-}
-
-func (f *File) Remove(_ Entry) error {
-	return fmt.Errorf("not yet implemented")
+func (f *File) Remove(aliases ...string) ([]*Line, error) {
+	for i, alias := range aliases {
+		aliases[i] = strings.TrimSpace(alias)
+	}
+	var kept []*Line
+	var removed []*Line
+	for _, line := range f.Lines {
+		if line.Entry == nil {
+			continue
+		}
+		matched := false
+		for _, a := range aliases {
+			if slices.Contains(line.Entry.Aliases, a) {
+				matched = true
+				break
+			}
+		}
+		if matched {
+			removed = append(removed, line)
+		} else {
+			kept = append(kept, line)
+		}
+	}
+	f.Lines = kept
+	return removed, nil
 }
 
 func (f *File) Contents() string {
@@ -70,54 +59,113 @@ func (f *File) Contents() string {
 	return builder.String()
 }
 
+func (f *File) Save(sudo bool) error {
+	if f.Path == "" {
+		return fmt.Errorf("cannot save file: path is empty")
+	}
+	var cmd *exec.Cmd
+	if sudo {
+		cmd = exec.Command("sudo", "tee", f.Path)
+	} else {
+		cmd = exec.Command("tee", f.Path)
+	}
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
+	go func() {
+		defer stdin.Close()
+		_, err = io.WriteString(stdin, f.Contents())
+		if err != nil {
+			panic(err)
+		}
+	}()
+	errtxt, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to save file %s: %w: %s", f.Path, err, errtxt)
+	}
+	return nil
+}
+
+type Line struct {
+	Raw   string
+	Entry *Entry
+}
+
+func (l *Line) String() string {
+	if l.Entry != nil && l.Entry.Meta != nil {
+		return l.Entry.String()
+	}
+	return l.Raw
+}
+
+type Entry struct {
+	IPAddress string
+	Aliases   []string
+	Meta      *Meta
+	Disabled  bool
+}
+
+func (e *Entry) String() string {
+	l := ""
+	if e.Disabled {
+		l += "#"
+	}
+	l += e.IPAddress + "\t"
+	l += strings.Join(e.Aliases, "\t")
+	if e.Meta != nil {
+		b, _ := json.Marshal(e.Meta)
+		l += "\t#" + string(b)
+	}
+	return l
+}
+
+type Meta struct {
+	Controller string `json:"controller"`
+}
+
 func Open(fpath string) (*File, error) {
 	fin, err := os.Open(fpath)
 	if err != nil {
 		return nil, err
 	}
 	defer fin.Close()
-	file, err := Parse(fin)
-	if err != nil {
-		return nil, err
-	}
+	file := Parse(fin)
 	file.Path = fpath
 	return file, nil
 }
 
-func Parse(reader io.Reader) (*File, error) {
+func Parse(reader io.Reader) *File {
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(bufio.ScanLines)
 
 	var lines []*Line
 	for scanner.Scan() {
-		line, err := parseLine(scanner.Text())
-		if err != nil {
-			return nil, err
-		}
+		line := parseLine(scanner.Text())
 		lines = append(lines, line)
 	}
-	return &File{Path: "", Lines: lines}, nil
+	return &File{Path: "", Lines: lines}
 }
 
-func parseLine(raw string) (*Line, error) {
-	entry, err := parseEntry(raw)
-	if err != nil {
-		return nil, err
-	}
-	return &Line{Raw: raw, Entry: entry}, nil
+func parseLine(raw string) *Line {
+	entry := parseEntry(raw)
+	return &Line{Raw: raw, Entry: entry}
 }
 
-func parseEntry(line string) (*Entry, error) {
+func parseEntry(line string) *Entry {
 	line = strings.TrimSpace(line)
 	if line == "" {
-		return nil, nil
+		return nil
 	}
+	disabled := false
 	if isComment(line) {
-		return nil, nil
+		disabled = true
+		line = line[1:]
 	}
+	// If it's not a valid line, skip it
 	fields := strings.Fields(line)
 	if len(fields) < 2 {
-		return nil, fmt.Errorf("invalid line: '%s'", line)
+		return nil
 	}
 	ipAddress := fields[0]
 	aliases := []string{fields[1]}
@@ -132,7 +180,8 @@ func parseEntry(line string) (*Entry, error) {
 		IPAddress: ipAddress,
 		Aliases:   aliases,
 		Meta:      meta,
-	}, nil
+		Disabled:  disabled,
+	}
 }
 
 func isComment(s string) bool {
