@@ -1,0 +1,35 @@
+name: golang
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup-go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+          cache: true
+          cache-dependency-path: go.sum
+      - name: build
+        run: go build -v ./...
+      - name: test
+        run: go test ./...
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup-go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+          cache: true
+          cache-dependency-path: go.sum
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.50.1

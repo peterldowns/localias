@@ -1,0 +1,19 @@
+# created by the vscode debugger
+__debug_bin
+
+# we use this to store the golang modules and caches
+.toolchain/
+
+# When you run `nix-build`, it symlinks the outputs at ./result -> <nix store path>
+result
+
+# When you run `just build`, it stores the output in bin/
+bin/
+
+# The direnv use_flake integration seems to put content here
+.direnv/
+
+# Used by `air` to hold build outputs
+tmp/
+
+dist/

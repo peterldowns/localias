@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+      "golang.go",
+      "jnoortheen.nix-ide",
+      "skellock.just",
+      "timonwong.shellcheck"
+    ]
+}

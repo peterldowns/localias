@@ -1,0 +1,35 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    ".go/": true
+  },
+  "explorer.expandSingleFolderWorkspaces": true,
+  "go.autocompleteUnimportedPackages": true,
+  "go.coverOnSingleTest": true,
+  "go.coverOnSingleTestFile": true,
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": ["--config=${workspaceFolder}/.golangci.yaml", "--fast", "--fix"],
+  "go.lintOnSave": "package",
+  "go.testEnvVars": {},
+  "go.testFlags": [],
+  "go.coverageOptions": "showCoveredCodeOnly",
+  "go.buildOnSave": "off",
+  "go.vetOnSave": "off",
+  "go.useLanguageServer": true,
+  "go.toolsManagement.autoUpdate": false,
+  "go.toolsManagement.checkForUpdates": "off",
+  "gopls": {
+    "buildFlags": [],
+    "formatting.gofumpt": true,
+    "formatting.local": "github.com/peterldowns/example-nix-vscode-golang",
+    "build.directoryFilters": []
+  },
+  "[go]": {
+    "editor.formatOnSave": true
+  },
+  "nix.formatterPath": "nixpkgs-fmt",
+  "[nix]": {
+    "editor.formatOnSave": true
+  }
+}
