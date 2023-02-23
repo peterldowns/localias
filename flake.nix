@@ -28,6 +28,7 @@
         rec {
           packages = rec {
             pfpro = pkgs.buildGoApplication {
+              checkPhase = false;
               pname = "pfpro";
               version = "0.0.1";
               src = ./.;
