@@ -1,7 +1,3 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -10,10 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "pfpro",
 	Short: "A brief description of your application",
 	Long: `A longer description that spans multiple lines and likely contains
@@ -36,7 +30,7 @@ func Execute() {
 	}
 }
 
-func init() {
+func init() { //nolint:gochecknoinits
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
@@ -47,5 +41,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-

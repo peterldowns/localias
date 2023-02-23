@@ -1,7 +1,3 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -11,7 +7,7 @@ import (
 )
 
 // disableCmd represents the disable command
-var disableCmd = &cobra.Command{
+var disableCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "disable",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -25,7 +21,7 @@ to quickly create a Cobra application.`,
 	},
 }
 
-func init() {
+func init() { //nolint:gochecknoinits
 	rootCmd.AddCommand(disableCmd)
 
 	// Here you will define your flags and configuration settings.
