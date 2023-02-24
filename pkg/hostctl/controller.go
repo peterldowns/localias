@@ -75,13 +75,35 @@ func (c *Controller) File() (*File, error) {
 	return c.file, nil
 }
 
-func (c *Controller) Add(ip string, aliases ...string) ([]*Line, error) {
+func (c *Controller) Add(force bool, ip string, aliases ...string) ([]*Line, error) {
 	file, err := c.File()
 	if err != nil {
 		return nil, err
 	}
+	existing, err := c.List()
+	if err != nil {
+		return nil, err
+	}
+
+	m := make(map[string]string)
+	for _, l := range existing {
+		entry := l.Entry
+		for _, alias := range entry.Aliases {
+			m[alias] = entry.IPAddress
+		}
+	}
+
 	var added []*Line
 	for _, alias := range aliases {
+		if existingIP, ok := m[alias]; ok {
+			if existingIP == ip {
+				fmt.Printf("skipping, exists: %s %s\n", ip, alias)
+				continue
+			}
+			if !force {
+				return nil, fmt.Errorf("failure, differing exists: [old=%s new=%s] %s", existingIP, ip, alias)
+			}
+		}
 		line, err := file.Add(&Entry{
 			IPAddress: ip,
 			Aliases:   []string{alias},

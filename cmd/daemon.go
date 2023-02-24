@@ -1,149 +1,62 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/caddyserver/caddy/v2/caddyconfig"             // config
-	_ "github.com/caddyserver/caddy/v2/caddyconfig/caddyfile" // caddy?
+	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
-	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	"github.com/caddyserver/caddy/v2/modules/caddyhttp/reverseproxy"
-	"github.com/caddyserver/caddy/v2/modules/caddytls"
-	_ "github.com/caddyserver/caddy/v2/modules/standard" // ahhhhhhhh?
-
+	_ "github.com/caddyserver/caddy/v2/modules/standard" // import necessary standard extensions
 	"github.com/spf13/cobra"
+
+	"github.com/peterldowns/pfpro/pkg/hostctl"
 )
 
-type Config struct {
-	Upstream      string
-	Wrapper       string
-	WrapperHost   string
-	WrapperPort   string
-	WrapperScheme string
-}
-
+// TODO: actually daemonize like
+// https://github.com/caddyserver/caddy/blob/be53e432fcac0a9b9accbc36885304639e8ca70b/cmd/commandfuncs.go#L146
+// reloading should be as simple as calling caddy.Load() again
 func daemonImpl(_ *cobra.Command, _ []string) error {
-	// potentially: build config as caddyfile, much simler?
-	// https://caddyserver.com/docs/caddyfile/directives/tls#internal
-
-	// proceed to build the handler and server
-	// based on
-	// https://github.com/caddyserver/caddy/blob/5ded580444e9258cb35a9c94192d3c1d63e7b74f/modules/caddyhttp/reverseproxy/command.go#L122
-
-	cfgs := []Config{
-		{WrapperPort: "443", WrapperScheme: "https", WrapperHost: "local.test", Wrapper: "https://local.test", Upstream: ":9000"},
-		{WrapperPort: "80", WrapperScheme: "http", WrapperHost: "insecure.test", Wrapper: "http://inseure.test", Upstream: ":9000"},
+	hostc := controller()
+	configs := Config{
+		Directive{Upstream: "https://local.test", Downstream: ":9000"},
+		Directive{Upstream: "https://peter.test", Downstream: ":8000"},
 	}
-	// var servers []*caddyhttp.Server
-	var routes []caddyhttp.Route
-	var listeners []string
-	for _, cfg := range cfgs {
-		ht := reverseproxy.HTTPTransport{}
-		upstreamPool := reverseproxy.UpstreamPool{
-			&reverseproxy.Upstream{
-				Dial: cfg.Upstream,
-			},
-		}
-		handler := reverseproxy.Handler{
-			TransportRaw: caddyconfig.JSONModuleObject(ht, "protocol", "http", nil),
-			Upstreams:    upstreamPool,
-		}
-		route := caddyhttp.Route{
-			HandlersRaw: []json.RawMessage{
-				caddyconfig.JSONModuleObject(handler, "handler", "reverse_proxy", nil),
-			},
-		}
-		fromAddr, err := httpcaddyfile.ParseAddress(cfg.Wrapper)
+	var added []*hostctl.Line
+	for _, directive := range configs {
+		x, err := httpcaddyfile.ParseAddress(directive.Upstream)
 		if err != nil {
 			return err
 		}
-		fromAddr.Host = cfg.WrapperHost
-		fromAddr.Scheme = cfg.WrapperScheme
-		fromAddr.Port = cfg.WrapperPort
-		if fromAddr.Host != "" {
-			route.MatcherSetsRaw = []caddy.ModuleMap{
-				{
-					"host": caddyconfig.JSON(caddyhttp.MatchHost{fromAddr.Host}, nil),
-				},
-			}
+		a, err := hostc.Add(true, "127.0.0.1", x.Host)
+		if err != nil {
+			return err
 		}
-		routes = append(routes, route)
-		listeners = append(listeners, ":"+fromAddr.Port)
-		// server := &caddyhttp.Server{
-		// 	Routes: caddyhttp.RouteList{route},
-		// 	Listen: []string{":" + fromAddr.Port},
-		// }
-		// servers = append(servers, server)
+		added = append(added, a...)
 	}
-	// smap := map[string]*caddyhttp.Server{}
-	// for i, server := range servers {
-	// 	smap[fmt.Sprintf("proxy-%d", i)] = server
-	// }
-	// server.AutoHTTPS = &caddyhttp.AutoHTTPSConfig{DisableRedir: true}
-	server := &caddyhttp.Server{
-		Routes: routes,
-		Listen: listeners,
+	if added != nil {
+		if err := hostc.Save(); err != nil {
+			return err
+		}
 	}
-	fmt.Println("listeners", listeners)
-	httpApp := caddyhttp.App{
-		Servers: map[string]*caddyhttp.Server{
-			"proxy": server,
-		},
-		// Servers: map[string]*caddyhttp.Server{"proxy": server},
-	}
-	appsRaw := caddy.ModuleMap{
-		"http": caddyconfig.JSON(httpApp, nil),
-	}
-	var subjects []string
-	// var policies []*caddytls.AutomationPolicy
-	for _, cfg := range cfgs {
-		subjects = append(subjects, cfg.WrapperHost)
-		// policies = append(policies, &caddytls.AutomationPolicy{
-		// 	Subjects:   []string{cfg.WrapperHost},
-		// 	IssuersRaw: []json.RawMessage{json.RawMessage(`{"module":"internal"}`)},
-		// })
-	}
-	tlsApp := caddytls.TLS{
-		Automation: &caddytls.AutomationConfig{
-			Policies: []*caddytls.AutomationPolicy{{
-				// Subjects:   []string{fromAddr.Host},
-				Subjects:   subjects,
-				IssuersRaw: []json.RawMessage{json.RawMessage(`{"module":"internal"}`)},
-			}},
-		},
-	}
-	// tlsApp := caddytls.TLS{
-	// 	Automation: &caddytls.AutomationConfig{
-	// 		Policies: policies,
-	// 	},
-	// }
-	appsRaw["tls"] = caddyconfig.JSON(tlsApp, nil)
-	var false bool
-	cfg := &caddy.Config{
-		Admin: &caddy.AdminConfig{
-			Disabled: true,
-			Config: &caddy.ConfigSettings{
-				Persist: &false,
-			},
-		},
-		AppsRaw: appsRaw,
-	}
-	cfg.Logging = &caddy.Logging{
-		Logs: map[string]*caddy.CustomLog{
-			"default": {Level: "DEBUG"},
-		},
-	}
-	err := caddy.Run(cfg)
+
+	caddyfile := configs.Caddyfile()
+	fmt.Println(caddyfile)
+	cfgAdapter := caddyconfig.GetAdapter("caddyfile")
+	config, warnings, err := cfgAdapter.Adapt([]byte(caddyfile), map[string]any{
+		"filename": "Caddyfile",
+	})
 	if err != nil {
 		return err
 	}
 
-	for _, cfg := range cfgs {
-		fmt.Printf("Caddy proxying %s -> %s\n", cfg.Wrapper, cfg.Upstream)
+	for _, w := range warnings {
+		fmt.Printf("[warning]: %s\n", w.String())
 	}
-
+	err = caddy.Load(config, false)
+	if err != nil {
+		return err
+	}
 	select {} //nolint:revive // valid empty block
 }
 
@@ -155,4 +68,60 @@ var daemonCmd = &cobra.Command{ //nolint:gochecknoglobals
 
 func init() { //nolint:gochecknoinits
 	rootCmd.AddCommand(daemonCmd)
+}
+
+// TODO: move this stuff into a separate package, not the CLI!
+type (
+	Config    []Directive
+	Directive struct {
+		Upstream   string
+		Downstream string
+	}
+)
+
+func (directive Directive) Caddyfile() string {
+	tls := "# tls disabled"
+	a, _ := httpcaddyfile.ParseAddress(directive.Upstream)
+	fmt.Printf("%+v\n", a)
+
+	if a.Scheme == "https" {
+		// if strings.HasPrefix(directive.Upstream, "https://") {
+		tls = strings.TrimSpace(`
+	tls {
+		issuer internal {
+			on_demand
+		}
+	}
+`)
+	}
+	return fmt.Sprintf(strings.TrimSpace(`
+%s {
+	reverse_proxy %s
+	%s
+}
+	`), directive.Upstream, directive.Downstream, tls)
+}
+
+func (c Config) Caddyfile() string {
+	global := strings.TrimSpace(`
+{
+	admin off
+	persist_config off
+	local_certs
+	ocsp_stapling off
+	storage file_system /Users/pd/.config/pfpro
+	pki {
+		ca local {
+			name pfpro
+			root_cn pfpro
+			intermediate_cn pfpro
+		}
+	}
+}
+`)
+	blocks := []string{global}
+	for _, x := range c {
+		blocks = append(blocks, x.Caddyfile())
+	}
+	return strings.Join(blocks, "\n") + "\n" // extra newline prevents "caddy fmt" warning in logs
 }

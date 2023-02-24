@@ -6,6 +6,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var addFlags struct { //nolint:gochecknoglobals
+	Force *bool
+}
+
 func addImpl(_ *cobra.Command, args []string) error {
 	c := controller()
 
@@ -18,7 +22,7 @@ func addImpl(_ *cobra.Command, args []string) error {
 		ip = args[0]
 		aliases = args[1:]
 	}
-	lines, err := c.Add(ip, aliases...)
+	lines, err := c.Add(*addFlags.Force, ip, aliases...)
 	if err != nil {
 		return err
 	}
@@ -40,5 +44,6 @@ var addCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
+	addFlags.Force = addCmd.Flags().BoolP("force", "f", false, "on conflict, remove existing rules")
 	hostctlCmd.AddCommand(addCmd)
 }

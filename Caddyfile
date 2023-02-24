@@ -1,3 +1,30 @@
-local.test
-
-reverse_proxy :9000
+{
+	admin off
+	persist_config off
+	local_certs
+	ocsp_stapling off
+	storage file_system /Users/pd/.config/pfpro
+	pki {
+		ca local {
+			name pfpro
+			root_cn pfpro
+			intermediate_cn pfpro
+		}
+	}
+}
+https://local.test {
+	reverse_proxy :9000
+	tls {
+		issuer internal {
+			on_demand
+		}
+	}
+}
+https://peter.test {
+	reverse_proxy :8000
+	tls {
+		issuer internal {
+			on_demand
+		}
+	}
+}
