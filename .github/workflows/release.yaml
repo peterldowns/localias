@@ -14,11 +14,10 @@ jobs:
         go-version: 1.19
         cache: true
         cache-dependency-path: go.sum
-    - run: |
-        GOOS=darwin GOARCH=amd64 go build -o ./bin/pfpro-darwin-amd64 .
-        GOOS=darwin GOARCH=arm64 go build -o ./bin/pfpro-darwin-arm64 .
-        GOOS=linux GOARCH=arm64 go build -o ./bin/pfpro-linux-arm64 .
-        GOOS=linux GOARCH=amd64 go build -o ./bin/pfpro-linux-amd64 .
+    - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o ./bin/pfpro-darwin-amd64 .
+    - run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./bin/pfpro-darwin-arm64 .
+    - run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ./bin/pfpro-linux-arm64 .
+    - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/pfpro-linux-amd64 .
     - run: |
         commit_sha="$(git rev-parse --short HEAD)"
         timestamp="$(date +%s)"
