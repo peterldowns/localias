@@ -3,6 +3,7 @@ package hostctl
 import "fmt"
 
 const (
+	// TODO: detect WSL2, allow powershell workaround to make it good there
 	DefaultHostsFile = "/etc/hosts"
 	DefaultSudo      = true
 	DefaultDryRun    = false
