@@ -4,10 +4,31 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/caddyserver/caddy/v2"
+	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
-	_ "github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/spf13/cobra"
+
+	// contents of github.com/caddyserver/caddy/v2/modules/standard
+	// excluding
+	// _ "github.com/caddyserver/caddy/v2/modules/caddyhttp/standard"
+	// because of gomod2nix bug
+	_ "github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	_ "github.com/caddyserver/caddy/v2/modules/caddyevents"
+	_ "github.com/caddyserver/caddy/v2/modules/caddyevents/eventsconfig"
+	_ "github.com/caddyserver/caddy/v2/modules/caddypki"
+	_ "github.com/caddyserver/caddy/v2/modules/caddypki/acmeserver"
+	_ "github.com/caddyserver/caddy/v2/modules/caddytls"
+	_ "github.com/caddyserver/caddy/v2/modules/caddytls/distributedstek"
+	_ "github.com/caddyserver/caddy/v2/modules/caddytls/standardstek"
+	_ "github.com/caddyserver/caddy/v2/modules/filestorage"
+	_ "github.com/caddyserver/caddy/v2/modules/logging"
+	_ "github.com/caddyserver/caddy/v2/modules/metrics"
+
+	// contents of github.com/caddyserver/caddy/v2/modules/caddyhttp/stndard
+	// excluding
+	// _ "github.com/caddyserver/caddy/v2/modules/caddyhttp/tracing"
+	// because of gomod2nix bug
 	_ "github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	_ "github.com/caddyserver/caddy/v2/modules/caddyhttp/caddyauth"
 	_ "github.com/caddyserver/caddy/v2/modules/caddyhttp/encode"
@@ -24,12 +45,6 @@ import (
 	_ "github.com/caddyserver/caddy/v2/modules/caddyhttp/reverseproxy/forwardauth"
 	_ "github.com/caddyserver/caddy/v2/modules/caddyhttp/rewrite"
 	_ "github.com/caddyserver/caddy/v2/modules/caddyhttp/templates"
-	_ "github.com/caddyserver/caddy/v2/modules/caddypki"
-	_ "github.com/caddyserver/caddy/v2/modules/caddytls"
-	_ "github.com/caddyserver/caddy/v2/modules/filestorage"
-	_ "github.com/caddyserver/caddy/v2/modules/logging"
-	_ "github.com/caddyserver/caddy/v2/modules/metrics"
-	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/pfpro/pkg/hostctl"
 )
