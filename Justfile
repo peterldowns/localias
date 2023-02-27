@@ -22,21 +22,6 @@ lint *args:
 build:
   go build -o bin/pfpro .
 
-# builds and pushes peterldowns/pfpro tagged with :latest and :$COMMIT_SHA
-release-container:
-  #!/usr/bin/env bash
-  COMMIT_SHA=$(git log -1 | head -1 | cut -f 2 -d ' ')
-  docker buildx build \
-    --platform linux/arm64,linux/amd64,darwin/arm64,darwin/amd64 \
-    --label pfpro \
-    --tag ghcr.io/peterldowns/pfpro:"$COMMIT_SHA" \
-    --tag ghcr.io/peterldowns/pfpro:latest \
-    --cache-from ghcr.io/peterldowns/pfpro:latest \
-    --build-arg COMMIT_SHA="$COMMIT_SHA" \
-    --output type=image,push=true \
-    --file ./Dockerfile \
-    .
-
 release-binaries:
   #!/usr/bin/env bash
   GOOS=darwin GOARCH=amd64 go build -o ./bin/pfpro-darwin-amd64 .

@@ -37,7 +37,7 @@ jobs:
         curl -s -H "Authorization: token $token" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/pfpro-darwin-arm64 \
-          "$upload_url?name=pfpro-darwin-arm64&label=pfpro-darwin-amd64"
+          "$upload_url?name=pfpro-darwin-arm64&label=pfpro-darwin-arm64"
         curl -s -H "Authorization: token $token" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/pfpro-linux-arm64 \

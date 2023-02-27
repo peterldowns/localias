@@ -5,32 +5,23 @@ on:
       - main
   pull_request:
 jobs:
-  standard:
-    runs-on: ubuntu-latest
-    steps:
+  build:
     - uses: actions/checkout@v3
     - uses: cachix/install-nix-action@v18
       with:
         nix_path: nixpkgs=channel:nixos-unstable
         extra_nix_config: |
           access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-    - run: nix-shell --run 'which go'
-    - run: nix-build && ./result/bin/pfpro --help
-  flakes:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: cachix/install-nix-action@v18
-      with:
-        nix_path: nixpkgs=channel:nixos-unstable
-        extra_nix_config: |
-          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+    # flakes
     - run: nix develop --command which go
     - run: nix build . && ./result/bin/pfpro --help
     - run: nix build .#pfpro && ./result/bin/pfpro --help
     - run: nix run . -- --help
     - run: nix run .#pfpro -- --help
     - run: nix flake check
+    # standard
+    - run: nix-shell --run 'which go'
+    - run: nix-build && ./result/bin/pfpro --help
   lint:
     runs-on: ubuntu-latest
     steps:
