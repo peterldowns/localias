@@ -16,12 +16,10 @@ pfpro enable <alias>
 pfpro disable <alias>
 
 # turning it on and off
-pfpro start # start the daemon in the background
-pfpro stop # stop the daemon in the background
-pfpro status # show the status of the daemon
-
-# explicitly running the daemon
-pfpro daemon # run the daemon
+pfpro run # run in the foreground
+pfpro daemon run # run the daemon in the background
+pfpro daemon stop # stop the daemon in the background
+pfpro daemon status # show the status of the daemon
 ```
 
 ## TODO

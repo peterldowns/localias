@@ -29,7 +29,9 @@ func Execute() {
 		case string:
 			OnError(fmt.Errorf("panic: %s", t))
 		default:
-			OnError(fmt.Errorf("panic: %+v", t))
+			if t != nil {
+				OnError(fmt.Errorf("panic: %+v", t))
+			}
 		}
 	}()
 	if err := rootCmd.Execute(); err != nil {
