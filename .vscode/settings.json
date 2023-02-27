@@ -2,10 +2,12 @@
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
-    ".toolchain/": true,
-    ".direnv/": true,
-    "bin/": true,
-    "result/": true
+    "**/__debug_bin": true,
+    ".go/": true,
+    ".toolchain": true,
+    "bin": true,
+    "result": true,
+    "tmp": true
   },
   "explorer.expandSingleFolderWorkspaces": true,
   "go.autocompleteUnimportedPackages": true,

@@ -8,9 +8,9 @@ import (
 
 func runImpl(_ *cobra.Command, _ []string) error {
 	hctl := controller()
-	cfg := pfpro.Config{
-		pfpro.Directive{Upstream: "https://local.test", Downstream: ":9000"},
-		pfpro.Directive{Upstream: "https://peter.test", Downstream: ":8000"},
+	cfg, err := pfpro.Load(nil)
+	if err != nil {
+		return err
 	}
 	return pfpro.Run(hctl, cfg)
 }

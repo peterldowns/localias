@@ -12,8 +12,6 @@ A simple example would be to make it possible to visit `https://server.test` in 
 pfpro list
 prpro add <alias> <target>
 pfpro remove <alias>
-pfpro enable <alias>
-pfpro disable <alias>
 
 # turning it on and off
 pfpro run # run in the foreground

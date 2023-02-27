@@ -10,9 +10,9 @@ import (
 	"github.com/peterldowns/pfpro/pkg/hostctl"
 )
 
-func Run(hctl *hostctl.Controller, cfg Config) error {
+func Run(hctl *hostctl.Controller, cfg *Config) error {
 	var added []*hostctl.Line
-	for _, directive := range cfg {
+	for _, directive := range cfg.Directives {
 		x, err := httpcaddyfile.ParseAddress(directive.Upstream)
 		if err != nil {
 			return err

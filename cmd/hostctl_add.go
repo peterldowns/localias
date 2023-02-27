@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var addFlags struct { //nolint:gochecknoglobals
+var hostctlAddFlags struct { //nolint:gochecknoglobals
 	Force *bool
 }
 
-func addImpl(_ *cobra.Command, args []string) error {
+func hostctlAddImpl(_ *cobra.Command, args []string) error {
 	c := controller()
 
 	var ip string
@@ -22,7 +22,7 @@ func addImpl(_ *cobra.Command, args []string) error {
 		ip = args[0]
 		aliases = args[1:]
 	}
-	lines, err := c.Add(*addFlags.Force, ip, aliases...)
+	lines, err := c.Add(*hostctlAddFlags.Force, ip, aliases...)
 	if err != nil {
 		return err
 	}
@@ -35,15 +35,15 @@ func addImpl(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-var addCmd = &cobra.Command{ //nolint:gochecknoglobals
+var hostctlAddCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:     "add [IP address] [aliases...]",
 	Aliases: []string{"a", "new", "create"},
 	Args:    cobra.MinimumNArgs(1),
 	Short:   "add a new managed entry",
-	RunE:    addImpl,
+	RunE:    hostctlAddImpl,
 }
 
 func init() { //nolint:gochecknoinits
-	addFlags.Force = addCmd.Flags().BoolP("force", "f", false, "on conflict, remove existing rules")
-	hostctlCmd.AddCommand(addCmd)
+	hostctlAddFlags.Force = hostctlAddCmd.Flags().BoolP("force", "f", false, "on conflict, remove existing rules")
+	hostctlCmd.AddCommand(hostctlAddCmd)
 }
