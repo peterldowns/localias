@@ -30,7 +30,7 @@
             pfpro = pkgs.buildGoApplication {
               checkPhase = false;
               pname = "pfpro";
-              version = "0.0.1";
+              version = "0.0.2";
               src = ./.;
               modules = ./gomod2nix.toml;
             };

@@ -76,6 +76,9 @@ schema = 3
   [mod."github.com/dustin/go-humanize"]
     version = "v1.0.1"
     hash = "sha256-yuvxYYngpfVkUg9yAmG99IUVmADTQA0tMbBXe0Fq0Mc="
+  [mod."github.com/fatih/color"]
+    version = "v1.14.1"
+    hash = "sha256-cCjkicVuBK19gkNKHU4BhKNKETfGKPx72Rus473HbcY="
   [mod."github.com/felixge/httpsnoop"]
     version = "v1.0.3"
     hash = "sha256-qV3UPYKKBQDTzAUzzsTpfdbGhFnkmTO/r5ylPL1SyfA="

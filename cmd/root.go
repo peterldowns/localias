@@ -1,37 +1,44 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "pfpro",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
+	Short: "securely proxy domains to local development servers",
 }
 
 func init() { //nolint:gochecknoinits
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 	rootCmd.TraverseChildren = true
+	rootCmd.SilenceErrors = true
+	rootCmd.SilenceUsage = true
+}
+
+func Execute() {
+	defer func() {
+		switch t := recover().(type) {
+		case error:
+			OnError(fmt.Errorf("panic: %w", t))
+		case string:
+			OnError(fmt.Errorf("panic: %s", t))
+		default:
+			OnError(fmt.Errorf("panic: %+v", t))
+		}
+	}()
+	if err := rootCmd.Execute(); err != nil {
+		OnError(err)
+	}
+}
+
+func OnError(err error) {
+	msg := color.New(color.FgRed, color.Italic).Sprintf("error: %s\n", err)
+	fmt.Fprintln(os.Stderr, msg)
+	os.Exit(1)
 }
