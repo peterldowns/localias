@@ -9,20 +9,24 @@ import (
 	"github.com/peterldowns/pfpro/pkg/pfpro"
 )
 
-func addImpl(_ *cobra.Command, args []string) error {
+var addFlags struct { //nolint:gochecknoglobals
+	Port  *int
+	Alias *string
+}
+
+func addImpl(_ *cobra.Command, _ []string) error {
 	cfg, err := pfpro.Load(nil)
 	if err != nil {
 		return err
 	}
+	port := *addFlags.Port
+	alias := *addFlags.Alias
 
-	if len(args) < 2 {
-		return fmt.Errorf("must pass at least 2 args")
-	}
-	port := args[0]
-	alias := args[1]
+	upstream := alias
+	downstream := fmt.Sprintf(":%d", port)
 	d := pfpro.Directive{
-		Upstream:   alias,
-		Downstream: ":" + port,
+		Upstream:   upstream,
+		Downstream: downstream,
 	}
 	cfg.Directives = append(cfg.Directives, d)
 	if err := pfpro.WriteConfig(cfg); err != nil {
@@ -31,19 +35,22 @@ func addImpl(_ *cobra.Command, args []string) error {
 	fmt.Printf(
 		"%s %s -> %s\n",
 		color.New(color.FgGreen).Sprint("[added]"),
-		color.New(color.FgBlue).Sprint(d.Upstream),
-		color.New(color.FgWhite).Sprint(d.Downstream),
+		color.New(color.FgBlue).Sprint(upstream),
+		color.New(color.FgWhite).Sprint(downstream),
 	)
 	return nil
 }
 
 var addCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "add port domain",
-	Args:  cobra.ExactArgs(2),
+	Use:   "add",
 	Short: "add an alias",
 	RunE:  addImpl,
 }
 
 func init() { //nolint:gochecknoinits
+	addFlags.Port = addCmd.Flags().IntP("port", "p", 0, "local port e.g. 9000")
+	addFlags.Alias = addCmd.Flags().StringP("alias", "a", "", "domain alias e.g. example.local")
+	_ = addCmd.MarkFlagRequired("port")
+	_ = addCmd.MarkFlagRequired("alias")
 	rootCmd.AddCommand(addCmd)
 }
