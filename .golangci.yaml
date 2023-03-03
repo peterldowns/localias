@@ -3,7 +3,7 @@ linters-settings:
     disabled-checks:
       - ifElseChain
   goimports:
-    local-prefixes: github.com/peterldowns/pfpro
+    local-prefixes: github.com/peterldowns/localias
   govet:
     enable-all: true
     disable:

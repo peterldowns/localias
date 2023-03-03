@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/config"
+	"github.com/peterldowns/localias/pkg/config"
 )
 
 func debugImpl(_ *cobra.Command, _ []string) error {

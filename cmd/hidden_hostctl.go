@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/hostctl"
+	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
 var hostctlFlags struct { //nolint:gochecknoglobals

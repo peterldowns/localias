@@ -12,7 +12,7 @@ const (
 	DefaultHostsFile = "/etc/hosts"
 	DefaultSudo      = true
 	DefaultDryRun    = false
-	DefaultName      = "pfpro"
+	DefaultName      = "localias"
 )
 
 var ErrFileNotOpen = fmt.Errorf("file is nil, call .Open() first")

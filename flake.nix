@@ -1,5 +1,5 @@
 {
-  description = "pfpro is a cli for local dev domains and port forwarding";
+  description = "securely proxy domains to local development servers";
   inputs = {
     nixpkgs.url = github:nixos/nixpkgs/nixos-unstable;
 
@@ -27,22 +27,22 @@
         in
         rec {
           packages = rec {
-            pfpro = pkgs.buildGoApplication {
+            localias = pkgs.buildGoApplication {
               checkPhase = false;
-              pname = "pfpro";
-              version = "0.0.2";
+              pname = "localias";
+              version = "0.0.3";
               src = ./.;
               modules = ./gomod2nix.toml;
             };
-            default = pfpro;
+            default = localias;
           };
 
           apps = rec {
-            pfpro = {
+            localias = {
               type = "app";
-              program = "${packages.pfpro}/bin/pfpro";
+              program = "${packages.localias}/bin/localias";
             };
-            default = pfpro;
+            default = localias;
           };
 
           devShells = rec {

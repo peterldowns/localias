@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/config"
-	"github.com/peterldowns/pfpro/pkg/server"
+	"github.com/peterldowns/localias/pkg/config"
+	"github.com/peterldowns/localias/pkg/daemon"
 )
 
 func runImpl(_ *cobra.Command, _ []string) error {
@@ -13,7 +13,7 @@ func runImpl(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-	return server.Run(hctl, cfg)
+	return daemon.Run(hctl, cfg)
 }
 
 var runCmd = &cobra.Command{ //nolint:gochecknoglobals

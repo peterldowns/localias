@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/config"
+	"github.com/peterldowns/localias/pkg/config"
 )
 
 var addFlags struct { //nolint:gochecknoglobals
@@ -47,21 +47,21 @@ var addCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Example: trimLeading(`
 # Add secure aliases (automatically upgrade http:// requests to https://)
 ## alias https://secure-explicit.local to 127.0.0.1:9001
-pfpro add --alias https://secure-explicit.local --port 9001
+localias add --alias https://secure-explicit.local --port 9001
 ## alias https://secure-implicit.local to 127.0.0.1:9002
-pfpro add --alias secure-implicit.local --port 9002
+localias add --alias secure-implicit.local --port 9002
 
 # Add insecure aliases (only support http:// requests)
 ## alias http://not-secure.local to 127.0.0.1:9003
-pfpro add --alias http://not-secure.local --port 9003
+localias add --alias http://not-secure.local --port 9003
 
 # Add multiple aliases for the same local port
-pfpro add --alias door1.local --port 9000
-pfpro add --alias door2.local --port 9000
+localias add --alias door1.local --port 9000
+localias add --alias door2.local --port 9000
 
 # Overwrite an existing alias
-pfpro add --alias example.local --port 9001
-pfpro add --alias example.local --port 9002
+localias add --alias example.local --port 9001
+localias add --alias example.local --port 9002
 	`),
 	RunE: addImpl,
 }

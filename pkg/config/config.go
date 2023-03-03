@@ -13,7 +13,7 @@ import (
 )
 
 func DefaultPath() (string, error) {
-	path, err := xdg.ConfigFile("pfpro/config.yaml")
+	path, err := xdg.ConfigFile("localias/config.yaml")
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +67,7 @@ func (c *Config) Save() error {
 		entries[d.Upstream] = d.Downstream
 	}
 	bytes := []byte(strings.TrimSpace(`
-# pfpro config file syntax
+# localias config file syntax
 #
 # 	alias: port
 #
@@ -90,7 +90,7 @@ func (c *Config) Save() error {
 }
 
 func (c Config) Caddyfile() string {
-	path, _ := xdg.ConfigFile("pfpro/caddy/")
+	path, _ := xdg.ConfigFile("localias/caddy/")
 	path, _ = filepath.Abs(path)
 	global := fmt.Sprintf(strings.TrimSpace(`
 {
@@ -101,9 +101,9 @@ func (c Config) Caddyfile() string {
 	storage file_system "%s"
 	pki {
 		ca local {
-			name pfpro
-			root_cn pfpro
-			intermediate_cn pfpro
+			name localias
+			root_cn localias
+			intermediate_cn localias
 		}
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/config"
+	"github.com/peterldowns/localias/pkg/config"
 )
 
 func listImpl(_ *cobra.Command, _ []string) error {

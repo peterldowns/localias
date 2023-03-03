@@ -1,4 +1,4 @@
-module github.com/peterldowns/pfpro
+module github.com/peterldowns/localias
 
 go 1.19
 

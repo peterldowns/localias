@@ -1,4 +1,4 @@
-package server
+package daemon
 
 import (
 	// contents of github.com/caddyserver/caddy/v2/modules/standard

@@ -4,28 +4,44 @@
 
 # todo - rename me
 
-`pfpro` is a CLI utility for developers to control local test domains. You can use it to map arbitrary domains to local processes and ports. Built on `caddy`, you get automatic TLS configuration and good performance.
+`localias` is a CLI utility for developers to control local test domains. You can use it to map arbitrary domains to local processes and ports. Built on `caddy`, you get automatic TLS configuration and good performance.
 
 A simple example would be to make it possible to visit `https://server.test` in your browser, and have that request served by a local devserver running at `http://localhost:3000`.
 
 ```shell
-$ ./bin/pfpro
+$ localias
 securely proxy domains to local development servers
 
 Usage:
-  pfpro [command]
+  localias [command]
+
+Examples:
+  # Add an alias forwarding https://secure.local to http://127.0.0.1:9000
+  localias add --alias secure.local -p 9000
+  # Remove an alias
+  localias remove secure.local
+  # Show aliases
+  localias list
+  # Clear all aliases
+  localias clear
+  # Run the server, automatically applying all necessary rules to
+  # /etc/hosts and creating any necessary TLS certificates
+  localias run
 
 Available Commands:
   add         add an alias
+  clear       clear all aliases
   help        Help about any command
-  hostctl     modify an /etc/hosts-type file
   list        list all aliases
-  remove      remove aliases
+  remove      remove an alias
   run         run the caddy server
 
 Flags:
-  -h, --help     help for pfpro
+  -h, --help     help for localias
   -t, --toggle   Help message for toggle
+
+Use "localias [command] --help" for more information about a command.
+TODO
 ```
 
 ## TODO
@@ -34,7 +50,7 @@ Flags:
   - actually daemonize
   - allow installing the daemon with plist? status commands, etc
 - tui / gui / admin controls of some sort
-  - set it up on pfpro.local?
+  - set it up on localias.local?
 
 ```
 # to make firefox use the default trust stores that caddy edits:

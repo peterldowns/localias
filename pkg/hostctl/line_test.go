@@ -27,7 +27,7 @@ func TestParseControlled(t *testing.T) {
 
 
 127.0.0.1 example.test # comment and spaces, but not controlled
-127.0.0.1	pfpro.test	#{"controller":"pfpro"}
+127.0.0.1	localias.test	#{"controller":"localias"}
 `)
 	lines := Parse(strings.NewReader(contents))
 	require.NotNil(t, lines)
@@ -35,13 +35,13 @@ func TestParseControlled(t *testing.T) {
 }
 
 func TestMeta(t *testing.T) {
-	contents := etcfile(`127.0.0.1 localhost #{"controller":"pfpro", "garbage": "hashtag#"}`)
+	contents := etcfile(`127.0.0.1 localhost #{"controller":"localias", "garbage": "hashtag#"}`)
 	lines := Parse(strings.NewReader(contents))
 	require.NotNil(t, lines)
 	require.Len(t, lines, 1)
 	require.NotNil(t, lines[0].Entry)
 	require.NotNil(t, lines[0].Entry.Meta)
-	require.Equal(t, "pfpro", lines[0].Entry.Meta.Controller)
+	require.Equal(t, "localias", lines[0].Entry.Meta.Controller)
 }
 
 func etcfile(lines ...string) string {

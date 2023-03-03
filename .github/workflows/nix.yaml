@@ -14,14 +14,14 @@ jobs:
           access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
     # flakes
     - run: nix develop --command which go
-    - run: nix build . && ./result/bin/pfpro --help
-    - run: nix build .#pfpro && ./result/bin/pfpro --help
+    - run: nix build . && ./result/bin/localias --help
+    - run: nix build .#localias && ./result/bin/localias --help
     - run: nix run . -- --help
-    - run: nix run .#pfpro -- --help
+    - run: nix run .#localias -- --help
     - run: nix flake check
     # standard
     - run: nix-shell --run 'which go'
-    - run: nix-build && ./result/bin/pfpro --help
+    - run: nix-build && ./result/bin/localias --help
   lint:
     runs-on: ubuntu-latest
     steps:

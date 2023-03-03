@@ -10,22 +10,21 @@ import (
 )
 
 var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "pfpro",
+	Use:   "localias",
 	Short: "securely proxy domains to local development servers",
 	Example: trimLeading(`
-# Add a forwarding rule: https://secure.local to http://127.0.0.1:9000
-pfpro add --alias secure.local -p 9000
-# Remove a forwarding rule
-pfpro remove secure.local
-# Show forwarding rules
-pfpro list
-# Clear all forwarding rules
-pfpro clear
-
+# Add an alias forwarding https://secure.local to http://127.0.0.1:9000
+localias add --alias secure.local -p 9000
+# Remove an alias
+localias remove secure.local
+# Show aliases
+localias list
+# Clear all aliases
+localias clear
 # Run the server, automatically applying all necessary rules to
 # /etc/hosts and creating any necessary TLS certificates
-pfpro run
-	`),
+localias run
+  `),
 }
 
 func init() { //nolint:gochecknoinits

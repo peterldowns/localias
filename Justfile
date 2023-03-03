@@ -20,14 +20,14 @@ lint *args:
   golangci-lint run --fix --config .golangci.yaml "$@"
 
 build:
-  go build -o bin/pfpro .
+  go build -o bin/localias .
 
 release-binaries:
   #!/usr/bin/env bash
-  GOOS=darwin GOARCH=amd64 go build -o ./bin/pfpro-darwin-amd64 .
-  GOOS=darwin GOARCH=arm64 go build -o ./bin/pfpro-darwin-arm64 .
-  GOOS=linux GOARCH=amd64 go build -o ./bin/pfpro-linux-amd64 .
-  GOOS=linux GOARCH=arm64 go build -o ./bin/pfpro-linux-arm64 .
+  GOOS=darwin GOARCH=amd64 go build -o ./bin/localias-darwin-amd64 .
+  GOOS=darwin GOARCH=arm64 go build -o ./bin/localias-darwin-arm64 .
+  GOOS=linux GOARCH=amd64 go build -o ./bin/localias-linux-amd64 .
+  GOOS=linux GOARCH=arm64 go build -o ./bin/localias-linux-arm64 .
   commit_sha="$(git rev-parse --short HEAD)"
   timestamp="$(date +%s)"
   release_name="release-$timestamp-$commit_sha"
@@ -35,21 +35,22 @@ release-binaries:
   upload_url=$(curl -s -H "Authorization: token $token" \
     -X POST \
     -d "{\"tag_name\": \"$release_name\", \"name\":\"$release_name\",\"target_comitish\": \"$commit_sha\"}" \
-    "https://api.github.com/repos/peterldowns/pfpro/releases" | jq -r '.upload_url')
+    "https://api.github.com/repos/peterldowns/localias/releases" | jq -r '.upload_url')
   upload_url="${upload_url%\{*}"
+  echo "upload_url: $upload_url"
   curl -s -H "Authorization: token $token" \
     -H "Content-Type: application/octet-stream" \
-    --data-binary @bin/pfpro-darwin-amd64 \
-    "$upload_url?name=pfpro-darwin-amd64&label=pfpro-darwin-amd64"
+    --data-binary @bin/localias-darwin-amd64 \
+    "$upload_url?name=localias-darwin-amd64&label=localias-darwin-amd64"
   curl -s -H "Authorization: token $token" \
     -H "Content-Type: application/octet-stream" \
-    --data-binary @bin/pfpro-darwin-arm64 \
-    "$upload_url?name=pfpro-darwin-arm64&label=pfpro-darwin-arm64"
+    --data-binary @bin/localias-darwin-arm64 \
+    "$upload_url?name=localias-darwin-arm64&label=localias-darwin-arm64"
   curl -s -H "Authorization: token $token" \
     -H "Content-Type: application/octet-stream" \
-    --data-binary @bin/pfpro-linux-amd64 \
-    "$upload_url?name=pfpro-linux-amd64&label=pfpro-linux-amd64"
+    --data-binary @bin/localias-linux-amd64 \
+    "$upload_url?name=localias-linux-amd64&label=localias-linux-amd64"
   curl -s -H "Authorization: token $token" \
     -H "Content-Type: application/octet-stream" \
-    --data-binary @bin/pfpro-linux-arm64 \
-    "$upload_url?name=pfpro-linux-arm64&label=pfpro-linux-arm64"
+    --data-binary @bin/localias-linux-arm64 \
+    "$upload_url?name=localias-linux-arm64&label=localias-linux-arm64"

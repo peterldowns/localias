@@ -1,4 +1,4 @@
-package server
+package daemon
 
 import (
 	"fmt"
@@ -7,12 +7,14 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 
-	"github.com/peterldowns/pfpro/pkg/config"
-	"github.com/peterldowns/pfpro/pkg/hostctl"
+	"github.com/peterldowns/localias/pkg/config"
+	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
 func Run(hctl *hostctl.Controller, cfg *config.Config) error {
-	hctl.Clear()
+	if err := hctl.Clear(); err != nil {
+		return err
+	}
 	for _, directive := range cfg.Directives {
 		up, err := httpcaddyfile.ParseAddress(directive.Upstream)
 		if err != nil {
