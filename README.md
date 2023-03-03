@@ -2,9 +2,9 @@
 |---------------------------|
 
 
-# todo - rename me
+# localias
 
-`localias` is a CLI utility for developers to control local test domains. You can use it to map arbitrary domains to local processes and ports. Built on `caddy`, you get automatic TLS configuration and good performance.
+`localias` is a CLI utility for developers to control local test domains. You can use it to alias arbitrary domains to local dev servers. Built on [`caddy`](https://caddyserver.com/), you get automatic TLS configuration and good performance out of the box.
 
 A simple example would be to make it possible to visit `https://server.test` in your browser, and have that request served by a local devserver running at `http://localhost:3000`.
 
@@ -41,11 +41,9 @@ Flags:
   -t, --toggle   Help message for toggle
 
 Use "localias [command] --help" for more information about a command.
-TODO
 ```
 
 ## TODO
-- clear out old managed etc/hosts entries, only current set is ever active
 - cli daemon
   - actually daemonize
   - allow installing the daemon with plist? status commands, etc
