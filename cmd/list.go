@@ -6,11 +6,11 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/pfpro"
+	"github.com/peterldowns/pfpro/pkg/config"
 )
 
 func listImpl(_ *cobra.Command, _ []string) error {
-	cfg, err := pfpro.Load(nil)
+	cfg, err := config.Load(nil)
 	if err != nil {
 		return err
 	}

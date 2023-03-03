@@ -3,16 +3,17 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/pfpro"
+	"github.com/peterldowns/pfpro/pkg/config"
+	"github.com/peterldowns/pfpro/pkg/server"
 )
 
 func runImpl(_ *cobra.Command, _ []string) error {
-	hctl := controller()
-	cfg, err := pfpro.Load(nil)
+	hctl := hostctlController()
+	cfg, err := config.Load(nil)
 	if err != nil {
 		return err
 	}
-	return pfpro.Run(hctl, cfg)
+	return server.Run(hctl, cfg)
 }
 
 var runCmd = &cobra.Command{ //nolint:gochecknoglobals

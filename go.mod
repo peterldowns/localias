@@ -6,11 +6,11 @@ require (
 	github.com/caddyserver/caddy/v2 v2.6.4
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
-	golang.org/x/exp v0.0.0-20230223210539-50820d90acfd
 )
 
 require (
 	go.uber.org/goleak v1.2.0 // indirect
+	golang.org/x/exp v0.0.0-20230223210539-50820d90acfd // indirect
 	golang.org/x/oauth2 v0.5.0 // indirect
 )
 

@@ -1,4 +1,4 @@
-package pfpro
+package config
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ var exampleDirectives = []Directive{ //nolint:gochecknoglobals
 }
 
 func TestReadConfig(t *testing.T) {
-	cfg, err := ReadConfig("./example.yaml")
+	cfg, err := Open("./example.yaml")
 	require.NoError(t, err)
 	require.Equal(t, "./example.yaml", cfg.Path)
 	require.ElementsMatch(t, exampleDirectives, cfg.Directives)
@@ -27,33 +27,33 @@ func TestWriteConfig(t *testing.T) {
 		Path:       "./example.yaml",
 		Directives: exampleDirectives,
 	}
-	err := WriteConfig(cfg)
+	err := cfg.Save()
 	require.NoError(t, err)
 }
 
 func TestConfigRoundtrips(t *testing.T) {
-	cfg, err := ReadConfig("./example.yaml")
+	cfg, err := Open("./example.yaml")
 	require.NoError(t, err)
 
-	err = WriteConfig(cfg)
+	err = cfg.Save()
 	require.NoError(t, err)
 
-	cfg2, err := ReadConfig(cfg.Path)
+	cfg2, err := Open(cfg.Path)
 	require.NoError(t, err)
 	require.Equal(t, cfg.Path, cfg2.Path)
 	require.ElementsMatch(t, cfg.Directives, cfg2.Directives)
-}
-
-func TestConfigPath(t *testing.T) {
-	xdgPath, err := DefaultConfigPath()
-	require.NoError(t, err)
-	require.NotEqual(t, "", xdgPath)
 }
 
 func TestLoad(t *testing.T) {
 	cfg, err := Load(nil)
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
-	err = WriteConfig(cfg)
+	err = cfg.Save()
 	require.NoError(t, err)
+}
+
+func TestDefaultPath(t *testing.T) {
+	xdgPath, err := DefaultPath()
+	require.NoError(t, err)
+	require.NotEqual(t, "", xdgPath)
 }

@@ -1,6 +1,11 @@
 package hostctl
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+	"os/exec"
+	"strings"
+)
 
 const (
 	// TODO: detect WSL2, allow powershell workaround to make it good there
@@ -17,16 +22,9 @@ type Controller struct {
 	Sudo      bool
 	DryRun    bool
 	Name      string
-	file      *File
-}
-
-func DefaultController() *Controller {
-	return NewController(
-		DefaultHostsFile,
-		DefaultSudo,
-		DefaultDryRun,
-		DefaultName,
-	)
+	// Internal details
+	lines []*Line
+	lmap  map[string]string
 }
 
 func NewController(
@@ -43,122 +41,159 @@ func NewController(
 	}
 }
 
-func (c *Controller) Open() (*File, error) {
-	return Open(c.HostsFile)
+func DefaultController() *Controller {
+	return NewController(
+		DefaultHostsFile,
+		DefaultSudo,
+		DefaultDryRun,
+		DefaultName,
+	)
 }
 
-func (c *Controller) Read() error {
-	f, err := Open(c.HostsFile)
-	if err != nil {
-		return err
+func (c *Controller) read() error {
+	if c.lines == nil {
+		lines, err := Open(c.HostsFile)
+		if err != nil {
+			return err
+		}
+		c.lines = lines
 	}
-	c.file = f
+	if c.lmap == nil {
+		c.lmap = make(map[string]string)
+		for _, l := range c.lines {
+			if isControlled(l, c.Name) {
+				c.lmap[l.Entry.Aliases[0]] = l.Entry.IPAddress
+			}
+		}
+	}
 	return nil
 }
 
-func (c *Controller) Save() error {
-	if c.DryRun {
-		return nil
-	}
-	file, err := c.File()
-	if err != nil {
+func (c *Controller) Set(ip string, alias string) error {
+	if err := c.read(); err != nil {
 		return err
 	}
-	return file.Save(c.Sudo)
+	c.lmap[alias] = ip
+	return nil
 }
 
-func (c *Controller) File() (*File, error) {
-	if c.file == nil {
-		if err := c.Read(); err != nil {
-			return nil, err
-		}
+func (c *Controller) Remove(alias string) error {
+	if err := c.read(); err != nil {
+		return err
 	}
-	return c.file, nil
-}
-
-func (c *Controller) Add(force bool, ip string, aliases ...string) ([]*Line, error) {
-	file, err := c.File()
-	if err != nil {
-		return nil, err
-	}
-	existing, err := c.List()
-	if err != nil {
-		return nil, err
-	}
-
-	m := make(map[string]string)
-	for _, l := range existing {
-		entry := l.Entry
-		for _, alias := range entry.Aliases {
-			m[alias] = entry.IPAddress
-		}
-	}
-
-	var added []*Line
-	for _, alias := range aliases {
-		if existingIP, ok := m[alias]; ok {
-			if existingIP == ip {
-				fmt.Printf("skipping, exists: %s %s\n", ip, alias)
-				continue
-			}
-			if !force {
-				return nil, fmt.Errorf("failure, differing exists: [old=%s new=%s] %s", existingIP, ip, alias)
-			}
-		}
-		line, err := file.Add(&Entry{
-			IPAddress: ip,
-			Aliases:   []string{alias},
-			Meta: &Meta{
-				Controller: c.Name,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-		added = append(added, line)
-	}
-	return added, nil
+	delete(c.lmap, alias)
+	return nil
 }
 
 func (c *Controller) List() ([]*Line, error) {
-	file, err := c.File()
-	if err != nil {
+	if err := c.read(); err != nil {
 		return nil, err
 	}
-	var lines []*Line
-	for _, line := range file.Lines {
-		if !controlled(line) {
+	var toDisplay []*Line
+	for _, line := range c.lines {
+		if isControlled(line, c.Name) {
+			toDisplay = append(toDisplay, line)
+		}
+	}
+	return toDisplay, nil
+}
+
+func (c *Controller) Clear() error {
+	if err := c.read(); err != nil {
+		return err
+	}
+	c.lmap = make(map[string]string)
+	return nil
+}
+
+func (c *Controller) Apply() error {
+	if err := c.read(); err != nil {
+		return err
+	}
+	var changed bool
+	var result []*Line
+	for _, line := range c.lines {
+		if !isControlled(line, c.Name) {
+			result = append(result, line)
 			continue
 		}
-		lines = append(lines, line)
+		alias := line.Entry.Aliases[0]
+		if ip, ok := c.lmap[alias]; ok {
+			if line.Entry.IPAddress != ip {
+				line.Entry.IPAddress = ip
+				changed = true // modified an existing line
+			}
+			result = append(result, line)
+			delete(c.lmap, alias)
+			continue
+		}
+		changed = true // removed an existing line
 	}
-	return lines, nil
+	for alias, ip := range c.lmap {
+		l := &Line{
+			Entry: &Entry{
+				IPAddress: ip,
+				Aliases:   []string{alias},
+				Meta: &Meta{
+					Controller: c.Name,
+				},
+			},
+		}
+		changed = true // added a new line
+		result = append(result, l)
+	}
+	c.lines = result
+	if !changed {
+		return nil
+	}
+	return c.save()
 }
 
-func controlled(l *Line) bool {
-	if l.Entry == nil {
-		return false
-	}
-	if l.Entry.Meta == nil {
-		return false
-	}
-	return l.Entry.Meta.Controller == DefaultName
-}
-
-func (c *Controller) Remove(aliases ...string) ([]*Line, error) {
-	f, err := Open(c.HostsFile)
-	if err != nil {
-		return nil, err
-	}
-	removed, err := f.Remove(aliases...)
-	if err != nil {
-		return nil, err
-	}
+func (c *Controller) save() error {
 	if c.DryRun {
-		return removed, nil
+		return nil
 	}
-	if err := f.Save(c.Sudo); err != nil {
-		return nil, err
+	if c.HostsFile == "" {
+		return fmt.Errorf("cannot save file: path is empty")
 	}
-	return removed, nil
+	var cmd *exec.Cmd
+	if c.Sudo {
+		cmd = exec.Command("sudo", "tee", c.HostsFile)
+	} else {
+		cmd = exec.Command("tee", c.HostsFile)
+	}
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
+	go func() {
+		defer stdin.Close()
+		_, err = io.WriteString(stdin, asFile(c.lines))
+		if err != nil {
+			panic(err)
+		}
+	}()
+	if errtxt, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("failed to save file %s: %w: %s", c.HostsFile, err, errtxt)
+	}
+	return nil
+}
+
+func asFile(lines []*Line) string {
+	builder := strings.Builder{}
+	for _, line := range lines {
+		builder.WriteString(line.String())
+		builder.WriteString("\n")
+	}
+	return builder.String()
+}
+
+func isControlled(line *Line, controllerName string) bool {
+	if line.Entry == nil {
+		return false
+	}
+	if line.Entry.Meta == nil {
+		return false
+	}
+	return line.Entry.Meta.Controller == controllerName
 }

@@ -14,10 +14,10 @@ func TestParseUncontrolledRoundtrips(t *testing.T) {
 
 127.0.0.1	localhost	host.local
 `)
-	f := Parse(strings.NewReader(contents))
-	require.NotNil(t, f)
-	require.Len(t, f.Lines, 4)
-	require.Equal(t, contents, f.Contents())
+	lines := Parse(strings.NewReader(contents))
+	require.NotNil(t, lines)
+	require.Len(t, lines, 4)
+	require.Equal(t, contents, asFile(lines))
 }
 
 func TestParseControlled(t *testing.T) {
@@ -29,19 +29,19 @@ func TestParseControlled(t *testing.T) {
 127.0.0.1 example.test # comment and spaces, but not controlled
 127.0.0.1	pfpro.test	#{"controller":"pfpro"}
 `)
-	f := Parse(strings.NewReader(contents))
-	require.NotNil(t, f)
-	require.Equal(t, contents, f.Contents())
+	lines := Parse(strings.NewReader(contents))
+	require.NotNil(t, lines)
+	require.Equal(t, contents, asFile(lines))
 }
 
 func TestMeta(t *testing.T) {
 	contents := etcfile(`127.0.0.1 localhost #{"controller":"pfpro", "garbage": "hashtag#"}`)
-	f := Parse(strings.NewReader(contents))
-	require.NotNil(t, f)
-	require.Len(t, f.Lines, 1)
-	require.NotNil(t, f.Lines[0].Entry)
-	require.NotNil(t, f.Lines[0].Entry.Meta)
-	require.Equal(t, "pfpro", f.Lines[0].Entry.Meta.Controller)
+	lines := Parse(strings.NewReader(contents))
+	require.NotNil(t, lines)
+	require.Len(t, lines, 1)
+	require.NotNil(t, lines[0].Entry)
+	require.NotNil(t, lines[0].Entry.Meta)
+	require.Equal(t, "pfpro", lines[0].Entry.Meta.Controller)
 }
 
 func etcfile(lines ...string) string {

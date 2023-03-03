@@ -5,11 +5,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/pfpro"
+	"github.com/peterldowns/pfpro/pkg/config"
 )
 
 func debugImpl(_ *cobra.Command, _ []string) error {
-	path, err := pfpro.DefaultConfigPath()
+	path, err := config.DefaultPath()
 	if err != nil {
 		return err
 	}
@@ -20,7 +20,7 @@ func debugImpl(_ *cobra.Command, _ []string) error {
 	if err := hostctlListImpl(nil, nil); err != nil {
 		return err
 	}
-	cfg, err := pfpro.Load(nil)
+	cfg, err := config.Load(nil)
 	if err != nil {
 		return err
 	}

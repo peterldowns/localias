@@ -6,16 +6,16 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/pfpro/pkg/pfpro"
+	"github.com/peterldowns/pfpro/pkg/config"
 )
 
 func removeImpl(_ *cobra.Command, aliases []string) error {
-	cfg, err := pfpro.Load(nil)
+	cfg, err := config.Load(nil)
 	if err != nil {
 		return err
 	}
-	removed := []pfpro.Directive{}
-	preserved := []pfpro.Directive{}
+	removed := []config.Directive{}
+	preserved := []config.Directive{}
 outer:
 	for _, d := range cfg.Directives {
 		for _, alias := range aliases {
@@ -27,7 +27,7 @@ outer:
 		preserved = append(preserved, d)
 	}
 	cfg.Directives = preserved
-	if err := pfpro.WriteConfig(cfg); err != nil {
+	if err := cfg.Save(); err != nil {
 		return err
 	}
 	for _, d := range removed {
@@ -42,10 +42,10 @@ outer:
 }
 
 var removeCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:     "remove [aliases...]",
+	Use:     "remove alias [...more aliases]",
 	Aliases: []string{"rm", "delete"},
 	Args:    cobra.MinimumNArgs(1),
-	Short:   "remove aliases",
+	Short:   "remove an alias",
 	RunE:    removeImpl,
 }
 

@@ -1,4 +1,4 @@
-package pfpro
+package config
 
 import (
 	"fmt"
@@ -12,18 +12,7 @@ import (
 	"github.com/go-yaml/yaml"
 )
 
-func Load(cfgPath *string) (*Config, error) {
-	if cfgPath != nil {
-		return ReadConfig(*cfgPath)
-	}
-	defaultPath, err := DefaultConfigPath()
-	if err != nil {
-		return nil, err
-	}
-	return ReadConfig(defaultPath)
-}
-
-func DefaultConfigPath() (string, error) {
+func DefaultPath() (string, error) {
 	path, err := xdg.ConfigFile("pfpro/config.yaml")
 	if err != nil {
 		return "", err
@@ -31,35 +20,18 @@ func DefaultConfigPath() (string, error) {
 	return filepath.Abs(path)
 }
 
-func WriteConfig(c *Config) error {
-	entries := map[string]string{} // TODO: preserve order
-	for _, d := range c.Directives {
-		entries[d.Upstream] = d.Downstream
+func Load(cfgPath *string) (*Config, error) {
+	if cfgPath != nil {
+		return Open(*cfgPath)
 	}
-	bytes := []byte(strings.TrimSpace(`
-# pfpro config file syntax
-#
-# 	alias: port
-#
-# for example,
-#
-#   https://secure.test: 9000
-#   http://insecure.test: 9001
-#   insecure2.test: 9002
-#   bareTLD: 9003
-#
-	`) + "\n")
-	if len(entries) != 0 {
-		entryBytes, err := yaml.Marshal(entries)
-		if err != nil {
-			return err
-		}
-		bytes = append(bytes, entryBytes...)
+	defaultPath, err := DefaultPath()
+	if err != nil {
+		return nil, err
 	}
-	return os.WriteFile(c.Path, bytes, 0o644)
+	return Open(defaultPath)
 }
 
-func ReadConfig(path string) (*Config, error) {
+func Open(path string) (*Config, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0o644)
 	if err != nil {
 		return nil, err
@@ -87,6 +59,61 @@ func ReadConfig(path string) (*Config, error) {
 type Config struct {
 	Path       string
 	Directives []Directive
+}
+
+func (c *Config) Save() error {
+	entries := map[string]string{} // TODO: preserve order
+	for _, d := range c.Directives {
+		entries[d.Upstream] = d.Downstream
+	}
+	bytes := []byte(strings.TrimSpace(`
+# pfpro config file syntax
+#
+# 	alias: port
+#
+# for example,
+#
+#   https://secure.test: 9000
+#   http://insecure.test: 9001
+#   insecure2.test: 9002
+#   bareTLD: 9003
+#
+	`) + "\n")
+	if len(entries) != 0 {
+		entryBytes, err := yaml.Marshal(entries)
+		if err != nil {
+			return err
+		}
+		bytes = append(bytes, entryBytes...)
+	}
+	return os.WriteFile(c.Path, bytes, 0o644)
+}
+
+func (c Config) Caddyfile() string {
+	path, _ := xdg.ConfigFile("pfpro/caddy/")
+	path, _ = filepath.Abs(path)
+	global := fmt.Sprintf(strings.TrimSpace(`
+{
+	admin off
+	persist_config off
+	local_certs
+	ocsp_stapling off
+	storage file_system "%s"
+	pki {
+		ca local {
+			name pfpro
+			root_cn pfpro
+			intermediate_cn pfpro
+		}
+	}
+}
+`), path)
+	blocks := []string{global}
+	for _, x := range c.Directives {
+		blocks = append(blocks, x.Caddyfile())
+	}
+	// extra newline prevents "caddy fmt" warning in logs
+	return strings.Join(blocks, "\n") + "\n"
 }
 
 type Directive struct {
@@ -120,31 +147,4 @@ func (directive Directive) Caddyfile() string {
 	%s
 }
 	`), directive.Upstream, directive.Downstream, tls)
-}
-
-func (c Config) Caddyfile() string {
-	path, _ := xdg.ConfigFile("pfpro/caddy/")
-	path, _ = filepath.Abs(path)
-	global := fmt.Sprintf(strings.TrimSpace(`
-{
-	admin off
-	persist_config off
-	local_certs
-	ocsp_stapling off
-	storage file_system "%s"
-	pki {
-		ca local {
-			name pfpro
-			root_cn pfpro
-			intermediate_cn pfpro
-		}
-	}
-}
-`), path)
-	blocks := []string{global}
-	for _, x := range c.Directives {
-		blocks = append(blocks, x.Caddyfile())
-	}
-	// extra newline prevents "caddy fmt" warning in logs
-	return strings.Join(blocks, "\n") + "\n"
 }

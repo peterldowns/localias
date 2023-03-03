@@ -1,4 +1,4 @@
-package pfpro
+package server
 
 import (
 	"fmt"
@@ -7,27 +7,25 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 
+	"github.com/peterldowns/pfpro/pkg/config"
 	"github.com/peterldowns/pfpro/pkg/hostctl"
 )
 
-func Run(hctl *hostctl.Controller, cfg *Config) error {
-	var added []*hostctl.Line
+func Run(hctl *hostctl.Controller, cfg *config.Config) error {
+	hctl.Clear()
 	for _, directive := range cfg.Directives {
-		x, err := httpcaddyfile.ParseAddress(directive.Upstream)
+		up, err := httpcaddyfile.ParseAddress(directive.Upstream)
 		if err != nil {
 			return err
 		}
-		a, err := hctl.Add(true, "127.0.0.1", x.Host)
-		if err != nil {
-			return err
-		}
-		added = append(added, a...)
-	}
-	if added != nil {
-		if err := hctl.Save(); err != nil {
+		if err := hctl.Set("127.0.0.1", up.Host); err != nil {
 			return err
 		}
 	}
+	if err := hctl.Apply(); err != nil {
+		return err
+	}
+
 	caddyfile := cfg.Caddyfile()
 	cfgAdapter := caddyconfig.GetAdapter("caddyfile")
 	if cfgAdapter == nil {
