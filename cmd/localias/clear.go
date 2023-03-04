@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -23,8 +23,8 @@ func clearImpl(_ *cobra.Command, _ []string) error {
 		fmt.Printf(
 			"%s %s -> %s\n",
 			color.New(color.FgRed).Sprint("[removed]"),
-			color.New(color.FgBlue).Sprint(d.Upstream),
-			color.New(color.FgWhite).Sprint(d.Downstream),
+			color.New(color.FgBlue).Sprint(d.Alias),
+			color.New(color.FgWhite).Sprint(d.Port),
 		)
 	}
 	return nil

@@ -1,0 +1,587 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6F1A136B29B3D84A00880BF0 /* LocaliasApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1A136A29B3D84A00880BF0 /* LocaliasApp.swift */; };
+		6F1A136D29B3D84A00880BF0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1A136C29B3D84A00880BF0 /* ContentView.swift */; };
+		6F1A136F29B3D84B00880BF0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F1A136E29B3D84B00880BF0 /* Assets.xcassets */; };
+		6F1A137229B3D84B00880BF0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F1A137129B3D84B00880BF0 /* Preview Assets.xcassets */; };
+		6F1B5CD829B7F3B50039EA22 /* Daemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD529B7F3B50039EA22 /* Daemon.swift */; };
+		6F1B5CD929B7F3B50039EA22 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD629B7F3B50039EA22 /* Utils.swift */; };
+		6F1B5CDA29B7F3B50039EA22 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD729B7F3B50039EA22 /* Config.swift */; };
+		6FB676CF29B40FE90020175E /* liblocalias.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FB676CE29B40FE90020175E /* liblocalias.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6F1A137929B3D84B00880BF0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6F1A135F29B3D84A00880BF0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6F1A136629B3D84A00880BF0;
+			remoteInfo = Localias;
+		};
+		6F1A138329B3D84B00880BF0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6F1A135F29B3D84A00880BF0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6F1A136629B3D84A00880BF0;
+			remoteInfo = Localias;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6F1A136729B3D84A00880BF0 /* Localias.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Localias.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F1A136A29B3D84A00880BF0 /* LocaliasApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocaliasApp.swift; sourceTree = "<group>"; };
+		6F1A136C29B3D84A00880BF0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6F1A136E29B3D84B00880BF0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6F1A137129B3D84B00880BF0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6F1A137329B3D84B00880BF0 /* Localias.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Localias.entitlements; sourceTree = "<group>"; };
+		6F1A137829B3D84B00880BF0 /* LocaliasTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocaliasTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F1A138229B3D84B00880BF0 /* LocaliasUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocaliasUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F1B5CD529B7F3B50039EA22 /* Daemon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Daemon.swift; sourceTree = "<group>"; };
+		6F1B5CD629B7F3B50039EA22 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		6F1B5CD729B7F3B50039EA22 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		6F3D0B3129B68A890073E6BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6F50935829B4065E00839B86 /* Localias-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Localias-Bridging-Header.h"; sourceTree = "<group>"; };
+		6FB676CD29B40FB80020175E /* liblocalias.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = liblocalias.h; sourceTree = "<group>"; };
+		6FB676CE29B40FE90020175E /* liblocalias.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liblocalias.a; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6F1A136429B3D84A00880BF0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6FB676CF29B40FE90020175E /* liblocalias.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F1A137529B3D84B00880BF0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F1A137F29B3D84B00880BF0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6F1A135E29B3D84A00880BF0 = {
+			isa = PBXGroup;
+			children = (
+				6F1A136929B3D84A00880BF0 /* Localias */,
+				6F1A136829B3D84A00880BF0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6F1A136829B3D84A00880BF0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6F1A136729B3D84A00880BF0 /* Localias.app */,
+				6F1A137829B3D84B00880BF0 /* LocaliasTests.xctest */,
+				6F1A138229B3D84B00880BF0 /* LocaliasUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6F1A136929B3D84A00880BF0 /* Localias */ = {
+			isa = PBXGroup;
+			children = (
+				6F1B5CD729B7F3B50039EA22 /* Config.swift */,
+				6F1B5CD529B7F3B50039EA22 /* Daemon.swift */,
+				6F1B5CD629B7F3B50039EA22 /* Utils.swift */,
+				6F3D0B3129B68A890073E6BC /* Info.plist */,
+				6FB676CE29B40FE90020175E /* liblocalias.a */,
+				6FB676CD29B40FB80020175E /* liblocalias.h */,
+				6F50935829B4065E00839B86 /* Localias-Bridging-Header.h */,
+				6F1A136A29B3D84A00880BF0 /* LocaliasApp.swift */,
+				6F1A136C29B3D84A00880BF0 /* ContentView.swift */,
+				6F1A136E29B3D84B00880BF0 /* Assets.xcassets */,
+				6F1A137329B3D84B00880BF0 /* Localias.entitlements */,
+				6F1A137029B3D84B00880BF0 /* Preview Content */,
+			);
+			path = Localias;
+			sourceTree = SOURCE_ROOT;
+		};
+		6F1A137029B3D84B00880BF0 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				6F1A137129B3D84B00880BF0 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6F1A136629B3D84A00880BF0 /* Localias */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6F1A138C29B3D84B00880BF0 /* Build configuration list for PBXNativeTarget "Localias" */;
+			buildPhases = (
+				6F1A136329B3D84A00880BF0 /* Sources */,
+				6F1A136429B3D84A00880BF0 /* Frameworks */,
+				6F1A136529B3D84A00880BF0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Localias;
+			productName = Localias;
+			productReference = 6F1A136729B3D84A00880BF0 /* Localias.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6F1A137729B3D84B00880BF0 /* LocaliasTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6F1A138F29B3D84B00880BF0 /* Build configuration list for PBXNativeTarget "LocaliasTests" */;
+			buildPhases = (
+				6F1A137429B3D84B00880BF0 /* Sources */,
+				6F1A137529B3D84B00880BF0 /* Frameworks */,
+				6F1A137629B3D84B00880BF0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6F1A137A29B3D84B00880BF0 /* PBXTargetDependency */,
+			);
+			name = LocaliasTests;
+			productName = LocaliasTests;
+			productReference = 6F1A137829B3D84B00880BF0 /* LocaliasTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		6F1A138129B3D84B00880BF0 /* LocaliasUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6F1A139229B3D84B00880BF0 /* Build configuration list for PBXNativeTarget "LocaliasUITests" */;
+			buildPhases = (
+				6F1A137E29B3D84B00880BF0 /* Sources */,
+				6F1A137F29B3D84B00880BF0 /* Frameworks */,
+				6F1A138029B3D84B00880BF0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6F1A138429B3D84B00880BF0 /* PBXTargetDependency */,
+			);
+			name = LocaliasUITests;
+			productName = LocaliasUITests;
+			productReference = 6F1A138229B3D84B00880BF0 /* LocaliasUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6F1A135F29B3D84A00880BF0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					6F1A136629B3D84A00880BF0 = {
+						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1420;
+					};
+					6F1A137729B3D84B00880BF0 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 6F1A136629B3D84A00880BF0;
+					};
+					6F1A138129B3D84B00880BF0 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 6F1A136629B3D84A00880BF0;
+					};
+				};
+			};
+			buildConfigurationList = 6F1A136229B3D84A00880BF0 /* Build configuration list for PBXProject "Localias" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6F1A135E29B3D84A00880BF0;
+			productRefGroup = 6F1A136829B3D84A00880BF0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6F1A136629B3D84A00880BF0 /* Localias */,
+				6F1A137729B3D84B00880BF0 /* LocaliasTests */,
+				6F1A138129B3D84B00880BF0 /* LocaliasUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6F1A136529B3D84A00880BF0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F1A137229B3D84B00880BF0 /* Preview Assets.xcassets in Resources */,
+				6F1A136F29B3D84B00880BF0 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F1A137629B3D84B00880BF0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F1A138029B3D84B00880BF0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6F1A136329B3D84A00880BF0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F1A136D29B3D84A00880BF0 /* ContentView.swift in Sources */,
+				6F1B5CD829B7F3B50039EA22 /* Daemon.swift in Sources */,
+				6F1B5CDA29B7F3B50039EA22 /* Config.swift in Sources */,
+				6F1A136B29B3D84A00880BF0 /* LocaliasApp.swift in Sources */,
+				6F1B5CD929B7F3B50039EA22 /* Utils.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F1A137429B3D84B00880BF0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F1A137E29B3D84B00880BF0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6F1A137A29B3D84B00880BF0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6F1A136629B3D84A00880BF0 /* Localias */;
+			targetProxy = 6F1A137929B3D84B00880BF0 /* PBXContainerItemProxy */;
+		};
+		6F1A138429B3D84B00880BF0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6F1A136629B3D84A00880BF0 /* Localias */;
+			targetProxy = 6F1A138329B3D84B00880BF0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6F1A138A29B3D84B00880BF0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6F1A138B29B3D84B00880BF0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		6F1A138D29B3D84B00880BF0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Localias/Localias.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Localias/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Localias/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Localias",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.Localias;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Localias/Localias-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		6F1A138E29B3D84B00880BF0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Localias/Localias.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Localias/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Localias/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Localias",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.Localias;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Localias/Localias-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		6F1A139029B3D84B00880BF0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.LocaliasTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Localias.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Localias";
+			};
+			name = Debug;
+		};
+		6F1A139129B3D84B00880BF0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.LocaliasTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Localias.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Localias";
+			};
+			name = Release;
+		};
+		6F1A139329B3D84B00880BF0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.LocaliasUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Localias;
+			};
+			name = Debug;
+		};
+		6F1A139429B3D84B00880BF0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.LocaliasUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Localias;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6F1A136229B3D84A00880BF0 /* Build configuration list for PBXProject "Localias" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F1A138A29B3D84B00880BF0 /* Debug */,
+				6F1A138B29B3D84B00880BF0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6F1A138C29B3D84B00880BF0 /* Build configuration list for PBXNativeTarget "Localias" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F1A138D29B3D84B00880BF0 /* Debug */,
+				6F1A138E29B3D84B00880BF0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6F1A138F29B3D84B00880BF0 /* Build configuration list for PBXNativeTarget "LocaliasTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F1A139029B3D84B00880BF0 /* Debug */,
+				6F1A139129B3D84B00880BF0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6F1A139229B3D84B00880BF0 /* Build configuration list for PBXNativeTarget "LocaliasUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F1A139329B3D84B00880BF0 /* Debug */,
+				6F1A139429B3D84B00880BF0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6F1A135F29B3D84A00880BF0 /* Project object */;
+}

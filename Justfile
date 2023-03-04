@@ -20,14 +20,43 @@ lint *args:
   golangci-lint run --fix --config .golangci.yaml "$@"
 
 build:
-  go build -o bin/localias .
+  go build -o bin/localias ./cmd/localias
+
+build-liblocalias:
+  #!/usr/bin/env bash
+  set -x
+  export CGO_ENABLED=1
+  export CC=/usr/bin/clang
+  export CXX=/usr/bin/clang++
+  rm -rf ./build
+  mkdir -p ./build
+  # use zig as a cross-compiler because the nix-provided clang cannot do it.
+  # could also use the system-provided clang at /usr/bin/clang.
+  #ZIGFLAGS="-target x86_64-macos" CXX="zig c++ $ZIGFLAGS" CC="zig cc $ZIGFLAGS" GOOS=darwin GOARCH=amd64 go build --buildmode=c-archive -o ./build/liblocalias-amd64.a ./app/
+  CC=/usr/bin/clang CXX=/usr/bin/clang++ GOOS=darwin GOARCH=amd64 go build --buildmode=c-archive -o ./build/liblocalias-amd64.a ./app/
+  #ZIGFLAGS="-target aarch64-macos" CXX="zig c++ $ZIGFLAGS" CC="zig cc $ZIGFLAGS" GOOS=darwin GOARCH=arm64 go build --buildmode=c-archive -o ./build/liblocalias-arm64.a ./app/
+  #ZIGFLAGS="-target aarch64-macos" CXX="zig c++ $ZIGFLAGS" CC="zig cc $ZIGFLAGS"
+  CC=/usr/bin/clang CXX=/usr/bin/clang++ GOOS=darwin GOARCH=arm64 go build --buildmode=c-archive -o ./build/liblocalias-arm64.a ./app/
+  lipo -create ./build/*.a -o ./Localias/liblocalias.a
+  mv ./build/liblocalias-arm64.h ./Localias/liblocalias.h
+
+build-app:
+  #!/usr/bin/env bash
+  set -ex
+  swiftc -target x86_64-apple-macos12.5 -import-objc-header bridge.h main.swift liblocalias.a -o ./build/main-amd64 -v
+  swiftc -target arm64-apple-macos12.5 -import-objc-header bridge.h main.swift liblocalias.a -o ./build/main-arm64 -v
+  lipo -create ./build/main-amd64 ./build/main-arm64 -o ./main
+
+
+
+
 
 release-binaries:
   #!/usr/bin/env bash
-  GOOS=darwin GOARCH=amd64 go build -o ./bin/localias-darwin-amd64 .
-  GOOS=darwin GOARCH=arm64 go build -o ./bin/localias-darwin-arm64 .
-  GOOS=linux GOARCH=amd64 go build -o ./bin/localias-linux-amd64 .
-  GOOS=linux GOARCH=arm64 go build -o ./bin/localias-linux-arm64 .
+  GOOS=darwin GOARCH=amd64 go build -o ./bin/localias-darwin-amd64 ./cmd/localias
+  GOOS=darwin GOARCH=arm64 go build -o ./bin/localias-darwin-arm64 ./cmd/localias
+  GOOS=linux GOARCH=amd64 go build -o ./bin/localias-linux-amd64 ./cmd/localias
+  GOOS=linux GOARCH=arm64 go build -o ./bin/localias-linux-arm64 ./cmd/localias
   commit_sha="$(git rev-parse --short HEAD)"
   timestamp="$(date +%s)"
   release_name="release-$timestamp-$commit_sha"

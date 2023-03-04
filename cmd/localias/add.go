@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -23,10 +23,9 @@ func addImpl(_ *cobra.Command, _ []string) error {
 	alias := *addFlags.Alias
 
 	upstream := alias
-	downstream := fmt.Sprintf(":%d", port)
 	d := config.Directive{
-		Upstream:   upstream,
-		Downstream: downstream,
+		Alias: upstream,
+		Port:  port,
 	}
 	cfg.Directives = append(cfg.Directives, d)
 	if err := cfg.Save(); err != nil {
@@ -36,7 +35,7 @@ func addImpl(_ *cobra.Command, _ []string) error {
 		"%s %s -> %s\n",
 		color.New(color.FgGreen).Sprint("[added]"),
 		color.New(color.FgBlue).Sprint(upstream),
-		color.New(color.FgWhite).Sprint(downstream),
+		color.New(color.FgWhite).Sprintf(":%d", port),
 	)
 	return nil
 }

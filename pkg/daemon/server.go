@@ -16,7 +16,7 @@ func Run(hctl *hostctl.Controller, cfg *config.Config) error {
 		return err
 	}
 	for _, directive := range cfg.Directives {
-		up, err := httpcaddyfile.ParseAddress(directive.Upstream)
+		up, err := httpcaddyfile.ParseAddress(directive.Alias)
 		if err != nil {
 			return err
 		}
@@ -52,5 +52,9 @@ func Run(hctl *hostctl.Controller, cfg *config.Config) error {
 		fmt.Printf("failing with %v\n", err)
 		return err
 	}
-	select {} //nolint:revive // valid empty block
+	return nil
+}
+
+func Stop() error {
+	return caddy.Stop()
 }

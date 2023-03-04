@@ -8,22 +8,26 @@
     flake-compat.url = github:edolstra/flake-compat;
     flake-compat.flake = false;
 
-    nix-filter.url = github:numtide/nix-filter;
-
     gomod2nix.url = "github:nix-community/gomod2nix";
     gomod2nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, flake-utils, flake-compat, nix-filter, gomod2nix }:
-    flake-utils.lib.eachDefaultSystem
+  outputs = { self, ... }@inputs:
+    inputs.flake-utils.lib.eachDefaultSystem
       (system:
         let
           overlays = [
-            gomod2nix.overlays.default
+            inputs.gomod2nix.overlays.default
           ];
-          pkgs = import nixpkgs {
+          pkgs = import inputs.nixpkgs {
             inherit system overlays;
           };
+          #appleFrameworks = with pkgs.darwin.apple_sdk.frameworks; if pkgs.stdenv.isDarwin then [
+          #  "-F${CoreFoundation}/Library/Frameworks"
+          #  "-F${CoreServices}/Library/Frameworks"
+          #  "-F${Foundation}/Library/Frameworks"
+          #  "-F${Security}/Library/Frameworks"
+          #] else [];
         in
         rec {
           packages = rec {
@@ -33,6 +37,9 @@
               version = "0.0.3";
               src = ./.;
               modules = ./gomod2nix.toml;
+              subPackages = [
+                "cmd/localias"
+              ];
             };
             default = localias;
           };
@@ -47,6 +54,18 @@
 
           devShells = rec {
             default = pkgs.mkShell {
+              #buildInputs = 
+              #  builtins.trace 
+              #    (builtins.concatStringsSep "\n" (builtins.attrNames pkgs.darwin.apple_sdk.frameworks))
+              #    builtins.attrValues pkgs.darwin.apple_sdk.frameworks;
+              nativeBuildInputs = with pkgs.darwin.apple_sdk.frameworks; [
+                #pkgs.pkg-config
+                #CoreFoundation
+                #Security
+              ];
+              #  CoreServices
+              #  Security
+              #];
               packages = with pkgs; [
                 # golang
                 delve
@@ -63,7 +82,12 @@
                 # other tools
                 just
                 cobra-cli
+                zig # for golang cross-compiling??? whatever
               ];
+
+              #CGO_CFLAGS = builtins.concatStringsSep " " (builins.filter (e: e != "") ([
+              #  (builtins.getEnv "CGO_CFLAGS")
+              #] ++ appleFrameworks))
 
               shellHook = ''
                 # The path to this repository
@@ -84,9 +108,7 @@
                 export GOPATH="$TOOLCHAIN_ROOT/go/path"
                 export GOMODCACHE="$GOPATH/pkg/mod"
                 export PATH=$(go env GOPATH)/bin:$PATH
-                # This project is pure go and does not need CGO. We disable it
-                # here as well as in the Dockerfile and nix build scripts.
-                export CGO_ENABLED=0
+                export CGO_ENABLED=1
               '';
 
               # Need to disable fortify hardening because GCC is not built with -oO,

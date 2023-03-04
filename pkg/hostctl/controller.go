@@ -158,7 +158,9 @@ func (c *Controller) save() error {
 	}
 	var cmd *exec.Cmd
 	if c.Sudo {
-		cmd = exec.Command("sudo", "tee", c.HostsFile)
+		// cmd = exec.Command("sudo", "tee", c.HostsFile)
+		// TODO: not macos?
+		cmd = exec.Command("/usr/libexec/authopen", "-w", c.HostsFile)
 	} else {
 		cmd = exec.Command("tee", c.HostsFile)
 	}

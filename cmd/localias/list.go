@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -17,8 +17,8 @@ func listImpl(_ *cobra.Command, _ []string) error {
 	for _, directive := range cfg.Directives {
 		fmt.Printf(
 			"%s -> %s\n",
-			color.New(color.FgBlue).Sprint(directive.Upstream),
-			color.New(color.FgWhite).Sprint(directive.Downstream),
+			color.New(color.FgBlue).Sprint(directive.Alias),
+			color.New(color.FgWhite).Sprint(directive.Port),
 		)
 	}
 	return nil

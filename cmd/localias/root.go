@@ -1,8 +1,6 @@
-package cmd
+package main
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -33,30 +31,6 @@ func init() { //nolint:gochecknoinits
 	rootCmd.TraverseChildren = true
 	rootCmd.SilenceErrors = true
 	// rootCmd.SilenceUsage = true
-}
-
-func Execute() {
-	defer func() {
-		switch t := recover().(type) {
-		case error:
-			OnError(fmt.Errorf("panic: %w", t))
-		case string:
-			OnError(fmt.Errorf("panic: %s", t))
-		default:
-			if t != nil {
-				OnError(fmt.Errorf("panic: %+v", t))
-			}
-		}
-	}()
-	if err := rootCmd.Execute(); err != nil {
-		OnError(err)
-	}
-}
-
-func OnError(err error) {
-	msg := color.New(color.FgRed, color.Italic).Sprintf("error: %s\n", err)
-	fmt.Fprintln(os.Stderr, msg)
-	os.Exit(1)
 }
 
 // trimLeading removes any surrounding space from a string, then removes any

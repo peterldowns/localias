@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"github.com/spf13/cobra"
@@ -13,7 +13,11 @@ func runImpl(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-	return daemon.Run(hctl, cfg)
+	if err := daemon.Run(hctl, cfg); err != nil {
+		return err
+	}
+	// wait forever
+	select {} //nolint:revive // intentional empty block
 }
 
 var runCmd = &cobra.Command{ //nolint:gochecknoglobals

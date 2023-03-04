@@ -7,12 +7,12 @@ import (
 )
 
 var exampleDirectives = []Directive{ //nolint:gochecknoglobals
-	{Upstream: "https://secure.local", Downstream: "9000"},
-	{Upstream: "http://insecure.local", Downstream: "9001"},
-	{Upstream: "bare.local", Downstream: "9002"},
-	{Upstream: "bare", Downstream: "9003"},
-	{Upstream: "invalid://failure", Downstream: "9004"},
-	{Upstream: "valid.duplicate", Downstream: "9000"},
+	{Alias: "https://secure.local", Port: 9000},
+	{Alias: "http://insecure.local", Port: 9001},
+	{Alias: "bare.local", Port: 9002},
+	{Alias: "bare", Port: 9003},
+	{Alias: "invalid://failure", Port: 9004},
+	{Alias: "valid.duplicate", Port: 9000},
 }
 
 func TestReadConfig(t *testing.T) {

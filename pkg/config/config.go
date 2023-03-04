@@ -42,15 +42,15 @@ func Open(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	var entries map[string]string // TODO: preserve order
+	var entries map[string]int // TODO: preserve order
 	if err := yaml.Unmarshal(contents, &entries); err != nil {
 		return nil, err
 	}
 	c := Config{Path: path}
-	for upstream, downstream := range entries {
+	for alias, port := range entries {
 		c.Directives = append(c.Directives, Directive{
-			Upstream:   upstream,
-			Downstream: downstream,
+			Alias: alias,
+			Port:  port,
 		})
 	}
 	return &c, nil
@@ -62,9 +62,9 @@ type Config struct {
 }
 
 func (c *Config) Save() error {
-	entries := map[string]string{} // TODO: preserve order
+	entries := map[string]int{} // TODO: preserve order
 	for _, d := range c.Directives {
-		entries[d.Upstream] = d.Downstream
+		entries[d.Alias] = d.Port
 	}
 	bytes := []byte(strings.TrimSpace(`
 # localias config file syntax
@@ -117,17 +117,17 @@ func (c Config) Caddyfile() string {
 }
 
 type Directive struct {
-	Upstream   string
-	Downstream string
+	Alias string
+	Port  int
 }
 
 func (directive Directive) String() string {
-	return fmt.Sprintf("%s: %s", directive.Upstream, directive.Downstream)
+	return fmt.Sprintf("%s: %d", directive.Alias, directive.Port)
 }
 
 func (directive Directive) Caddyfile() string {
 	tls := "# tls disabled"
-	a, _ := httpcaddyfile.ParseAddress(directive.Upstream)
+	a, _ := httpcaddyfile.ParseAddress(directive.Alias)
 	// If no scheme is given, default to https.
 	if a.Scheme == "" {
 		a.Scheme = "https"
@@ -143,8 +143,8 @@ func (directive Directive) Caddyfile() string {
 	}
 	return fmt.Sprintf(strings.TrimSpace(`
 %s {
-	reverse_proxy %s
+	reverse_proxy :%d
 	%s
 }
-	`), directive.Upstream, directive.Downstream, tls)
+	`), directive.Alias, directive.Port, tls)
 }
