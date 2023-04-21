@@ -17,3 +17,6 @@ bin/
 tmp/
 
 dist/
+
+# .pid files are sometimes created while debugging go-daemon
+*.pid

@@ -160,6 +160,9 @@ schema = 3
   [mod."github.com/json-iterator/go"]
     version = "v1.1.12"
     hash = "sha256-To8A0h+lbfZ/6zM+2PpRpY3+L6725OPC66lffq6fUoM="
+  [mod."github.com/kardianos/osext"]
+    version = "v0.0.0-20190222173326-2bc1f35cddc0"
+    hash = "sha256-uTDfg87dfqCz32K6Sc1Glj/8/oJXudUd6JW4XHdeed8="
   [mod."github.com/klauspost/compress"]
     version = "v1.15.15"
     hash = "sha256-fMVJFz/P37vjZAf82nHjaItaB3gesOa+xV7uBuo3kmg="
@@ -247,6 +250,9 @@ schema = 3
   [mod."github.com/russross/blackfriday/v2"]
     version = "v2.1.0"
     hash = "sha256-R+84l1si8az5yDqd5CYcFrTyNZ1eSYlpXKq6nFt4OTQ="
+  [mod."github.com/sevlyar/go-daemon"]
+    version = "v0.1.6"
+    hash = "sha256-CyCp/d/VKPbb75NyIuRrCKWg/Xl2S6MejBKEFw6yWvQ="
   [mod."github.com/shopspring/decimal"]
     version = "v1.3.1"
     hash = "sha256-MA3RmMQKPrposbqXcHdvAJL50O1WsIe0EBd7rMSWPPA="

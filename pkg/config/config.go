@@ -92,9 +92,11 @@ func (c *Config) Save() error {
 func (c Config) Caddyfile() string {
 	path, _ := xdg.ConfigFile("localias/caddy/")
 	path, _ = filepath.Abs(path)
+	// TODO: take an admin port/interface as part of the config settings, and also
+	// as part of the CLI?
 	global := fmt.Sprintf(strings.TrimSpace(`
 {
-	admin off
+	admin localhost:2019
 	persist_config off
 	local_certs
 	ocsp_stapling off

@@ -1,7 +1,6 @@
 | :warning: Work In Progress          |
 |---------------------------|
 
-
 # localias
 
 `localias` is a CLI utility for developers to control local test domains. You can use it to alias arbitrary domains to local dev servers. Built on [`caddy`](https://caddyserver.com/), you get automatic TLS configuration and good performance out of the box.
@@ -27,31 +26,50 @@ Examples:
   # Run the server, automatically applying all necessary rules to
   # /etc/hosts and creating any necessary TLS certificates
   localias run
+  # Run the server as a daemon
+  localias daemon start
+  # Check whether or not the daemon is running
+  localias daemon status
+  # Reload the config that the daemon is using
+  localias daemon reload
+  # Stop the daemon if it is running
+  localias daemon stop
 
 Available Commands:
   add         add an alias
   clear       clear all aliases
+  daemon      interact with the daemon process
   help        Help about any command
   list        list all aliases
   remove      remove an alias
   run         run the caddy server
 
 Flags:
-  -h, --help     help for localias
-  -t, --toggle   Help message for toggle
+  -h, --help   help for localias
 
 Use "localias [command] --help" for more information about a command.
 ```
 
 ## TODO
-- cli daemon
-  - actually daemonize
-  - allow installing the daemon with plist? status commands, etc
-- tui / gui / admin controls of some sort
-  - set it up on localias.local?
+- MacOS GUI
+- add json-formatted logging as well, with cli options to configure it like
+  nix-search.
+- prefer a local config file when possible, or allow choosing the config file,
+  to allow teams to ship shared configs that are automagically used by default.
+
+## Errata
+
+#### `.local` domains
+If you add an alias to a `.local` domain on a Mac, this will add ~5s to every
+request thanks to DNS resolution and Bonjour. See [this Stackoverflow
+question](https://superuser.com/questions/1596225/dns-resolution-delay-for-entries-in-etc-hosts)
+for more information.  I might be able to work around this in the future by
+also adding a `::1` entry for each alias, in addition to `localhost`.
+
+#### use the system trust store with firefox
+to make firefox use the default trust stores that caddy edits: open firefox,
+visit `about:config`, and set
 
 ```
-# to make firefox use the default trust stores that caddy edits:
-# open firefox about:config on macos and set
 security.enterprise_roots.enabled = true
 ```

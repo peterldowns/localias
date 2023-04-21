@@ -30,7 +30,7 @@
             localias = pkgs.buildGoApplication {
               checkPhase = false;
               pname = "localias";
-              version = "0.0.3";
+              version = "0.0.4";
               src = ./.;
               modules = ./gomod2nix.toml;
             };

@@ -24,15 +24,22 @@ localias clear
 # Run the server, automatically applying all necessary rules to
 # /etc/hosts and creating any necessary TLS certificates
 localias run
+# Run the server as a daemon
+localias daemon start
+# Check whether or not the daemon is running
+localias daemon status
+# Reload the config that the daemon is using
+localias daemon reload
+# Stop the daemon if it is running
+localias daemon stop
   `),
 }
 
 func init() { //nolint:gochecknoinits
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.TraverseChildren = true
 	rootCmd.SilenceErrors = true
-	// rootCmd.SilenceUsage = true
+	rootCmd.SilenceUsage = true
 }
 
 func Execute() {
