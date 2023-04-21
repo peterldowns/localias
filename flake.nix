@@ -22,12 +22,6 @@
           pkgs = import inputs.nixpkgs {
             inherit system overlays;
           };
-          #appleFrameworks = with pkgs.darwin.apple_sdk.frameworks; if pkgs.stdenv.isDarwin then [
-          #  "-F${CoreFoundation}/Library/Frameworks"
-          #  "-F${CoreServices}/Library/Frameworks"
-          #  "-F${Foundation}/Library/Frameworks"
-          #  "-F${Security}/Library/Frameworks"
-          #] else [];
         in
         rec {
           packages = rec {
@@ -54,40 +48,23 @@
 
           devShells = rec {
             default = pkgs.mkShell {
-              #buildInputs = 
-              #  builtins.trace 
-              #    (builtins.concatStringsSep "\n" (builtins.attrNames pkgs.darwin.apple_sdk.frameworks))
-              #    builtins.attrValues pkgs.darwin.apple_sdk.frameworks;
-              nativeBuildInputs = with pkgs.darwin.apple_sdk.frameworks; [
-                #pkgs.pkg-config
-                #CoreFoundation
-                #Security
-              ];
-              #  CoreServices
-              #  Security
-              #];
               packages = with pkgs; [
                 # golang
-                delve
-                go-outline
+                # delve
+                # go-outline
                 go
-                golangci-lint
+                # golangci-lint
                 gopkgs
-                gopls
+                # gopls
                 gotools
-                # nix
-                pkgs.gomod2nix # have to use pkgs. prefix or it breaks lorri
-                rnix-lsp
-                nixpkgs-fmt
-                # other tools
-                just
-                cobra-cli
-                zig # for golang cross-compiling??? whatever
+                # # nix
+                # pkgs.gomod2nix # have to use pkgs. prefix or it breaks lorri
+                # rnix-lsp
+                # nixpkgs-fmt
+                # # other tools
+                # just
+                # cobra-cli
               ];
-
-              #CGO_CFLAGS = builtins.concatStringsSep " " (builins.filter (e: e != "") ([
-              #  (builtins.getEnv "CGO_CFLAGS")
-              #] ++ appleFrameworks))
 
               shellHook = ''
                 # The path to this repository

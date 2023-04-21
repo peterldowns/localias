@@ -45,10 +45,14 @@ Use "localias [command] --help" for more information about a command.
 
 ## TODO
 - cli daemon
-  - actually daemonize
+  - actually daemonize, do the same thing as caddy
   - allow installing the daemon with plist? status commands, etc
-- tui / gui / admin controls of some sort
-  - set it up on localias.local?
+- WSL2 support (merge that branch from desktop computer)
+- Release the mac menubar application
+  - Github actions to build and release
+    - make sure it happens outside of nix env because nix core stuff breaks it
+- docs
+- blogpost
 
 ```
 # to make firefox use the default trust stores that caddy edits:
