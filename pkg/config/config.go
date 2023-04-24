@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/adrg/xdg"
+	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/go-yaml/yaml"
 )
@@ -116,6 +117,21 @@ func (c Config) Caddyfile() string {
 	}
 	// extra newline prevents "caddy fmt" warning in logs
 	return strings.Join(blocks, "\n") + "\n"
+}
+
+func (c Config) CaddyJSON() ([]byte, []caddyconfig.Warning, error) {
+	caddyfile := c.Caddyfile()
+	cfgAdapter := caddyconfig.GetAdapter("caddyfile")
+	if cfgAdapter == nil {
+		return nil, nil, fmt.Errorf("failed to load caddyfile adapater")
+	}
+	cfgJSON, warnings, err := cfgAdapter.Adapt([]byte(caddyfile), map[string]any{
+		"filename": "Caddyfile",
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to parse configuration: %w", err)
+	}
+	return cfgJSON, warnings, nil
 }
 
 type Directive struct {

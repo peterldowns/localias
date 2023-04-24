@@ -8,12 +8,11 @@ import (
 )
 
 func stopImpl(_ *cobra.Command, _ []string) error {
-	hctl := hostctlController()
 	cfg, err := config.Load(nil)
 	if err != nil {
 		return err
 	}
-	return daemon.Stop(hctl, cfg)
+	return daemon.Stop(cfg)
 }
 
 var stopCmd = &cobra.Command{ //nolint:gochecknoglobals
