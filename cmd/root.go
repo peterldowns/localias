@@ -3,12 +3,12 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/pkg/config"
+	"github.com/peterldowns/localias/pkg/util"
 )
 
 // These will be set at build time with ldflags, see Justfile for how they're
@@ -26,7 +26,7 @@ var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Version: fmt.Sprintf("%s (commit %s)", Version, Commit),
 	Use:     "localias",
 	Short:   "securely proxy domains to local development servers",
-	Example: trimLeading(`
+	Example: util.Example(`
 # Add an alias forwarding https://secure.local to http://127.0.0.1:9000
 localias set --alias secure.local -p 9000
 # Update an existing alias to forward to a different port
@@ -91,20 +91,4 @@ func OnError(err error) {
 	msg := color.New(color.FgRed, color.Italic).Sprintf("error: %s\n", err)
 	fmt.Fprintln(os.Stderr, msg)
 	os.Exit(1)
-}
-
-// trimLeading removes any surrounding space from a string, then removes any
-// leading whitespace from each line in the string.
-func trimLeading(s string) string {
-	in := strings.Split(strings.TrimSpace(s), "\n")
-	var out []string
-
-	for _, x := range in {
-		x = strings.TrimSpace(x)
-		if len(x) > 0 && x[0] == '#' {
-			x = color.New(color.Faint).Sprint(x)
-		}
-		out = append(out, "  "+x)
-	}
-	return strings.Join(out, "\n")
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/pkg/config"
+	"github.com/peterldowns/localias/pkg/util"
 )
 
 var setFlags struct { //nolint:gochecknoglobals
@@ -60,7 +61,7 @@ var setCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:     "set",
 	Short:   "add or edit an alias",
 	Aliases: []string{"add", "upsert", "update", "edit"},
-	Example: trimLeading(`
+	Example: util.Example(`
 # Add secure aliases (automatically upgrade http:// requests to https://)
 ## alias https://secure-explicit.local to 127.0.0.1:9001
 localias set --alias https://secure-explicit.local --port 9001
