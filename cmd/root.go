@@ -56,7 +56,6 @@ func init() { //nolint:gochecknoinits
 	rootCmd.TraverseChildren = true
 	rootCmd.SilenceErrors = true
 	rootCmd.SilenceUsage = true
-	rootCmd.SetVersionTemplate("")
 	rootFlags.Configfile = rootCmd.PersistentFlags().StringP("configfile", "c", "", "path to the configuration file to edit")
 }
 
@@ -73,21 +72,21 @@ func Execute() {
 	defer func() {
 		switch t := recover().(type) {
 		case error:
-			OnError(fmt.Errorf("panic: %w", t))
+			onError(fmt.Errorf("panic: %w", t))
 		case string:
-			OnError(fmt.Errorf("panic: %s", t))
+			onError(fmt.Errorf("panic: %s", t))
 		default:
 			if t != nil {
-				OnError(fmt.Errorf("panic: %+v", t))
+				onError(fmt.Errorf("panic: %+v", t))
 			}
 		}
 	}()
 	if err := rootCmd.Execute(); err != nil {
-		OnError(err)
+		onError(err)
 	}
 }
 
-func OnError(err error) {
+func onError(err error) {
 	msg := color.New(color.FgRed, color.Italic).Sprintf("error: %s\n", err)
 	fmt.Fprintln(os.Stderr, msg)
 	os.Exit(1)
