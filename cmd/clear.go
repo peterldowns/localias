@@ -5,17 +5,11 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-
-	"github.com/peterldowns/localias/pkg/config"
 )
 
 func clearImpl(_ *cobra.Command, _ []string) error {
-	cfg, err := config.Load(nil)
-	if err != nil {
-		return err
-	}
-	removed := cfg.Directives
-	cfg.Directives = nil
+	cfg := loadConfig()
+	removed := cfg.Clear()
 	if err := cfg.Save(); err != nil {
 		return err
 	}
@@ -23,8 +17,8 @@ func clearImpl(_ *cobra.Command, _ []string) error {
 		fmt.Printf(
 			"%s %s -> %s\n",
 			color.New(color.FgRed).Sprint("[removed]"),
-			color.New(color.FgBlue).Sprint(d.Upstream),
-			color.New(color.FgWhite).Sprint(d.Downstream),
+			color.New(color.FgBlue).Sprint(d.Alias),
+			color.New(color.FgWhite).Sprint(d.Port),
 		)
 	}
 	return nil

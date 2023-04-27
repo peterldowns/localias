@@ -6,33 +6,34 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var exampleDirectives = []Directive{ //nolint:gochecknoglobals
-	{Upstream: "https://secure.local", Downstream: "9000"},
-	{Upstream: "http://insecure.local", Downstream: "9001"},
-	{Upstream: "bare.local", Downstream: "9002"},
-	{Upstream: "bare", Downstream: "9003"},
-	{Upstream: "invalid://failure", Downstream: "9004"},
-	{Upstream: "valid.duplicate", Downstream: "9000"},
+var exampleentries = []Entry{ //nolint:gochecknoglobals
+	{Alias: "bare", Port: 9003},
+	{Alias: "bare.local", Port: 9002},
+	{Alias: "invalid://failure", Port: 9004},
+	{Alias: "valid.duplicate", Port: 9000},
+	{Alias: "http://insecure.local", Port: 9001},
+	{Alias: "https://secure.local", Port: 9000},
 }
 
 func TestReadConfig(t *testing.T) {
-	cfg, err := Open("./example.yaml")
+	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
-	require.Equal(t, "./example.yaml", cfg.Path)
-	require.ElementsMatch(t, exampleDirectives, cfg.Directives)
+	require.Equal(t, "./example.roundtrip.yaml", cfg.Path)
+	require.ElementsMatch(t, exampleentries, cfg.Entries)
+	require.Equal(t, exampleentries, cfg.Entries)
 }
 
 func TestWriteConfig(t *testing.T) {
 	cfg := &Config{
-		Path:       "./example.yaml",
-		Directives: exampleDirectives,
+		Path:    "./example.roundtrip.yaml",
+		Entries: exampleentries,
 	}
 	err := cfg.Save()
 	require.NoError(t, err)
 }
 
-func TestConfigRoundtrips(t *testing.T) {
-	cfg, err := Open("./example.yaml")
+func TestConfigRoundtripsPreservingOrder(t *testing.T) {
+	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
 
 	err = cfg.Save()
@@ -41,7 +42,30 @@ func TestConfigRoundtrips(t *testing.T) {
 	cfg2, err := Open(cfg.Path)
 	require.NoError(t, err)
 	require.Equal(t, cfg.Path, cfg2.Path)
-	require.ElementsMatch(t, cfg.Directives, cfg2.Directives)
+	require.Equal(t, cfg.Entries, cfg2.Entries)
+}
+
+func TestUpsertUpdatesExistingEntry(t *testing.T) {
+	cfg := &Config{
+		Path: "./example.upsert.yaml",
+	}
+	cfg.Upsert(Entry{
+		Alias: "dev.local",
+		Port:  8000,
+	})
+	cfg.Upsert(Entry{
+		Alias: "dev.local",
+		Port:  9000,
+	})
+	expected := []Entry{
+		{Alias: "dev.local", Port: 9000},
+	}
+	require.Equal(t, expected, cfg.Entries)
+
+	require.NoError(t, cfg.Save())
+	cfg2, err := Open(cfg.Path)
+	require.NoError(t, err)
+	require.Equal(t, expected, cfg2.Entries)
 }
 
 func TestLoad(t *testing.T) {
@@ -53,7 +77,7 @@ func TestLoad(t *testing.T) {
 }
 
 func TestDefaultPath(t *testing.T) {
-	xdgPath, err := DefaultPath()
+	path, err := Path(nil)
 	require.NoError(t, err)
-	require.NotEqual(t, "", xdgPath)
+	require.NotEqual(t, "", path)
 }

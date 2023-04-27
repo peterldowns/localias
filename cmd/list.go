@@ -5,20 +5,15 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-
-	"github.com/peterldowns/localias/pkg/config"
 )
 
 func listImpl(_ *cobra.Command, _ []string) error {
-	cfg, err := config.Load(nil)
-	if err != nil {
-		return err
-	}
-	for _, directive := range cfg.Directives {
+	cfg := loadConfig()
+	for _, entry := range cfg.Entries {
 		fmt.Printf(
 			"%s -> %s\n",
-			color.New(color.FgBlue).Sprint(directive.Upstream),
-			color.New(color.FgWhite).Sprint(directive.Downstream),
+			color.New(color.FgBlue).Sprint(entry.Alias),
+			color.New(color.FgWhite).Sprintf("%d", entry.Port),
 		)
 	}
 	return nil

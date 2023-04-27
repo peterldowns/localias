@@ -20,3 +20,10 @@ dist/
 
 # .pid files are sometimes created while debugging go-daemon
 *.pid
+
+# macos garbage
+.DS_Store
+
+# configfile
+.localias.yaml
+

@@ -9,9 +9,9 @@
 #   insecure2.test: 9002
 #   bareTLD: 9003
 #
-bare: "9003"
-bare.local: "9002"
-http://insecure.local: "9001"
-https://secure.local: "9000"
-invalid://failure: "9004"
-valid.duplicate: "9000"
+bare: 9003
+bare.local: 9002
+invalid://failure: 9004
+valid.duplicate: 9000
+http://insecure.local: 9001
+https://secure.local: 9000

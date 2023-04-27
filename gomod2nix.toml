@@ -10,6 +10,9 @@ schema = 3
   [mod."github.com/BurntSushi/toml"]
     version = "v1.2.1"
     hash = "sha256-Z1dlsUTjF8SJZCknYKt7ufJz8NPGg9P9+W17DQn+LO0="
+  [mod."github.com/Integralist/go-findroot"]
+    version = "v0.0.0-20160518114804-ac90681525dc"
+    hash = "sha256-szBo3nklcQJemeJ65HHN7duJItmuCXU8of6vHZUg4jY="
   [mod."github.com/Masterminds/goutils"]
     version = "v1.1.1"
     hash = "sha256-MEvA5e099GUllILa5EXxa6toQexU1sz6eDZt2tiqpCY="

@@ -1,0 +1,12 @@
+# localias config file syntax
+#
+# 	alias: port
+#
+# for example,
+#
+#   https://secure.test: 9000
+#   http://insecure.test: 9001
+#   insecure2.test: 9002
+#   bareTLD: 9003
+#
+dev.local: 9000

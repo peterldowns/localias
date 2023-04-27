@@ -2,10 +2,12 @@ package daemon
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/adrg/xdg"
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	caddycmd "github.com/caddyserver/caddy/v2/cmd"
@@ -65,7 +67,17 @@ func Start(hctl *hostctl.Controller, cfg *config.Config) error {
 // it is, it returns the non-nil os.Process of that daemon.
 func Status() (*os.Process, error) {
 	cntxt := daemonContext()
-	return cntxt.Search()
+	proc, err := cntxt.Search()
+	if err != nil {
+		// If the pidfile for the daemon doesn't exist, cntxt.Search() throws a
+		// PathError. In that case, we assume the daemon is not running, and
+		// return nil.
+		var pathError *os.PathError
+		if errors.As(err, &pathError) {
+			return nil, nil
+		}
+	}
+	return proc, nil
 }
 
 // Stop will attempt to stop the caddy daemon server by sending an API request
@@ -114,8 +126,8 @@ func applyCfg(hctl *hostctl.Controller, cfg *config.Config) error {
 	if err := hctl.Clear(); err != nil {
 		return err
 	}
-	for _, directive := range cfg.Directives {
-		up, err := httpcaddyfile.ParseAddress(directive.Upstream)
+	for _, entry := range cfg.Entries {
+		up, err := httpcaddyfile.ParseAddress(entry.Alias)
 		if err != nil {
 			return err
 		}
@@ -129,10 +141,13 @@ func applyCfg(hctl *hostctl.Controller, cfg *config.Config) error {
 // daemonContext returns a consistent godaemon context that is used to control
 // the caddy daemon server.
 func daemonContext() *godaemon.Context {
+	pidFile, err := xdg.StateFile("localias/daemon.pid")
+	if err != nil {
+		panic(err)
+	}
 	return &godaemon.Context{
-		PidFileName: "localias.pid",
+		PidFileName: pidFile,
 		PidFilePerm: 0o644,
-		WorkDir:     "./",
 		Umask:       0o27,
 	}
 }

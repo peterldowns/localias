@@ -7,14 +7,22 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+
+	"github.com/peterldowns/localias/pkg/config"
 )
+
+var rootFlags struct {
+	Configfile *string
+}
 
 var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "localias",
 	Short: "securely proxy domains to local development servers",
 	Example: trimLeading(`
 # Add an alias forwarding https://secure.local to http://127.0.0.1:9000
-localias add --alias secure.local -p 9000
+localias set --alias secure.local -p 9000
+# Update an existing alias to forward to a different port
+localias set --alias secure.local -p 9001
 # Remove an alias
 localias remove secure.local
 # Show aliases
@@ -40,6 +48,16 @@ func init() { //nolint:gochecknoinits
 	rootCmd.TraverseChildren = true
 	rootCmd.SilenceErrors = true
 	rootCmd.SilenceUsage = true
+	rootFlags.Configfile = rootCmd.PersistentFlags().StringP("configfile", "c", "", "path to the configuration file to edit")
+}
+
+func loadConfig() *config.Config {
+	fmt.Printf("rootFlags.Configfile: %s\n", *rootFlags.Configfile)
+	cfg, err := config.Load(rootFlags.Configfile)
+	if err != nil {
+		panic(fmt.Errorf("failed to load config: %w", err))
+	}
+	return cfg
 }
 
 func Execute() {
