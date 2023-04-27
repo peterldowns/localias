@@ -16,7 +16,9 @@ Usage:
 
 Examples:
   # Add an alias forwarding https://secure.local to http://127.0.0.1:9000
-  localias add --alias secure.local -p 9000
+  localias set --alias secure.local -p 9000
+  # Update an existing alias to forward to a different port
+  localias set --alias secure.local -p 9001
   # Remove an alias
   localias remove secure.local
   # Show aliases
@@ -36,26 +38,36 @@ Examples:
   localias daemon stop
 
 Available Commands:
-  add         add an alias
   clear       clear all aliases
+  config      show the configuration file path
   daemon      interact with the daemon process
   help        Help about any command
   list        list all aliases
   remove      remove an alias
   run         run the caddy server
+  set         add or edit an alias
+  version     show the version of this binary
 
 Flags:
-  -h, --help   help for localias
+  -c, --configfile string   path to the configuration file to edit
+  -h, --help                help for localias
+  -v, --version             version for localias
 
 Use "localias [command] --help" for more information about a command.
 ```
 
-## TODO
-- MacOS GUI
-- add json-formatted logging as well, with cli options to configure it like
-  nix-search.
-- prefer a local config file when possible, or allow choosing the config file,
-  to allow teams to ship shared configs that are automagically used by default.
+## Install
+
+TODO
+
+## Configuration
+
+TODO
+
+## How it works
+
+TODO
+
 
 ## Errata
 
@@ -66,10 +78,12 @@ question](https://superuser.com/questions/1596225/dns-resolution-delay-for-entri
 for more information.  I might be able to work around this in the future by
 also adding a `::1` entry for each alias, in addition to `localhost`.
 
-#### use the system trust store with firefox
-to make firefox use the default trust stores that caddy edits: open firefox,
+#### Using the system trust store with firefox
+To make firefox use the default trust stores that caddy edits: open firefox,
 visit `about:config`, and set
 
 ```
 security.enterprise_roots.enabled = true
 ```
+
+If you do this, you won't have to see a warning about the certificates being self-signed.
