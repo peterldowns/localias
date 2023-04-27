@@ -5,10 +5,11 @@ import (
 
 	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/daemon"
+	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
 func startImpl(_ *cobra.Command, _ []string) error {
-	hctl := hostctlController()
+	hctl := hostctl.DefaultController()
 	cfg, err := config.Load(nil)
 	if err != nil {
 		return err

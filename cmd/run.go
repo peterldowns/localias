@@ -4,10 +4,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/pkg/daemon"
+	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
 func runImpl(_ *cobra.Command, _ []string) error {
-	hctl := hostctlController()
+	hctl := hostctl.DefaultController()
 	cfg := loadConfig()
 	return daemon.Run(hctl, cfg)
 }
