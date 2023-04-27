@@ -11,13 +11,21 @@ import (
 	"github.com/peterldowns/localias/pkg/config"
 )
 
-var rootFlags struct {
+// These will be set at build time with ldflags, see Justfile for how they're
+// defined and passed.
+var (
+	Version = "unknown" //nolint:gochecknoglobals
+	Commit  = "unknown" //nolint:gochecknoglobals
+)
+
+var rootFlags struct { //nolint:gochecknoglobals
 	Configfile *string
 }
 
 var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "localias",
-	Short: "securely proxy domains to local development servers",
+	Version: fmt.Sprintf("%s (commit %s)", Version, Commit),
+	Use:     "localias",
+	Short:   "securely proxy domains to local development servers",
 	Example: trimLeading(`
 # Add an alias forwarding https://secure.local to http://127.0.0.1:9000
 localias set --alias secure.local -p 9000
@@ -48,6 +56,7 @@ func init() { //nolint:gochecknoinits
 	rootCmd.TraverseChildren = true
 	rootCmd.SilenceErrors = true
 	rootCmd.SilenceUsage = true
+	rootCmd.SetVersionTemplate("")
 	rootFlags.Configfile = rootCmd.PersistentFlags().StringP("configfile", "c", "", "path to the configuration file to edit")
 }
 

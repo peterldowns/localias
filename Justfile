@@ -20,7 +20,11 @@ lint *args:
   golangci-lint run --fix --config .golangci.yaml "$@"
 
 build:
-  go build -o bin/localias .
+  #!/usr/bin/env bash
+  VERSION=$(cat ./VERSION)
+  COMMIT="$(git rev-parse --short HEAD)"
+  go build -o bin/localias -ldflags \
+    "-X 'github.com/peterldowns/localias/cmd.Version=$VERSION' -X 'github.com/peterldowns/localias/cmd.Commit=$COMMIT'"
 
 release-binaries:
   #!/usr/bin/env bash
