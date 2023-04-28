@@ -18,7 +18,9 @@ test *args='./...':
 # lint the entire codebase
 lint *args:
   golangci-lint run --fix --config .golangci.yaml "$@"
+  find . -name '*.nix' | xargs nixfmt
 
+# build the localias cli
 build:
   #!/usr/bin/env bash
   VERSION=$(cat ./VERSION)
@@ -27,6 +29,7 @@ build:
     "-X 'main.Version=$VERSION' -X 'main.Commit=$COMMIT'" \
     ./cmd/localias
 
+# build the localias.a library for swift app
 build-liblocalias:
   #!/usr/bin/env bash
   export CGO_ENABLED=1
@@ -42,7 +45,7 @@ build-liblocalias:
   mv ./build/liblocalias-arm64.h ./app/Localias/liblocalias.h
   rm -rf build
 
-
+# build the swift app Localias.app
 build-app:
   #!/usr/bin/env bash
   cd app
