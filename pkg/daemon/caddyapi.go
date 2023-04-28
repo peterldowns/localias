@@ -8,7 +8,6 @@ import (
 
 	_ "github.com/peterldowns/localias/pkg/caddymodules" // necessary caddy configuration
 	"github.com/peterldowns/localias/pkg/config"
-
 )
 
 // Get the URI address for the locally-running caddy server based on the current

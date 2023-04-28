@@ -13,7 +13,7 @@ func runImpl(_ *cobra.Command, _ []string) error {
 	if err := server.Start(hctl, cfg); err != nil {
 		return err
 	}
-	select {} //nolint:revive // valid empty block, keeps the server running forever.
+	select {}
 }
 
 var runCmd = &cobra.Command{ //nolint:gochecknoglobals

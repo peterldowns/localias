@@ -44,7 +44,7 @@ func Start(hctl *hostctl.Controller, cfg *config.Config) error {
 	if err := server.Start(hctl, cfg); err != nil {
 		return err
 	}
-	select {} //nolint:revive // valid empty block, keeps the server running forever.
+	select {}
 }
 
 // Status will determine whether or not the caddy daemon server is running.  If
