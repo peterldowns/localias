@@ -22,7 +22,8 @@
         # localias specific
         localiasVersion = (builtins.readFile ./VERSION);
         xcodewrapper = (pkgs.callPackage ./xcodewrapper.nix { });
-      in rec {
+      in
+      rec {
         packages = rec {
           # TODO: somehow pass ldflags here?
           localias = pkgs.buildGoApplication {

@@ -18,7 +18,7 @@ test *args='./...':
 # lint the entire codebase
 lint *args:
   golangci-lint run --fix --config .golangci.yaml "$@"
-  find . -name '*.nix' | xargs nixfmt
+  find . -name '*.nix' | xargs nixpkgs-fmt
 
 # build the localias cli
 build:

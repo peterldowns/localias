@@ -2,8 +2,10 @@
 # omits the iOS SDK's and simulator. It basically serves to ensure that
 # there is an xcodebuild that works inside the developer shell.
 { stdenv, lib }:
-{ version ? "11.1", allowHigher ? false
-, xcodeBaseDir ? "/Applications/Xcode.app" }:
+{ version ? "11.1"
+, allowHigher ? false
+, xcodeBaseDir ? "/Applications/Xcode.app"
+}:
 
 assert stdenv.isDarwin;
 
