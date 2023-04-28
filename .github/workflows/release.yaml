@@ -45,8 +45,8 @@ jobs:
         run: |
           version="$(cat ./VERSION)"
           commit_sha="$(git rev-parse --short HEAD)"
-          timestamp="$(date +%s)"
-          release_name="$version-$timestamp-$commit_sha"
+          # https://semver.org/#spec-item-10
+          release_name="$version+commit.$commit_sha"
           token=${{ secrets.GITHUB_TOKEN }}
           # https://docs.github.com/en/rest/releases/releases#create-a-release
           # https://stackoverflow.com/questions/45240336/how-to-use-github-release-api-to-make-a-release-without-source-code
@@ -77,8 +77,8 @@ jobs:
     - run: |
         version="$(cat ./VERSION)"
         commit_sha="$(git rev-parse --short HEAD)"
-        timestamp="$(date +%s)"
-        release_name="$version-$timestamp-$commit_sha"
+        # https://semver.org/#spec-item-10
+        release_name="$version+commit.$commit_sha"
         token=${{ secrets.GITHUB_TOKEN }}
         # https://docs.github.com/en/rest/releases/releases#create-a-release
         # https://stackoverflow.com/questions/45240336/how-to-use-github-release-api-to-make-a-release-without-source-code
