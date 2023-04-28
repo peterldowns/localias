@@ -52,20 +52,20 @@
             default = pkgs.mkShell {
               packages = with pkgs; [
                 # golang
-                # delve
-                # go-outline
+                delve
+                go-outline
                 go
-                # golangci-lint
+                golangci-lint
                 gopkgs
-                # gopls
+                gopls
                 gotools
-                # # nix
-                # pkgs.gomod2nix # have to use pkgs. prefix or it breaks lorri
-                # rnix-lsp
-                # nixpkgs-fmt
-                # # other tools
-                # just
-                # cobra-cli
+                # nix
+                gomod2nix # have to use pkgs. prefix or it breaks lorri
+                rnix-lsp
+                nixpkgs-fmt
+                # other tools
+                just
+                cobra-cli
               ];
 
               shellHook = ''

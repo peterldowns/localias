@@ -1,11 +1,11 @@
 import SwiftUI
 
-class Daemon: ObservableObject {
+class Server: ObservableObject {
     @Published var status: String = "stopped"
     @Published var error: String = ""
 
     func Start() -> Bool {
-        if let raw = daemon_start() {
+        if let raw = server_start() {
             self.status = "stopped"
             self.error = String(cString: raw)
             print("failed to start:", self.error)
@@ -19,7 +19,7 @@ class Daemon: ObservableObject {
 
     func Stop() -> Bool {
         self.status = "stopped" // TODO: enum
-        daemon_stop() // TODO: handle errors?
+        server_stop() // TODO: handle errors?
         return false
     }
 

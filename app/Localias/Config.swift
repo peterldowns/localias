@@ -10,13 +10,13 @@ func loadConfig() -> Config? {
 
 struct Config: Hashable, Codable {
     let Path: String
-    let Directives: [Directive]?
+    let Entries: [Entry]?
     private enum CodingKeys: String, CodingKey {
-        case Path, Directives
+        case Path, Entries
     }
 }
 
-struct Directive: Hashable, Codable, Identifiable {
+struct Entry: Hashable, Codable, Identifiable {
     var Alias: String
     var Port: Int
     // Allows editing of text fields while inside a dynamic list.
@@ -27,10 +27,10 @@ struct Directive: Hashable, Codable, Identifiable {
     }
 }
 
-extension [Directive] {
+extension [Entry] {
     // Port descending
     // Name ascending
-    func sorted() -> [Directive] {
+    func sorted() -> [Entry] {
         return self.sorted(by: {
             ($1.Port, $0.Alias) < ($0.Port, $1.Alias)
         })

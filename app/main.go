@@ -8,8 +8,8 @@ import (
 )
 
 import (
-	"github.com/peterldowns/localias/pkg/daemon"
 	"github.com/peterldowns/localias/pkg/hostctl"
+	"github.com/peterldowns/localias/pkg/server"
 )
 
 //export config_open
@@ -38,19 +38,19 @@ func config_save(cfgjson *C.char) *C.char {
 	return nil
 }
 
-//export daemon_start
-func daemon_start() *C.char {
+//export server_start
+func server_start() *C.char {
 	cfg, _ := config.Load(nil)
 	hctl := hostctl.DefaultController()
-	if err := daemon.Run(hctl, cfg); err != nil {
+	if err := server.Start(hctl, cfg); err != nil {
 		return C.CString(err.Error())
 	}
 	return nil
 }
 
-//export daemon_stop
-func daemon_stop() *C.char {
-	if err := daemon.Stop(); err != nil {
+//export server_stop
+func server_stop() *C.char {
+	if err := server.Stop(); err != nil {
 		return C.CString(err.Error())
 	}
 	return nil

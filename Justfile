@@ -39,5 +39,5 @@ build-liblocalias:
   # arm
   CC=/usr/bin/clang CXX=/usr/bin/clang++ GOOS=darwin GOARCH=arm64 go build --buildmode=c-archive -o ./build/liblocalias-arm64.a ./app/
   # smash them together
-  lipo -create ./build/*.a -o ./Localias/liblocalias.a
-  mv ./build/liblocalias-arm64.h ./Localias/liblocalias.h
+  lipo -create ./build/*.a -o ./app/Localias/liblocalias.a
+  mv ./build/liblocalias-arm64.h ./app/Localias/liblocalias.h

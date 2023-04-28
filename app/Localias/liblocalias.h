@@ -76,8 +76,8 @@ extern "C" {
 
 extern char* config_open();
 extern char* config_save(char* cfgjson);
-extern char* daemon_start();
-extern char* daemon_stop();
+extern char* server_start();
+extern char* server_stop();
 
 #ifdef __cplusplus
 }

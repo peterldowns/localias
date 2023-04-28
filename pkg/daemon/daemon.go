@@ -8,32 +8,13 @@ import (
 	"os"
 
 	"github.com/adrg/xdg"
-	"github.com/caddyserver/caddy/v2"
-	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	caddycmd "github.com/caddyserver/caddy/v2/cmd"
 	godaemon "github.com/sevlyar/go-daemon"
 
 	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/hostctl"
+	"github.com/peterldowns/localias/pkg/server"
 )
-
-// Run will apply the latest configuration and start the caddy server, blocking
-// indefinitely until the process is terminated.
-func Run(hctl *hostctl.Controller, cfg *config.Config) error {
-	err := applyCfg(hctl, cfg)
-	if err != nil {
-		return err
-	}
-	cfgJSON, _, err := cfg.CaddyJSON()
-	if err != nil {
-		return err
-	}
-	err = caddy.Load(cfgJSON, false)
-	if err != nil {
-		return err
-	}
-	select {} //nolint:revive // valid empty block, keeps the server running forever.
-}
 
 // Start will apply the latest configuration and start the caddy daemon server,
 // then exit. If the caddy daemon server is already running, it will exit with
@@ -60,7 +41,10 @@ func Start(hctl *hostctl.Controller, cfg *config.Config) error {
 	defer func() {
 		_ = cntxt.Release()
 	}()
-	return Run(hctl, cfg)
+	if err := server.Start(hctl, cfg); err != nil {
+		return err
+	}
+	select {} //nolint:revive // valid empty block, keeps the server running forever.
 }
 
 // Status will determine whether or not the caddy daemon server is running.  If
@@ -99,7 +83,7 @@ func Stop(cfg *config.Config) error {
 // running caddy daemon server's configuration by sending an API request over
 // http.  If the daemon server is not running, it will return an error.
 func Reload(hctl *hostctl.Controller, cfg *config.Config) error {
-	err := applyCfg(hctl, cfg)
+	err := config.Apply(hctl, cfg)
 	if err != nil {
 		return err
 	}
@@ -119,23 +103,6 @@ func Reload(hctl *hostctl.Controller, cfg *config.Config) error {
 	}
 	defer resp.Body.Close()
 	return nil
-}
-
-// applyCfg will apply the latest configuration using hctl.
-func applyCfg(hctl *hostctl.Controller, cfg *config.Config) error {
-	if err := hctl.Clear(); err != nil {
-		return err
-	}
-	for _, entry := range cfg.Entries {
-		up, err := httpcaddyfile.ParseAddress(entry.Alias)
-		if err != nil {
-			return err
-		}
-		if err := hctl.Set("127.0.0.1", up.Host); err != nil {
-			return err
-		}
-	}
-	return hctl.Apply()
 }
 
 // daemonContext returns a consistent godaemon context that is used to control

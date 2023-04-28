@@ -3,7 +3,7 @@ import SwiftUI
 struct Wrapper : View {
     @State var isOn: Bool
     @State var path: String
-    @State var directives: [Directive]
+    @State var entries: [Entry]
     @State var daemonProcess: DispatchWorkItem?
     
     init() {
@@ -11,15 +11,15 @@ struct Wrapper : View {
         _daemonProcess = .init(initialValue: nil)
         _isOn = .init(initialValue: false)
         _path = .init(initialValue: cfg.Path)
-        _directives = .init(initialValue:
-                                (cfg.Directives ?? []).sorted())
+        _entries = .init(initialValue:
+                                (cfg.Entries ?? []).sorted())
     }
     
     var body: some View {
         ContentView(
                 isOn: $isOn,
                 path: $path,
-                directives: $directives,
+                entries: $entries,
                 daemonProcess: $daemonProcess
             )
     }
@@ -32,54 +32,54 @@ struct Wrapper_Previews: PreviewProvider {
 }
 
 struct ContentView: View {
-    @StateObject var daemon = Daemon()
+    @StateObject var daemon = Server()
     @Binding var isOn: Bool;
     @Binding var path: String
-    @Binding var directives: [Directive]
+    @Binding var entries: [Entry]
     @Binding var daemonProcess: DispatchWorkItem?
     
-    @State var newDirective: Directive =  Directive(
+    @State var newEntry: Entry =  Entry(
         Alias:"",
         Port: 0
     )
     
     func add() {
         // Validate the new rule
-        var directive = newDirective
-        directive.Alias = directive.Alias.trim()
-        if directive.Alias == "" {
+        var entry = newEntry
+        entry.Alias = entry.Alias.trim()
+        if entry.Alias == "" {
             return
         }
-        if directive.Port == 0 {
+        if entry.Port == 0 {
             return
         }
         // If there is an existing rule with the same alias,
         // replace it with the new one. Otherwise, add to the list.
-        if var existing = directives.first(where: {d in
-            d.Alias == directive.Alias
+        if var existing = entries.first(where: {d in
+            d.Alias == entry.Alias
         }) {
-            existing.Port = directive.Port
+            existing.Port = entry.Port
         } else {
-            directives.append(directive)
+            entries.append(entry)
         }
         // Sort them and clear the input field.
-        newDirective = Directive(
+        newEntry = Entry(
             Alias: "",
             Port: 0
         )
-        directives = directives.sorted()
+        entries = entries.sorted()
         focusedField = .port
     }
     
-    func remove(_ directive: Directive) {
-        directives.removeAll(where: {d in
-            d == directive
+    func remove(_ entry: Entry) {
+        entries.removeAll(where: {d in
+            d == entry
         })
-        directives = directives.sorted()
+        entries = entries.sorted()
     }
     
     func minHeight() -> CGFloat {
-        var min = CGFloat(140 + 36 * directives.count)
+        var min = CGFloat(140 + 36 * entries.count)
         if min > 800 {
             min = 800
         }
@@ -90,20 +90,23 @@ struct ContentView: View {
     }
     func save() {
         let encoder = JSONEncoder()
-        let config = Config(Path: path, Directives: directives)
+        let config = Config(Path: path, Entries: entries)
         let data = try! encoder.encode(config)
         let string = strdup(String(data: data, encoding: .utf8))
-        config_save(string) // TODO: handle errors
+        if let raw = config_save(string) {
+            let error = String(cString: raw)
+            print("failed to save config:", error)
+        }
         if daemon.IsOn() {
             _ = daemon.Start()
         }
-        directives = directives.sorted()
+        entries = entries.sorted()
     }
     
     func reload() {
         let cfg = loadConfig()!
         path = cfg.Path
-        directives = (cfg.Directives ?? []).sorted()
+        entries = (cfg.Entries ?? []).sorted()
     }
     
     
@@ -116,16 +119,15 @@ struct ContentView: View {
             alignment:.leading,
             spacing: 16
         ) {
-            ForEach($directives) { $directive in
+            ForEach($entries) { $entry in
                 HStack(alignment: .top){
                     TextField(
                         "port",
-                        value: $directive.Port,
+                        value: $entry.Port,
                         formatter: NumberFormatter(),
                         prompt: Text("port:")
                     )
                     .textFieldStyle(.plain)
-                    .foregroundColor(.accentColor)
                     .multilineTextAlignment(.leading)
                     .frame(
                         width: 60,
@@ -133,20 +135,21 @@ struct ContentView: View {
                     )
                     TextField(
                         "alias",
-                        text: $directive.Alias,
+                        text: $entry.Alias,
                         prompt: Text("alias")
-                    ).textFieldStyle(.plain)
-                        .multilineTextAlignment(.leading)
+                    )
+                    .textFieldStyle(.plain)
+                    .multilineTextAlignment(.leading)
                     Spacer()
                     Button(action: {
-                        remove(directive)
+                        remove(entry)
                     }) {
                         Image(systemName: "trash")
                     }
                     .buttonStyle(.plain)
                 }.contextMenu {
                     Button(action: {
-                        remove(directive)
+                        remove(entry)
                     }){
                         Text("Delete")
                     }
@@ -199,18 +202,21 @@ struct ContentView: View {
                 HStack(alignment: .top){
                     TextField(
                         "port",
-                        value: $newDirective.Port,
+                        value: $newEntry.Port,
                         formatter: HiddenZeroFormatter,
                         prompt: Text("port")
-                    ).textFieldStyle(.plain).foregroundColor(.accentColor)
+                    )
+                        .textFieldStyle(.plain)
+                        .font(.body)
                         .multilineTextAlignment(.leading)
                         .frame(width: 60, alignment: .leading)
                         .focused($focusedField, equals:.port)
                     TextField(
                         "alias",
-                        text: $newDirective.Alias,
+                        text: $newEntry.Alias,
                         prompt: Text("alias")
-                    ).textFieldStyle(.plain)
+                    )
+                        .textFieldStyle(.plain)
                         .font(.body)
                         .multilineTextAlignment(.leading)
                         .focused($focusedField, equals:.alias)

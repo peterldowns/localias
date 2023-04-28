@@ -11,7 +11,7 @@
 		6F1A136D29B3D84A00880BF0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1A136C29B3D84A00880BF0 /* ContentView.swift */; };
 		6F1A136F29B3D84B00880BF0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F1A136E29B3D84B00880BF0 /* Assets.xcassets */; };
 		6F1A137229B3D84B00880BF0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F1A137129B3D84B00880BF0 /* Preview Assets.xcassets */; };
-		6F1B5CD829B7F3B50039EA22 /* Daemon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD529B7F3B50039EA22 /* Daemon.swift */; };
+		6F1B5CD829B7F3B50039EA22 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD529B7F3B50039EA22 /* Server.swift */; };
 		6F1B5CD929B7F3B50039EA22 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD629B7F3B50039EA22 /* Utils.swift */; };
 		6F1B5CDA29B7F3B50039EA22 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD729B7F3B50039EA22 /* Config.swift */; };
 		6FB676CF29B40FE90020175E /* liblocalias.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FB676CE29B40FE90020175E /* liblocalias.a */; };
@@ -43,7 +43,7 @@
 		6F1A137329B3D84B00880BF0 /* Localias.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Localias.entitlements; sourceTree = "<group>"; };
 		6F1A137829B3D84B00880BF0 /* LocaliasTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocaliasTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F1A138229B3D84B00880BF0 /* LocaliasUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocaliasUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		6F1B5CD529B7F3B50039EA22 /* Daemon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Daemon.swift; sourceTree = "<group>"; };
+		6F1B5CD529B7F3B50039EA22 /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		6F1B5CD629B7F3B50039EA22 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		6F1B5CD729B7F3B50039EA22 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		6F3D0B3129B68A890073E6BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -100,7 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				6F1B5CD729B7F3B50039EA22 /* Config.swift */,
-				6F1B5CD529B7F3B50039EA22 /* Daemon.swift */,
+				6F1B5CD529B7F3B50039EA22 /* Server.swift */,
 				6F1B5CD629B7F3B50039EA22 /* Utils.swift */,
 				6F3D0B3129B68A890073E6BC /* Info.plist */,
 				6FB676CE29B40FE90020175E /* liblocalias.a */,
@@ -255,7 +255,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6F1A136D29B3D84A00880BF0 /* ContentView.swift in Sources */,
-				6F1B5CD829B7F3B50039EA22 /* Daemon.swift in Sources */,
+				6F1B5CD829B7F3B50039EA22 /* Server.swift in Sources */,
 				6F1B5CDA29B7F3B50039EA22 /* Config.swift in Sources */,
 				6F1A136B29B3D84A00880BF0 /* LocaliasApp.swift in Sources */,
 				6F1B5CD929B7F3B50039EA22 /* Utils.swift in Sources */,

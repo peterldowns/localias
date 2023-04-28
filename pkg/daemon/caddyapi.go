@@ -5,6 +5,7 @@ import (
 
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 
+	_ "github.com/peterldowns/localias/pkg/caddymodules" // necessary caddy configuration
 	"github.com/peterldowns/localias/pkg/config"
 
 	caddycmd "github.com/caddyserver/caddy/v2/cmd"
