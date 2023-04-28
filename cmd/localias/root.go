@@ -21,7 +21,7 @@ var rootFlags struct { //nolint:gochecknoglobals
 }
 
 var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Version: fmt.Sprintf("%s (commit %s)", Version, Commit),
+	Version: fmt.Sprintf("%s+commit.%s", Version, Commit),
 	Use:     "localias",
 	Short:   "securely proxy domains to local development servers",
 	Example: util.Example(`
@@ -54,6 +54,7 @@ func init() { //nolint:gochecknoinits
 	rootCmd.TraverseChildren = true
 	rootCmd.SilenceErrors = true
 	rootCmd.SilenceUsage = true
+	rootCmd.SetVersionTemplate("{{.Version}}\n")
 	rootFlags.Configfile = rootCmd.PersistentFlags().StringP("configfile", "c", "", "path to the configuration file to edit")
 }
 

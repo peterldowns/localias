@@ -7,7 +7,7 @@ import (
 )
 
 func versionImpl(_ *cobra.Command, _ []string) error {
-	fmt.Printf("localias version %s\n", rootCmd.Version)
+	fmt.Printf("%s\n", rootCmd.Version)
 	return nil
 }
 
