@@ -24,8 +24,8 @@ build:
   VERSION=$(cat ./VERSION)
   COMMIT="$(git rev-parse --short HEAD)"
   go build -o bin/localias -ldflags \
-    "-X 'github.com/peterldowns/localias/cmd.Version=$VERSION' -X 'github.com/peterldowns/localias/cmd.Commit=$COMMIT'" \
-    cmd/localias
+    "-X 'main.Version=$VERSION' -X 'main.Commit=$COMMIT'" \
+    ./cmd/localias
 
 build-liblocalias:
   #!/usr/bin/env bash

@@ -27,7 +27,7 @@
         rec {
           packages = rec {
             localias = pkgs.buildGoApplication {
-              ldflags = [ "-X github.com/peterldowns/localias/cmd.Version=${version}" ];
+              ldflags = [ "-X main.Version=${version}" ];
               pname = "localias";
               version = version;
               src = ./.;
