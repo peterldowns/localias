@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig"
+	caddycmd "github.com/caddyserver/caddy/v2/cmd"
 
+	_ "github.com/peterldowns/localias/pkg/caddymodules" // necessary caddy configuration
 	"github.com/peterldowns/localias/pkg/config"
 
-	caddycmd "github.com/caddyserver/caddy/v2/cmd"
 )
 
 // Get the URI address for the locally-running caddy server based on the current

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var exampleentries = []Entry{ //nolint:gochecknoglobals
+var exampleEntries = []Entry{ //nolint:gochecknoglobals
 	{Alias: "bare", Port: 9003},
 	{Alias: "bare.lkl", Port: 9002},
 	{Alias: "invalid://failure", Port: 9004},
@@ -19,14 +19,14 @@ func TestReadConfig(t *testing.T) {
 	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
 	require.Equal(t, "./example.roundtrip.yaml", cfg.Path)
-	require.ElementsMatch(t, exampleentries, cfg.Entries)
-	require.Equal(t, exampleentries, cfg.Entries)
+	require.ElementsMatch(t, exampleEntries, cfg.Entries)
+	require.Equal(t, exampleEntries, cfg.Entries)
 }
 
 func TestWriteConfig(t *testing.T) {
 	cfg := &Config{
 		Path:    "./example.roundtrip.yaml",
-		Entries: exampleentries,
+		Entries: exampleEntries,
 	}
 	err := cfg.Save()
 	require.NoError(t, err)

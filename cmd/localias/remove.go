@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -7,9 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func clearImpl(_ *cobra.Command, _ []string) error {
+func removeImpl(_ *cobra.Command, aliases []string) error {
 	cfg := loadConfig()
-	removed := cfg.Clear()
+	removed := cfg.Remove(aliases...)
 	if err := cfg.Save(); err != nil {
 		return err
 	}
@@ -24,12 +24,14 @@ func clearImpl(_ *cobra.Command, _ []string) error {
 	return nil
 }
 
-var clearCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "clear",
-	Short: "clear all aliases",
-	RunE:  clearImpl,
+var removeCmd = &cobra.Command{ //nolint:gochecknoglobals
+	Use:     "remove alias [...more aliases]",
+	Aliases: []string{"rm", "delete"},
+	Args:    cobra.MinimumNArgs(1),
+	Short:   "remove an alias",
+	RunE:    removeImpl,
 }
 
 func init() { //nolint:gochecknoinits
-	rootCmd.AddCommand(clearCmd)
+	rootCmd.AddCommand(removeCmd)
 }

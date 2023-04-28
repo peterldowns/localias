@@ -1,6 +1,10 @@
 | :warning: Work In Progress          |
 |---------------------------|
 
+- [ ] Implement github workflow to create the swift application, add it to the releases page.
+- [ ] README docs on the swift app
+- [ ] WSL2 support
+
 # localias
 
 `localias` is a CLI utility for developers to control local test domains. You can use it to alias arbitrary domains to local dev servers. Built on [`caddy`](https://caddyserver.com/), you get automatic TLS configuration and good performance out of the box.

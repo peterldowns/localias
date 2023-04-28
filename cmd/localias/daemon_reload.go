@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"github.com/spf13/cobra"
@@ -8,21 +8,21 @@ import (
 	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
-func startImpl(_ *cobra.Command, _ []string) error {
+func reloadImpl(_ *cobra.Command, _ []string) error {
 	hctl := hostctl.DefaultController()
 	cfg, err := config.Load(nil)
 	if err != nil {
 		return err
 	}
-	return daemon.Start(hctl, cfg)
+	return daemon.Reload(hctl, cfg)
 }
 
-var startCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "start",
-	Short: "start running the background daemon",
-	RunE:  startImpl,
+var reloadCmd = &cobra.Command{ //nolint:gochecknoglobals
+	Use:   "reload",
+	Short: "reload the background daemon's config",
+	RunE:  reloadImpl,
 }
 
 func init() { //nolint:gochecknoinits
-	daemonCmd.AddCommand(startCmd)
+	daemonCmd.AddCommand(reloadCmd)
 }

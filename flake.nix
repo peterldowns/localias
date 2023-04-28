@@ -8,20 +8,18 @@
     flake-compat.url = github:edolstra/flake-compat;
     flake-compat.flake = false;
 
-    nix-filter.url = github:numtide/nix-filter;
-
     gomod2nix.url = "github:nix-community/gomod2nix";
     gomod2nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, flake-utils, flake-compat, nix-filter, gomod2nix }:
-    flake-utils.lib.eachDefaultSystem
+  outputs = { self, ... }@inputs:
+    inputs.flake-utils.lib.eachDefaultSystem
       (system:
         let
           overlays = [
-            gomod2nix.overlays.default
+            inputs.gomod2nix.overlays.default
           ];
-          pkgs = import nixpkgs {
+          pkgs = import inputs.nixpkgs {
             inherit system overlays;
           };
           version = (builtins.readFile ./VERSION);
@@ -30,11 +28,14 @@
           packages = rec {
             # TODO: somehow pass ldflags here?
             localias = pkgs.buildGoApplication {
-              ldflags = [ "-X github.com/peterldowns/localias/cmd.Version=${version}" ];
+              ldflags = [ "-X main.Version=${version}" ];
               pname = "localias";
               version = version;
               src = ./.;
               modules = ./gomod2nix.toml;
+              subPackages = [
+                "cmd/localias"
+              ];
               doCheck = false;
             };
             default = localias;
@@ -60,7 +61,7 @@
                 gopls
                 gotools
                 # nix
-                pkgs.gomod2nix # have to use pkgs. prefix or it breaks lorri
+                gomod2nix # have to use pkgs. prefix or it breaks lorri
                 rnix-lsp
                 nixpkgs-fmt
                 # other tools
@@ -87,9 +88,7 @@
                 export GOPATH="$TOOLCHAIN_ROOT/go/path"
                 export GOMODCACHE="$GOPATH/pkg/mod"
                 export PATH=$(go env GOPATH)/bin:$PATH
-                # This project is pure go and does not need CGO. We disable it
-                # here as well as in the Dockerfile and nix build scripts.
-                export CGO_ENABLED=0
+                export CGO_ENABLED=1
                 export PATH="$workspace_root/bin:$workspace_root/result/bin:$PATH"
               '';
 
