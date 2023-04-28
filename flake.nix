@@ -26,6 +26,7 @@
         in
         rec {
           packages = rec {
+            # TODO: somehow pass ldflags here?
             localias = pkgs.buildGoApplication {
               ldflags = [ "-X main.Version=${version}" ];
               pname = "localias";
