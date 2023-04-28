@@ -1,0 +1,12 @@
+# Stolen from https://github.com/exelban/stats/blob/master/.gitignore
+.DS_Store
+Pods
+Carthage
+build
+xcuserdata
+*.dmg
+*.app
+dSYMs.zip
+*.dmg.zip
+Cartfile.resolved
+*.xcarchive

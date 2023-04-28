@@ -14,6 +14,7 @@
 		6F1B5CD829B7F3B50039EA22 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD529B7F3B50039EA22 /* Server.swift */; };
 		6F1B5CD929B7F3B50039EA22 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD629B7F3B50039EA22 /* Utils.swift */; };
 		6F1B5CDA29B7F3B50039EA22 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1B5CD729B7F3B50039EA22 /* Config.swift */; };
+		6F362CC129FC2E9400329F86 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F362CC029FC2E9400329F86 /* libresolv.tbd */; };
 		6FB676CF29B40FE90020175E /* liblocalias.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FB676CE29B40FE90020175E /* liblocalias.a */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		6F1B5CD529B7F3B50039EA22 /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		6F1B5CD629B7F3B50039EA22 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		6F1B5CD729B7F3B50039EA22 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		6F362CC029FC2E9400329F86 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		6F3D0B3129B68A890073E6BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6F50935829B4065E00839B86 /* Localias-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Localias-Bridging-Header.h"; sourceTree = "<group>"; };
 		6FB676CD29B40FB80020175E /* liblocalias.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = liblocalias.h; sourceTree = "<group>"; };
@@ -57,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F362CC129FC2E9400329F86 /* libresolv.tbd in Frameworks */,
 				6FB676CF29B40FE90020175E /* liblocalias.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -83,6 +86,7 @@
 			children = (
 				6F1A136929B3D84A00880BF0 /* Localias */,
 				6F1A136829B3D84A00880BF0 /* Products */,
+				6F362CBF29FC2E9400329F86 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -121,6 +125,14 @@
 				6F1A137129B3D84B00880BF0 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		6F362CBF29FC2E9400329F86 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6F362CC029FC2E9400329F86 /* libresolv.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -408,18 +420,23 @@
 		6F1A138D29B3D84B00880BF0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Localias/Localias.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Localias/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Localias/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Localias;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -430,9 +447,11 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Localias",
 				);
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 0.0.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.Localias;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Localias/Localias-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -443,18 +462,23 @@
 		6F1A138E29B3D84B00880BF0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Localias/Localias.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Localias/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Localias/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Localias;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -465,9 +489,11 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Localias",
 				);
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 0.0.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peterdowns.Localias;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Localias/Localias-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

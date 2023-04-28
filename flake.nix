@@ -1,7 +1,7 @@
 {
   description = "securely proxy domains to local development servers";
   inputs = {
-    nixpkgs.url = github:nixos/nixpkgs/nixos-unstable;
+    nixpkgs.url = github:nixos/nixpkgs;
 
     flake-utils.url = github:numtide/flake-utils;
 
@@ -16,21 +16,25 @@
     inputs.flake-utils.lib.eachDefaultSystem
       (system:
         let
+          # standard nix definitions
           overlays = [
             inputs.gomod2nix.overlays.default
           ];
           pkgs = import inputs.nixpkgs {
             inherit system overlays;
           };
-          version = (builtins.readFile ./VERSION);
+          lib = pkgs.lib;
+          # localias specific
+          localiasVersion = (builtins.readFile ./VERSION);
+          xcodewrapper = (pkgs.callPackage ./xcodewrapper.nix {});
         in
         rec {
           packages = rec {
             # TODO: somehow pass ldflags here?
             localias = pkgs.buildGoApplication {
-              ldflags = [ "-X main.Version=${version}" ];
+              ldflags = [ "-X main.Version=${localiasVersion}" ];
               pname = "localias";
-              version = version;
+              version = localiasVersion;
               src = ./.;
               modules = ./gomod2nix.toml;
               subPackages = [
@@ -64,9 +68,23 @@
                 gomod2nix # have to use pkgs. prefix or it breaks lorri
                 rnix-lsp
                 nixpkgs-fmt
+                # xcode: this wrapper symlinks to the host system.
                 # other tools
                 just
                 cobra-cli
+              ] ++ lib.optional stdenv.isDarwin [
+                # When in a MacOS environment, must use this wrapper in order
+                # for xcodebuild / clang / etc to all work correctly.
+                # When not on MacOS, no problem, just won't be able to build
+                # the app.
+                #
+                # TODO: the xcodeenv in nixpkgs is tuned for iOS applications,
+                # not for MacOS. May as well modify it and keep something local.
+                # Or create a separate repo for it as a flake + correctly
+                # set LD=clang.
+                (xcodewrapper { allowHigher = true; })
+                # Makes the xcodebuild invocation prettier
+                xcpretty
               ];
 
               shellHook = ''
@@ -89,6 +107,9 @@
                 export GOMODCACHE="$GOPATH/pkg/mod"
                 export PATH=$(go env GOPATH)/bin:$PATH
                 export CGO_ENABLED=1
+
+                # Make it easy to test while developing; add the golang and nix
+                # build outputs to the path.
                 export PATH="$workspace_root/bin:$workspace_root/result/bin:$PATH"
               '';
 
