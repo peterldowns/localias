@@ -90,6 +90,7 @@
                 # This project is pure go and does not need CGO. We disable it
                 # here as well as in the Dockerfile and nix build scripts.
                 export CGO_ENABLED=0
+                export PATH="$workspace_root/bin:$workspace_root/result/bin:$PATH"
               '';
 
               # Need to disable fortify hardening because GCC is not built with -oO,
