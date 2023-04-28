@@ -24,15 +24,18 @@
           pkgs = import nixpkgs {
             inherit system overlays;
           };
+          version = (builtins.readFile ./VERSION);
         in
         rec {
           packages = rec {
+            # TODO: somehow pass ldflags here?
             localias = pkgs.buildGoApplication {
-              checkPhase = false;
+              ldflags = [ "-X github.com/peterldowns/localias/cmd.Version=${version}" ];
               pname = "localias";
-              version = (builtins.readFile ./VERSION);
+              version = version;
               src = ./.;
               modules = ./gomod2nix.toml;
+              doCheck = false;
             };
             default = localias;
           };
