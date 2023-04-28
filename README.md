@@ -16,11 +16,11 @@ Usage:
 
 Examples:
   # Add an alias forwarding https://secure.local to http://127.0.0.1:9000
-  localias set --alias secure.local -p 9000
+  localias set --alias secure.lkl -p 9000
   # Update an existing alias to forward to a different port
-  localias set --alias secure.local -p 9001
+  localias set --alias secure.lkl -p 9001
   # Remove an alias
-  localias remove secure.local
+  localias remove secure.lkl
   # Show aliases
   localias list
   # Clear all aliases
@@ -72,14 +72,11 @@ TODO
 ## Errata
 
 #### `.local` domains
-If you add an alias to a `.local` domain on a Mac, this will add ~5s to every
-request thanks to DNS resolution and Bonjour. See [this Stackoverflow
-question](https://superuser.com/questions/1596225/dns-resolution-delay-for-entries-in-etc-hosts)
-for more information.  I might be able to work around this in the future by
-also adding a `::1` entry for each alias, in addition to `localhost`.
+If you add an alias to a `.local` domain on a Mac, resolving the domain for the first time [will take add ~5-10s to every
+request thanks to Bonjour](https://superuser.com/questions/1596225/dns-resolution-delay-for-entries-in-etc-hosts). The workaround would be to set `127.0.0.1 domain.local` as well as `::1 domain.local` but that's tricky with the way that the `hostctl` package is currently implemented. 
 
 #### Using the system trust store with firefox
-To make firefox use the default trust stores that caddy edits: open firefox,
+To make Firefox use the default trust stores that caddy edits: open Firefox,
 visit `about:config`, and set
 
 ```

@@ -8,11 +8,11 @@ import (
 
 var exampleentries = []Entry{ //nolint:gochecknoglobals
 	{Alias: "bare", Port: 9003},
-	{Alias: "bare.local", Port: 9002},
+	{Alias: "bare.lkl", Port: 9002},
 	{Alias: "invalid://failure", Port: 9004},
 	{Alias: "valid.duplicate", Port: 9000},
-	{Alias: "http://insecure.local", Port: 9001},
-	{Alias: "https://secure.local", Port: 9000},
+	{Alias: "http://insecure.lkl", Port: 9001},
+	{Alias: "https://secure.lkl", Port: 9000},
 }
 
 func TestReadConfig(t *testing.T) {
@@ -50,15 +50,15 @@ func TestUpsertUpdatesExistingEntry(t *testing.T) {
 		Path: "./example.upsert.yaml",
 	}
 	cfg.Upsert(Entry{
-		Alias: "dev.local",
+		Alias: "dev.lkl",
 		Port:  8000,
 	})
 	cfg.Upsert(Entry{
-		Alias: "dev.local",
+		Alias: "dev.lkl",
 		Port:  9000,
 	})
 	expected := []Entry{
-		{Alias: "dev.local", Port: 9000},
+		{Alias: "dev.lkl", Port: 9000},
 	}
 	require.Equal(t, expected, cfg.Entries)
 

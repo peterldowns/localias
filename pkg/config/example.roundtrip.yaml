@@ -10,8 +10,8 @@
 #   bareTLD: 9003
 #
 bare: 9003
-bare.local: 9002
+bare.lkl: 9002
 invalid://failure: 9004
 valid.duplicate: 9000
-http://insecure.local: 9001
-https://secure.local: 9000
+http://insecure.lkl: 9001
+https://secure.lkl: 9000

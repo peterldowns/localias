@@ -27,12 +27,12 @@ var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:     "localias",
 	Short:   "securely proxy domains to local development servers",
 	Example: util.Example(`
-# Add an alias forwarding https://secure.local to http://127.0.0.1:9000
-localias set --alias secure.local -p 9000
+# Add an alias forwarding https://secure.lkl to http://127.0.0.1:9000
+localias set --alias secure.lkl -p 9000
 # Update an existing alias to forward to a different port
-localias set --alias secure.local -p 9001
+localias set --alias secure.lkl -p 9001
 # Remove an alias
-localias remove secure.local
+localias remove secure.lkl
 # Show aliases
 localias list
 # Clear all aliases
@@ -60,7 +60,6 @@ func init() { //nolint:gochecknoinits
 }
 
 func loadConfig() *config.Config {
-	fmt.Printf("rootFlags.Configfile: %s\n", *rootFlags.Configfile)
 	cfg, err := config.Load(rootFlags.Configfile)
 	if err != nil {
 		panic(fmt.Errorf("failed to load config: %w", err))
