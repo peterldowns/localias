@@ -22,18 +22,20 @@
           pkgs = import inputs.nixpkgs {
             inherit system overlays;
           };
+          version = (builtins.readFile ./VERSION);
         in
         rec {
           packages = rec {
             localias = pkgs.buildGoApplication {
-              checkPhase = false;
+              ldflags = [ "-X github.com/peterldowns/localias/cmd.Version=${version}" ];
               pname = "localias";
-              version = "0.0.3";
+              version = version;
               src = ./.;
               modules = ./gomod2nix.toml;
               subPackages = [
                 "cmd/localias"
               ];
+              doCheck = false;
             };
             default = localias;
           };
@@ -86,6 +88,7 @@
                 export GOMODCACHE="$GOPATH/pkg/mod"
                 export PATH=$(go env GOPATH)/bin:$PATH
                 export CGO_ENABLED=1
+                export PATH="$workspace_root/bin:$workspace_root/result/bin:$PATH"
               '';
 
               # Need to disable fortify hardening because GCC is not built with -oO,

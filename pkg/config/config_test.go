@@ -6,33 +6,34 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var exampleDirectives = []Directive{ //nolint:gochecknoglobals
-	{Alias: "https://secure.local", Port: 9000},
-	{Alias: "http://insecure.local", Port: 9001},
-	{Alias: "bare.local", Port: 9002},
+var exampleEntries = []Entry{ //nolint:gochecknoglobals
 	{Alias: "bare", Port: 9003},
+	{Alias: "bare.lkl", Port: 9002},
 	{Alias: "invalid://failure", Port: 9004},
 	{Alias: "valid.duplicate", Port: 9000},
+	{Alias: "http://insecure.lkl", Port: 9001},
+	{Alias: "https://secure.lkl", Port: 9000},
 }
 
 func TestReadConfig(t *testing.T) {
-	cfg, err := Open("./example.yaml")
+	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
-	require.Equal(t, "./example.yaml", cfg.Path)
-	require.ElementsMatch(t, exampleDirectives, cfg.Directives)
+	require.Equal(t, "./example.roundtrip.yaml", cfg.Path)
+	require.ElementsMatch(t, exampleEntries, cfg.Entries)
+	require.Equal(t, exampleEntries, cfg.Entries)
 }
 
 func TestWriteConfig(t *testing.T) {
 	cfg := &Config{
-		Path:       "./example.yaml",
-		Directives: exampleDirectives,
+		Path:    "./example.roundtrip.yaml",
+		Entries: exampleEntries,
 	}
 	err := cfg.Save()
 	require.NoError(t, err)
 }
 
-func TestConfigRoundtrips(t *testing.T) {
-	cfg, err := Open("./example.yaml")
+func TestConfigRoundtripsPreservingOrder(t *testing.T) {
+	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
 
 	err = cfg.Save()
@@ -41,7 +42,30 @@ func TestConfigRoundtrips(t *testing.T) {
 	cfg2, err := Open(cfg.Path)
 	require.NoError(t, err)
 	require.Equal(t, cfg.Path, cfg2.Path)
-	require.ElementsMatch(t, cfg.Directives, cfg2.Directives)
+	require.Equal(t, cfg.Entries, cfg2.Entries)
+}
+
+func TestUpsertUpdatesExistingEntry(t *testing.T) {
+	cfg := &Config{
+		Path: "./example.upsert.yaml",
+	}
+	cfg.Upsert(Entry{
+		Alias: "dev.lkl",
+		Port:  8000,
+	})
+	cfg.Upsert(Entry{
+		Alias: "dev.lkl",
+		Port:  9000,
+	})
+	expected := []Entry{
+		{Alias: "dev.lkl", Port: 9000},
+	}
+	require.Equal(t, expected, cfg.Entries)
+
+	require.NoError(t, cfg.Save())
+	cfg2, err := Open(cfg.Path)
+	require.NoError(t, err)
+	require.Equal(t, expected, cfg2.Entries)
 }
 
 func TestLoad(t *testing.T) {
@@ -53,7 +77,7 @@ func TestLoad(t *testing.T) {
 }
 
 func TestDefaultPath(t *testing.T) {
-	xdgPath, err := DefaultPath()
+	path, err := Path(nil)
 	require.NoError(t, err)
-	require.NotEqual(t, "", xdgPath)
+	require.NotEqual(t, "", path)
 }

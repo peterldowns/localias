@@ -1,0 +1,17 @@
+# localias config file syntax
+#
+# 	alias: port
+#
+# for example,
+#
+#   https://secure.test: 9000
+#   http://insecure.test: 9001
+#   insecure2.test: 9002
+#   bareTLD: 9003
+#
+bare: 9003
+bare.lkl: 9002
+invalid://failure: 9004
+valid.duplicate: 9000
+http://insecure.lkl: 9001
+https://secure.lkl: 9000

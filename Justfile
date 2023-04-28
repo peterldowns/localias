@@ -20,7 +20,12 @@ lint *args:
   golangci-lint run --fix --config .golangci.yaml "$@"
 
 build:
-  go build -o bin/localias ./cmd/localias
+  #!/usr/bin/env bash
+  VERSION=$(cat ./VERSION)
+  COMMIT="$(git rev-parse --short HEAD)"
+  go build -o bin/localias -ldflags \
+    "-X 'github.com/peterldowns/localias/cmd.Version=$VERSION' -X 'github.com/peterldowns/localias/cmd.Commit=$COMMIT'" \
+    cmd/localias
 
 build-liblocalias:
   #!/usr/bin/env bash
@@ -28,14 +33,11 @@ build-liblocalias:
   export CGO_ENABLED=1
   export CC=/usr/bin/clang
   export CXX=/usr/bin/clang++
-  rm -rf ./build
-  mkdir -p ./build
-  # use zig as a cross-compiler because the nix-provided clang cannot do it.
-  # could also use the system-provided clang at /usr/bin/clang.
-  #ZIGFLAGS="-target x86_64-macos" CXX="zig c++ $ZIGFLAGS" CC="zig cc $ZIGFLAGS" GOOS=darwin GOARCH=amd64 go build --buildmode=c-archive -o ./build/liblocalias-amd64.a ./app/
+  rm -rf ./build && mkdir -p ./build
+  # amd
   CC=/usr/bin/clang CXX=/usr/bin/clang++ GOOS=darwin GOARCH=amd64 go build --buildmode=c-archive -o ./build/liblocalias-amd64.a ./app/
-  #ZIGFLAGS="-target aarch64-macos" CXX="zig c++ $ZIGFLAGS" CC="zig cc $ZIGFLAGS" GOOS=darwin GOARCH=arm64 go build --buildmode=c-archive -o ./build/liblocalias-arm64.a ./app/
-  #ZIGFLAGS="-target aarch64-macos" CXX="zig c++ $ZIGFLAGS" CC="zig cc $ZIGFLAGS"
+  # arm
   CC=/usr/bin/clang CXX=/usr/bin/clang++ GOOS=darwin GOARCH=arm64 go build --buildmode=c-archive -o ./build/liblocalias-arm64.a ./app/
+  # smash them together
   lipo -create ./build/*.a -o ./Localias/liblocalias.a
   mv ./build/liblocalias-arm64.h ./Localias/liblocalias.h

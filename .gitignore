@@ -16,9 +16,18 @@ bin/
 # Used by `air` to hold build outputs
 tmp/
 
+# .pid files are sometimes created while debugging go-daemon
+*.pid
+
+# macos garbage
+.DS_Store
+**/.DS_Store
+
+# configfile
+.localias.yaml
+
+# artifacts
 dist/
 build/
 lib/
-**/.DS_Store
-.DS_Store
 *.a
