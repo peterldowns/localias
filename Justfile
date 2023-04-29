@@ -23,7 +23,7 @@ lint *args:
 # build the localias cli
 build:
   #!/usr/bin/env bash
-  ldflags=$(./scripts/golang-ldflags)
+  ldflags=$(./scripts/golang-ldflags.sh)
   go build -ldflags "$ldflags" -o bin/localias ./cmd/localias
 
 # build the localias.a library for swift app
