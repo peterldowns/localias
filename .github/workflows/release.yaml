@@ -19,36 +19,19 @@ jobs:
           cache-dependency-path: go.sum
       - name: build-liblocalias
         run: |
-          export CGO_ENABLED=1
-          export CC=/usr/bin/clang
-          export CXX=/usr/bin/clang++
-          rm -rf ./build && mkdir -p ./build
-          # amd
-          GOOS=darwin GOARCH=amd64 go build --buildmode=c-archive -o ./build/liblocalias-amd64.a ./app/
-          # arm
-          GOOS=darwin GOARCH=arm64 go build --buildmode=c-archive -o ./build/liblocalias-arm64.a ./app/
-          # smash them together
-          lipo -create ./build/*.a -o ./app/Localias/liblocalias.a
-          mv ./build/liblocalias-arm64.h ./app/Localias/liblocalias.h
-          rm -rf build
+          ./scripts/build-liblocalias.sh
       - name: build-app
         run: |
-          cd app
-          rm -rf build
-          mkdir build
-          xcodebuild -scheme Release archive -archivePath build
-          mv build.xcarchive/Products/Applications/* build
-          rm -rf build.xcarchive
-          readlink -f build/Localias.app
-          zip -r build/Localias.app.zip build/Localias.app
+          ./scripts/build-app.sh
       - name: upload-app
         run: |
-          RELEASE_UPLOAD_URL=$(./scripts/upsert_gh_release.sh)
+          RELEASE_UPLOAD_URL=$(./scripts/upsert-gh-release.sh)
           curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @app/build/Localias.app.zip \
             "$RELEASE_UPLOAD_URL?name=Localias.app.zip&label=Localias.app.zip"
-
+        env:
+          GH_TOKEN: ${{ github.token }}
   upload-binaries:
     runs-on: ubuntu-latest
     steps:
@@ -61,33 +44,38 @@ jobs:
         cache-dependency-path: go.sum
     - name: generate release
       run:
-        upload_url=$(./scripts/upsert_gh_release.sh)
+        upload_url=$(./scripts/upsert-gh-release.sh)
         echo "RELEASE_UPLOAD_URL=$upload_url" >> "$GITHUB_ENV"
-    # TODO: embed the release information appropriately here
+      env:
+        GH_TOKEN: ${{ github.token }}
     - name: release-darwin-amd64
       run: |
-        CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o ./bin/localias-darwin-amd64 ./cmd/localias
+        ldflags=$(./scripts/golang-ldflags.sh)
+        CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "$ldflags" -o ./bin/localias-darwin-amd64 ./cmd/localias
         curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN}}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-darwin-amd64 \
           "$RELEASE_UPLOAD_URL?name=localias-darwin-amd64&label=localias-darwin-amd64"
     - name: release-darwin-arm64
       run: |
-        CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./bin/localias-darwin-arm64 ./cmd/localias
+        ldflags=$(./scripts/golang-ldflags.sh)
+        CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ./bin/localias-darwin-arm64 ./cmd/localias
         curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-darwin-arm64 \
           "$RELEASE_UPLOAD_URL?name=localias-darwin-arm64&label=localias-darwin-arm64"
     - name: release-linux-arm64
       run: |
-        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ./bin/localias-linux-arm64 ./cmd/localias
+        ldflags=$(./scripts/golang-ldflags.sh)
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$ldflags" -o ./bin/localias-linux-arm64 ./cmd/localias
         curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-linux-arm64 \
           "$RELEASE_UPLOAD_URL?name=localias-linux-arm64&label=localias-linux-arm64"
     - name: release-linux-amd64
       run: |
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/localias-linux-amd64 ./cmd/localias
+        ldflags=$(./scripts/golang-ldflags.sh)
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$ldflags" -o ./bin/localias-linux-amd64 ./cmd/localias
         curl -s -H "Authorization: token $token" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-linux-amd64 \

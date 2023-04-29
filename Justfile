@@ -23,11 +23,8 @@ lint *args:
 # build the localias cli
 build:
   #!/usr/bin/env bash
-  VERSION=$(cat ./VERSION)
-  COMMIT="$(git rev-parse --short HEAD)"
-  go build -o bin/localias -ldflags \
-    "-X 'main.Version=$VERSION' -X 'main.Commit=$COMMIT'" \
-    ./cmd/localias
+  ldflags=$(./scripts/golang-ldflags)
+  go build -ldflags "$ldflags" -o bin/localias ./cmd/localias
 
 # build the localias.a library for swift app
 build-liblocalias:
