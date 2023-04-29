@@ -24,7 +24,7 @@ Usage:
   localias [command]
 
 Examples:
-  # Add an alias forwarding https://secure.local to http://127.0.0.1:9000
+  # Add an alias forwarding https://secure.lkl to http://127.0.0.1:9000
   localias set --alias secure.lkl -p 9000
   # Update an existing alias to forward to a different port
   localias set --alias secure.lkl -p 9001
