@@ -3,15 +3,11 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/daemon"
 )
 
 func stopImpl(_ *cobra.Command, _ []string) error {
-	cfg, err := config.Load(nil)
-	if err != nil {
-		return err
-	}
+	cfg := loadConfig()
 	return daemon.Stop(cfg)
 }
 

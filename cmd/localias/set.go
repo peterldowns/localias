@@ -17,10 +17,6 @@ var setFlags struct { //nolint:gochecknoglobals
 }
 
 func setImpl(_ *cobra.Command, args []string) error {
-	cfg, err := config.Load(nil)
-	if err != nil {
-		return err
-	}
 	alias := *setFlags.Alias
 	port := *setFlags.Port
 
@@ -36,6 +32,7 @@ func setImpl(_ *cobra.Command, args []string) error {
 		port = int(x)
 	}
 
+	cfg := loadConfig()
 	updated := cfg.Upsert(config.Entry{
 		Alias: alias,
 		Port:  port,
