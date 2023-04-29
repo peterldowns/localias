@@ -45,7 +45,7 @@ jobs:
     - name: generate release
       run:
         upload_url=$(./scripts/upsert-gh-release.sh)
-        echo "RELEASE_UPLOAD_URL=$upload_url" >> "$GITHUB_ENV"
+        echo "{RELEASE_UPLOAD_URL}={$upload_url}" >> "$GITHUB_ENV"
       env:
         GH_TOKEN: ${{ github.token }}
     - name: release-darwin-amd64
