@@ -9,28 +9,20 @@
 #   https://docs.github.com/en/rest/releases/releases#create-a-release
 #   https://stackoverflow.com/questions/45240336/how-to-use-github-release-api-to-make-a-release-without-source-code
 version=$(cat ./VERSION)
-commit=$(git rev-parse --short HEAD || echo 'unknown')
+commit_sha=$(git rev-parse --short HEAD || echo 'unknown')
 # https://semver.org/#spec-item-10
-release_name="$version+commit.$commit"
-echo "attempting to create release $release_name"
-upload_url=$(
+release_name="$version+commit.$commit_sha"
+if ! upload_url=$(
   gh api --method POST 'repos/{owner}/{repo}/releases' \
-    -F "tag_name=testing-$release_name" \
-    -F "name=testing-$release_name" \
+    -F "tag_name=$release_name" \
+    -F "name=$release_name" \
     -F "target_comitish=$commit_sha" \
     --jq '.upload_url' \
-)
-if [ $? != 0 ]; then 
-  echo "failed to create release:"
-  echo "$upload_url"
-  echo "attempting to fetch existing release $release_name"
-  upload_url=$(
+); then 
+  if ! upload_url=$(
     gh api --method GET 'repos/{owner}/{repo}/releases/tags/'"$release_name" \
       --jq '.upload_url' \
-  )
-  if [ $? != 0 ]; then 
-    echo "failed to fetch existing release $release_name"
-    echo "upload_url"
+  ); then 
     exit 1
   fi
 fi
@@ -38,4 +30,4 @@ fi
 #   https://uploads.github.com/.../<release_id>/assets{?name,label}
 # this trick strips off the {?name,label}
 upload_url="${upload_url%\{*}"
-echo $upload_url
+echo "$upload_url"

@@ -31,27 +31,8 @@ build:
 
 # build the localias.a library for swift app
 build-liblocalias:
-  #!/usr/bin/env bash
-  export CGO_ENABLED=1
-  export CC=/usr/bin/clang
-  export CXX=/usr/bin/clang++
-  rm -rf ./build && mkdir -p ./build
-  # amd
-  GOOS=darwin GOARCH=amd64 go build --buildmode=c-archive -o ./build/liblocalias-amd64.a ./app/
-  # arm
-  GOOS=darwin GOARCH=arm64 go build --buildmode=c-archive -o ./build/liblocalias-arm64.a ./app/
-  # smash them together
-  lipo -create ./build/*.a -o ./app/Localias/liblocalias.a
-  mv ./build/liblocalias-arm64.h ./app/Localias/liblocalias.h
-  rm -rf build
+  ./scripts/build-liblocalias.sh
 
 # build the swift app Localias.app
 build-app:
-  #!/usr/bin/env bash
-  cd app
-  rm -rf build
-  mkdir build
-  LD=clang xcodebuild -scheme Release archive -archivePath build | xcpretty
-  mv build.xcarchive/Products/Applications/* build
-  rm -rf build.xcarchive
-  readlink -f build/Localias.app
+  ./scripts/build-app.sh
