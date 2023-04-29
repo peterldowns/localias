@@ -11,7 +11,13 @@
 #   ldflags=$(./scripts/golang-ldflags.sh)
 #   go build -ldflags "$ldflags" ...
 #
-VERSION=$(cat ./VERSION)
-COMMIT="$(git rev-parse --short HEAD)"
+VERSION=$1
+COMMIT=$2
+if [ -z "$VERSION" ]; then
+  VERSION=$(cat ./VERSION)
+fi
+if [ -z "$COMMIT" ]; then
+  COMMIT="$(git rev-parse --short HEAD || echo 'unknown')"
+fi
 
 echo "-X main.Version=$VERSION -X main.Commit=$COMMIT"
