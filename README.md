@@ -1,9 +1,14 @@
 | :warning: Work In Progress          |
 |---------------------------|
 
-- [ ] Implement github workflow to create the swift application, add it to the releases page.
-- [ ] README docs on the swift app
-- [ ] WSL2 support
+- [ ] Stop release collisions! get-or-create release, share url between steps?
+- [ ] Instructions for installing / using the macos app
+- [ ] brew cask (see stats app for example) + formula for the cli and the gui
+- [ ] WSL2 support for the cli
+- [ ] Code review + cleanup
+  - [ ] golang
+  - [ ] swift
+  - [ ] infra/scripts
 
 # localias
 
