@@ -76,7 +76,7 @@ jobs:
         ldflags=$(./scripts/golang-ldflags.sh)
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$ldflags" -o ./bin/localias-linux-amd64 ./cmd/localias
         upload_url=$(./scripts/upsert-gh-release.sh)
-        curl -s -H "Authorization: token $token" \
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-linux-amd64 \
           "$upload_url?name=localias-linux-amd64&label=localias-linux-amd64"
