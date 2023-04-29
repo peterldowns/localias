@@ -53,6 +53,13 @@ jobs:
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-darwin-amd64 \
           "$upload_url?name=localias-darwin-amd64&label=localias-darwin-amd64"
+        version=$(cat ./VERSION)
+        bottle_name="localias-${version}.monterey.bottle.tar.gz"
+        tar -czf "${bottle_name}" ./bin/localias-darwin-amd64
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN}}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @"${bottle_name}" \
+          "$upload_url?name=${bottle_name}&label=${bottle_name}"
     - name: release-darwin-arm64
       run: |
         ldflags=$(./scripts/golang-ldflags.sh)
@@ -62,6 +69,13 @@ jobs:
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-darwin-arm64 \
           "$upload_url?name=localias-darwin-arm64&label=localias-darwin-arm64"
+        version=$(cat ./VERSION)
+        bottle_name="localias-${version}.arm64_monterey.bottle.tar.gz"
+        tar -czf "${bottle_name}" ./bin/localias-darwin-arm64
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN}}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @"${bottle_name}" \
+          "$upload_url?name=${bottle_name}&label=${bottle_name}"
     - name: release-linux-arm64
       run: |
         ldflags=$(./scripts/golang-ldflags.sh)
@@ -71,6 +85,13 @@ jobs:
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-linux-arm64 \
           "$upload_url?name=localias-linux-arm64&label=localias-linux-arm64"
+        version=$(cat ./VERSION)
+        bottle_name="localias-${version}.arm64_linux.bottle.tar.gz"
+        tar -czf "${bottle_name}" ./bin/localias-linux-arm64
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN}}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @"${bottle_name}" \
+          "$upload_url?name=${bottle_name}&label=${bottle_name}"
     - name: release-linux-amd64
       run: |
         ldflags=$(./scripts/golang-ldflags.sh)
@@ -80,3 +101,10 @@ jobs:
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-linux-amd64 \
           "$upload_url?name=localias-linux-amd64&label=localias-linux-amd64"
+        version=$(cat ./VERSION)
+        bottle_name="localias-${version}.x86_64_linux.bottle.tar.gz"
+        tar -czf "${bottle_name}" ./bin/localias-linux-amd64
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN}}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @"${bottle_name}" \
+          "$upload_url?name=${bottle_name}&label=${bottle_name}"
