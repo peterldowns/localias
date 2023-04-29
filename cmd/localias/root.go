@@ -50,7 +50,7 @@ localias daemon stop
 }
 
 func init() { //nolint:gochecknoinits
-	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 	rootCmd.TraverseChildren = true
 	rootCmd.SilenceErrors = true
 	rootCmd.SilenceUsage = true
