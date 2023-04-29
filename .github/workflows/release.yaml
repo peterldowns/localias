@@ -43,21 +43,11 @@ jobs:
           zip -r build/Localias.app.zip build/Localias.app
       - name: upload-app
         run: |
-          version="$(cat ./VERSION)"
-          commit_sha="$(git rev-parse --short HEAD)"
-          # https://semver.org/#spec-item-10
-          release_name="$version+commit.$commit_sha"
-          token=${{ secrets.GITHUB_TOKEN }}
-          # https://docs.github.com/en/rest/releases/releases#create-a-release
-          # https://stackoverflow.com/questions/45240336/how-to-use-github-release-api-to-make-a-release-without-source-code
-          upload_url=$(curl -s -H "Authorization: token $token" \
-            -d "{\"tag_name\": \"$release_name\", \"name\":\"$release_name\",\"target_comitish\": \"$commit_sha\"}" \
-            "https://api.github.com/repos/peterldowns/localias/releases" | jq -r '.upload_url')
-          upload_url="${upload_url%\{*}"
-          curl -s -H "Authorization: token $token" \
+          RELEASE_UPLOAD_URL=$(./scripts/upsert_gh_release.sh)
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @app/build/Localias.app.zip \
-            "$upload_url?name=Localias.app.zip&label=Localias.app.zip"
+            "$RELEASE_UPLOAD_URL?name=Localias.app.zip&label=Localias.app.zip"
 
   upload-binaries:
     runs-on: ubuntu-latest
@@ -69,36 +59,36 @@ jobs:
         go-version: 1.19
         cache: true
         cache-dependency-path: go.sum
+    - name: generate release
+      run:
+        upload_url=$(./scripts/upsert_gh_release.sh)
+        echo "RELEASE_UPLOAD_URL=$upload_url" >> "$GITHUB_ENV"
     # TODO: embed the release information appropriately here
-    - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o ./bin/localias-darwin-amd64 ./cmd/localias
-    - run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./bin/localias-darwin-arm64 ./cmd/localias
-    - run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ./bin/localias-linux-arm64 ./cmd/localias
-    - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/localias-linux-amd64 ./cmd/localias
-    - run: |
-        version="$(cat ./VERSION)"
-        commit_sha="$(git rev-parse --short HEAD)"
-        # https://semver.org/#spec-item-10
-        release_name="$version+commit.$commit_sha"
-        token=${{ secrets.GITHUB_TOKEN }}
-        # https://docs.github.com/en/rest/releases/releases#create-a-release
-        # https://stackoverflow.com/questions/45240336/how-to-use-github-release-api-to-make-a-release-without-source-code
-        upload_url=$(curl -s -H "Authorization: token $token" \
-          -d "{\"tag_name\": \"$release_name\", \"name\":\"$release_name\",\"target_comitish\": \"$commit_sha\"}" \
-          "https://api.github.com/repos/peterldowns/localias/releases" | jq -r '.upload_url')
-        upload_url="${upload_url%\{*}"
-        curl -s -H "Authorization: token $token" \
+    - name: release-darwin-amd64
+      run: |
+        CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o ./bin/localias-darwin-amd64 ./cmd/localias
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN}}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-darwin-amd64 \
-          "$upload_url?name=localias-darwin-amd64&label=localias-darwin-amd64"
-        curl -s -H "Authorization: token $token" \
+          "$RELEASE_UPLOAD_URL?name=localias-darwin-amd64&label=localias-darwin-amd64"
+    - name: release-darwin-arm64
+      run: |
+        CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./bin/localias-darwin-arm64 ./cmd/localias
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-darwin-arm64 \
-          "$upload_url?name=localias-darwin-arm64&label=localias-darwin-arm64"
-        curl -s -H "Authorization: token $token" \
+          "$RELEASE_UPLOAD_URL?name=localias-darwin-arm64&label=localias-darwin-arm64"
+    - name: release-linux-arm64
+      run: |
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ./bin/localias-linux-arm64 ./cmd/localias
+        curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-linux-arm64 \
-          "$upload_url?name=localias-linux-arm64&label=localias-linux-arm64"
+          "$RELEASE_UPLOAD_URL?name=localias-linux-arm64&label=localias-linux-arm64"
+    - name: release-linux-amd64
+      run: |
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/localias-linux-amd64 ./cmd/localias
         curl -s -H "Authorization: token $token" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @bin/localias-linux-amd64 \
-          "$upload_url?name=localias-linux-amd64&label=localias-linux-amd64"
+          "$RELEASE_UPLOAD_URL?name=localias-linux-amd64&label=localias-linux-amd64"
