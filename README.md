@@ -76,7 +76,11 @@ TODO
   - [ ] golang
   - [ ] swift
   - [ ] infra/scripts
-
+- [ ] Install localias root & intermediate certs using powershell script when
+      running in wsl2 
+      ```
+      powershell.exe ./installcert.ps1  $(wslpath -w ~/.local/state/localias/caddy/pki/authorities/local/root.crt)
+      ```
 
 ## Errata
 
