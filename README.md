@@ -1,15 +1,5 @@
-| :warning: Work In Progress          |
-|---------------------------|
-
-- [ ] Stop release collisions! get-or-create release, share url between steps?
-- [ ] Instructions for installing / using the macos app
-- [ ] brew cask (see stats app for example) + formula for the cli and the gui
-- [ ] WSL2 support for the cli
-- [ ] Code review + cleanup
-  - [ ] golang
-  - [ ] swift
-  - [ ] infra/scripts
-
+| :warning: Work In Progress |
+|----------------------------|
 # localias
 
 `localias` is a CLI utility for developers to control local test domains. You can use it to alias arbitrary domains to local dev servers. Built on [`caddy`](https://caddyserver.com/), you get automatic TLS configuration and good performance out of the box.
@@ -77,14 +67,24 @@ TODO
 
 TODO
 
+## TODOS
+
+- [ ] Instructions for installing / using the macos app
+- [ ] homebrew bottles for the cli
+- [ ] WSL2 support for the cli
+- [ ] Code review + cleanup
+  - [ ] golang
+  - [ ] swift
+  - [ ] infra/scripts
+
 
 ## Errata
 
-#### `.local` domains
+### `.local` domains
 If you add an alias to a `.local` domain on a Mac, resolving the domain for the first time [will take add ~5-10s to every
 request thanks to Bonjour](https://superuser.com/questions/1596225/dns-resolution-delay-for-entries-in-etc-hosts). The workaround would be to set `127.0.0.1 domain.local` as well as `::1 domain.local` but that's tricky with the way that the `hostctl` package is currently implemented. 
 
-#### Using the system trust store with firefox
+### Using the system trust store with firefox
 To make Firefox use the default trust stores that caddy edits: open Firefox,
 visit `about:config`, and set
 
@@ -93,3 +93,30 @@ security.enterprise_roots.enabled = true
 ```
 
 If you do this, you won't have to see a warning about the certificates being self-signed.
+
+
+### Allow Caddy to bind to ports 443/80 on Linux
+Localias is built by wrapping the Caddy webserver, and when you `localias run` or `localias daemon start`, that webserver will attempt to listen on ports 443/80. On Linux you may not be allowed to do this by default. You will see an error like:
+
+```shell
+$ localias run
+# ... some informational output
+error: loading new config: http app module: start: listening on :443: listen tcp :443: bind: permission denied
+```
+
+or you may notice that starting the daemon does not result in a running daemon
+```shell
+$ localias daemon start
+$ localias daemon status
+daemon is not running
+```
+
+To fix this, after installing or upgrading localias, you can use capabilities to
+grant `localias` permission to bind on these privileged ports:
+
+```bash
+sudo setcap CAP_NET_BIND_SERVICE=+eip $(which localias)
+```
+
+For more information, view the [arch man pages for `capabilities`](https://man.archlinux.org/man/capabilities.7#CAP_NET_BIND_SERVICE) and [this Stackoverflow answer](https://stackoverflow.com/a/414258).
+
