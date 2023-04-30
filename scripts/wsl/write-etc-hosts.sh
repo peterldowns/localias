@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 #
-# Reads from the file $1 (or stdin if not passed) and writes it to
-# the windows /etc/hosts file.
-etchosts='$env:windir\System32\drivers\etc\hosts'
-etchosts='./example.hosts'
+# Reads file contents from stdin and writes it to the windows
+# /etc/hosts file.
 tmpfile=$(mktemp /tmp/localias-XXXXXXX)
-cat "${1:-/dev/stdin}" > $tmpfile
-
-powershell.exe "Set-Content -Path $etchosts -Value (Get-Content -Path $tmpfile -Raw) -Force"
+# Send stdin from this script to that tmpfile
+cat - > "$tmpfile"
+cat "$tmpfile"
+wintmpfile=$(wslpath -w "$tmpfile")
+# Using '$env:windir' intentionally to get the windows path
+# to the base windows installation. We don't want bash to
+# expand this variable.
+# shellcheck disable=SC2016
+etchosts='$env:windir\System32\drivers\etc\hosts'
+echo powershell.exe ./script.ps1 "$wintmpfile" "$etchosts" sudo
+powershell.exe ./script.ps1 "$wintmpfile" "$etchosts" sudo
+echo "rm $tmpfile"
+rm "$tmpfile"
