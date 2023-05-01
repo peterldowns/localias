@@ -12,7 +12,7 @@ func TestParseUncontrolledRoundtrips(t *testing.T) {
 # just a comment     
 
 
-127.0.0.1	localhost	host.lkl
+127.0.0.1	localhost	host.test
 `)
 	lines := Parse(strings.NewReader(contents))
 	require.NotNil(t, lines)
