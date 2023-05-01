@@ -166,7 +166,7 @@ func (c *Config) Save() error {
 	return os.WriteFile(c.Path, bytes, 0o644)
 }
 
-func (c Config) Caddyfile() string {
+func (c Config) CaddyStatePath() string {
 	path, err := xdg.StateFile("localias/caddy")
 	if err != nil {
 		panic(err)
@@ -175,6 +175,11 @@ func (c Config) Caddyfile() string {
 	if err != nil {
 		panic(err)
 	}
+	return path
+}
+
+func (c Config) Caddyfile() string {
+	path := c.CaddyStatePath()
 	// TODO: take an admin port/interface as part of the config settings, and also
 	// as part of the CLI?
 	global := fmt.Sprintf(strings.TrimSpace(`

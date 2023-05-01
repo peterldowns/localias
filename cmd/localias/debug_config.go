@@ -19,5 +19,5 @@ var configCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
-	rootCmd.AddCommand(configCmd)
+	debugCmd.AddCommand(configCmd)
 }

@@ -8,7 +8,6 @@ import (
 )
 
 const (
-	// TODO: detect WSL2, allow powershell workaround to make it good there
 	DefaultHostsFile = "/etc/hosts"
 	DefaultSudo      = true
 	DefaultDryRun    = false
@@ -17,7 +16,15 @@ const (
 
 var ErrFileNotOpen = fmt.Errorf("file is nil, call .Open() first")
 
-type Controller struct {
+type Controller interface {
+	Set(ip string, alias string) error
+	Remove(alias string) error
+	List() ([]*Line, error)
+	Clear() error
+	Apply() error
+}
+
+type FileController struct {
 	HostsFile string
 	Sudo      bool
 	DryRun    bool
@@ -32,8 +39,8 @@ func NewController(
 	sudo bool,
 	dryRun bool,
 	name string,
-) *Controller {
-	return &Controller{
+) *FileController {
+	return &FileController{
 		HostsFile: hostsFile,
 		Sudo:      sudo,
 		DryRun:    dryRun,
@@ -41,7 +48,7 @@ func NewController(
 	}
 }
 
-func DefaultController() *Controller {
+func DefaultController() *FileController {
 	return NewController(
 		DefaultHostsFile,
 		DefaultSudo,
@@ -50,7 +57,7 @@ func DefaultController() *Controller {
 	)
 }
 
-func (c *Controller) read() error {
+func (c *FileController) read() error {
 	if c.lines == nil {
 		lines, err := Open(c.HostsFile)
 		if err != nil {
@@ -69,7 +76,7 @@ func (c *Controller) read() error {
 	return nil
 }
 
-func (c *Controller) Set(ip string, alias string) error {
+func (c *FileController) Set(ip string, alias string) error {
 	if err := c.read(); err != nil {
 		return err
 	}
@@ -77,7 +84,7 @@ func (c *Controller) Set(ip string, alias string) error {
 	return nil
 }
 
-func (c *Controller) Remove(alias string) error {
+func (c *FileController) Remove(alias string) error {
 	if err := c.read(); err != nil {
 		return err
 	}
@@ -85,7 +92,7 @@ func (c *Controller) Remove(alias string) error {
 	return nil
 }
 
-func (c *Controller) List() ([]*Line, error) {
+func (c *FileController) List() ([]*Line, error) {
 	if err := c.read(); err != nil {
 		return nil, err
 	}
@@ -98,7 +105,7 @@ func (c *Controller) List() ([]*Line, error) {
 	return toDisplay, nil
 }
 
-func (c *Controller) Clear() error {
+func (c *FileController) Clear() error {
 	if err := c.read(); err != nil {
 		return err
 	}
@@ -106,7 +113,7 @@ func (c *Controller) Clear() error {
 	return nil
 }
 
-func (c *Controller) Apply() error {
+func (c *FileController) Apply() error {
 	if err := c.read(); err != nil {
 		return err
 	}
@@ -149,7 +156,7 @@ func (c *Controller) Apply() error {
 	return c.save()
 }
 
-func (c *Controller) save() error {
+func (c *FileController) save() error {
 	if c.DryRun {
 		return nil
 	}
@@ -158,9 +165,7 @@ func (c *Controller) save() error {
 	}
 	var cmd *exec.Cmd
 	if c.Sudo {
-		// cmd = exec.Command("sudo", "tee", c.HostsFile)
-		// TODO: not macos?
-		cmd = exec.Command("/usr/libexec/authopen", "-w", c.HostsFile)
+		cmd = exec.Command("sudo", "tee", c.HostsFile)
 	} else {
 		cmd = exec.Command("tee", c.HostsFile)
 	}

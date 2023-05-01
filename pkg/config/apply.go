@@ -6,7 +6,7 @@ import (
 	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
-func Apply(hctl *hostctl.Controller, cfg *Config) error {
+func Apply(hctl hostctl.Controller, cfg *Config) error {
 	if err := hctl.Clear(); err != nil {
 		return err
 	}

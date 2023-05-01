@@ -10,7 +10,7 @@ import (
 
 // Start will start the caddy server (if it hasn't been started already) and apply
 // the latest configuration.
-func Start(hctl *hostctl.Controller, cfg *config.Config) error {
+func Start(hctl hostctl.Controller, cfg *config.Config) error {
 	err := config.Apply(hctl, cfg)
 	if err != nil {
 		return err

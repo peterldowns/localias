@@ -19,7 +19,7 @@ import (
 // Start will apply the latest configuration and start the caddy daemon server,
 // then exit. If the caddy daemon server is already running, it will exit with
 // an error.
-func Start(hctl *hostctl.Controller, cfg *config.Config) error {
+func Start(hctl *hostctl.FileController, cfg *config.Config) error {
 	existing, err := Status()
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func Stop(cfg *config.Config) error {
 // Reload will apply the latest configuration details, and then update the
 // running caddy daemon server's configuration by sending an API request over
 // http.  If the daemon server is not running, it will return an error.
-func Reload(hctl *hostctl.Controller, cfg *config.Config) error {
+func Reload(hctl hostctl.Controller, cfg *config.Config) error {
 	err := config.Apply(hctl, cfg)
 	if err != nil {
 		return err

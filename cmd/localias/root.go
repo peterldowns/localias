@@ -65,3 +65,9 @@ func loadConfig() *config.Config {
 	}
 	return cfg
 }
+
+/*
+func loadHostctl() error {
+	return nil
+}
+*/
