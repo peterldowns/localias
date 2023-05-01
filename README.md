@@ -15,9 +15,9 @@ Usage:
 
 Examples:
   # Add an alias forwarding https://secure.test to http://127.0.0.1:9000
-  localias set --alias secure.test -p 9000
+  localias set secure.test 9000
   # Update an existing alias to forward to a different port
-  localias set --alias secure.test -p 9001
+  localias set secure.test 9001
   # Remove an alias
   localias remove secure.test
   # Show aliases
@@ -38,7 +38,6 @@ Examples:
 
 Available Commands:
   clear       clear all aliases
-  config      show the configuration file path
   daemon      interact with the daemon process
   help        Help about any command
   list        list all aliases
