@@ -2,13 +2,26 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
 
+var configFlags struct { //nolint:gochecknoglobals
+	Print *bool
+}
+
 func configImpl(_ *cobra.Command, _ []string) error {
 	cfg := loadConfig()
-	fmt.Println(cfg.Path)
+	if !*configFlags.Print {
+		fmt.Println(cfg.Path)
+		return nil
+	}
+	content, err := os.ReadFile(cfg.Path)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(content))
 	return nil
 }
 
@@ -19,5 +32,6 @@ var configCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
+	configFlags.Print = configCmd.Flags().BoolP("print", "p", false, "print the contents of the config file")
 	debugCmd.AddCommand(configCmd)
 }
