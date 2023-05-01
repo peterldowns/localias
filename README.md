@@ -84,7 +84,20 @@ TODO
 
 ## Errata
 
-### `.local` domains
+### Domain conflicts and HSTS
+
+When using Localias, you **should not** create aliases with the same name as existing websites. For instance, if you're working on a website hosted in production at `https://example.com`, you really do not want to create a local alias for `example.com` to point to your development server. If you do,
+your browser may do things you don't expect:
+
+- Your development cookies will be included in requests to production, and vice-versa. If you are turning localias off/on and switching between
+  development and production, these cookies will conflict with each other and generally make you and your website extremely confused.
+- If your production website uses [HSTS / certificate pinning](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security), you will see
+  very scary errors when trying to use it as a local alias for a development server. This is because localias will be serving content with a different
+  private key, but HSTS explicitly tells your browser to disallow this.
+
+In general, it's best to avoid this problem entirely and use aliases that end in [`.test`](https://en.wikipedia.org/wiki/.test), [`.example`](https://en.wikipedia.org/wiki/.example), [`.localhost`](https://en.wikipedia.org/wiki/.localhost), or some other TLD that is not in use.
+
+### `.local` domains on MacOS
 If you add an alias to a `.local` domain on a Mac, resolving the domain for the first time [will take add ~5-10s to every
 request thanks to Bonjour](https://superuser.com/questions/1596225/dns-resolution-delay-for-entries-in-etc-hosts). The workaround would be to set `127.0.0.1 domain.local` as well as `::1 domain.local` but that's tricky with the way that the `hostctl` package is currently implemented. 
 
@@ -120,19 +133,20 @@ This will tell Firefox to trust the system certificate store, and should immedia
 
 #### Windows
 
-The best way is to open Firefox's security settings and manually add the root certificate. Setting `security.enterprise_roots.enabled = true` like on MacOS unfortunately does not work on Windows.
-0. Find the path to the root certificate being used by Localias. Inside your WSL terminal, run:
-```console
-$ wslpath -w $(localias debug cert)
-\\wsl$\Ubuntu-20.04\home\pd\.local\state\localias\caddy\pki\authorities\local\root.crt
-```
-Copy this path to the clipboard.
+Setting `security.enterprise_roots.enabled = true` like on MacOS unfortunately does not work on Windows. The best way is to open Firefox's security settings and manually add the root certificate as a trusted authority. You can do this with the following steps:
+
+1. Find the path to the root certificate being used by Localias. Inside your WSL terminal, run:
+   ```console
+   $ wslpath -w $(localias debug cert)
+   \\wsl$\Ubuntu-20.04\home\pd\.local\state\localias\caddy\pki\authorities\local\root.crt
+   ```
+   Copy this path to the clipboard.
 1. In Firefox, visit *Settings > Privacy & Security > Security > Certificates*,
    or visit *Settings* and search for "certificates".
-2. Click *View Certificates*
-3. Under the *Authorities* tab, click *Import...*. This will open a filepicker dialog. In the "Name" field, paste the path to the root certificate that you copied earlier. Click *Open*.
-4. Check the box next to *Trust this CA to identify websites.* then click *OK*.
-5. You should now see "localias" listed as a certificate authority.
+1. Click *View Certificates*
+1. Under the *Authorities* tab, click *Import...*. This will open a filepicker dialog. In the "Name" field, paste the path to the root certificate that you copied earlier. Click *Open*.
+1. Check the box next to *Trust this CA to identify websites.* then click *OK*.
+1. You should now see "localias" listed as a certificate authority.
 
 Once localias has been added as a certificate authority, you should be able to visit your aliases in Firefox without any security warnings.
 
