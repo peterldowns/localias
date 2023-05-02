@@ -1,14 +1,21 @@
 | :warning: Work In Progress |
 |----------------------------|
-# localias
+# Localias
 
-`localias` is a CLI utility for developers to control local test domains. You can use it to alias arbitrary domains to local dev servers. Built on [`caddy`](https://caddyserver.com/), you get automatic TLS configuration and good performance out of the box.
+Localias is a tool for developers to securely manage local aliases for development servers.
 
-A simple example would be to make it possible to visit `https://server.test` in your browser, and have that request served by a local devserver running at `http://localhost:3000`.
+You can use Localias to make it possible to visit `https://server.test` in your browser, and have that request served by a local devserver running at `http://localhost:3000`.
+
+Major features:
+- Works perfectly on MacOS, Linux, and even WSL2 (!)
+- Automatically provisions and installs TLS certificates for all of your aliases by default.
+- Automatically updates `/etc/hosts` as you add and remove aliases.
+- Runs in the foreground or as a background daemon process.
+- Uses a shared configuration file if your team puts one in your git repository.
+- Built with [`caddy`](https://caddyserver.com/) so it's fast and secure by default.
 
 ```shell
-$ localias
-securely proxy domains to local development servers
+securely manage local aliases for development servers
 
 Usage:
   localias [command]
@@ -20,29 +27,28 @@ Examples:
   localias set secure.test 9001
   # Remove an alias
   localias remove secure.test
-  # Show aliases
+  # List all aliases
   localias list
   # Clear all aliases
   localias clear
-  # Run the server, automatically applying all necessary rules to
-  # /etc/hosts and creating any necessary TLS certificates
+  # Run the proxy server in the foreground
   localias run
-  # Run the server as a daemon
+  # Start the proxy server as a daemon process
   localias daemon start
-  # Check whether or not the daemon is running
+  # Show the status of the daemon process
   localias daemon status
-  # Reload the config that the daemon is using
+  # Apply the latest configuration to the proxy server in the daemon process
   localias daemon reload
-  # Stop the daemon if it is running
+  # Stop the daemon process
   localias daemon stop
 
 Available Commands:
   clear       clear all aliases
-  daemon      interact with the daemon process
+  daemon      control the proxy server daemon
   help        Help about any command
   list        list all aliases
   remove      remove an alias
-  run         run the caddy server
+  run         run the proxy server in the foreground
   set         add or edit an alias
   version     show the version of this binary
 
@@ -56,11 +62,65 @@ Use "localias [command] --help" for more information about a command.
 
 ## Install
 
-TODO
+Golang:
+```bash
+# run it
+go run github.com/peterldowns/localias/cmd/localias@latest --help
+# install it
+go install github.com/peterldowns/localias/cmd/localias@latest
+```
+
+Homebrew:
+```bash
+# install it
+brew tap peterldowns/tap
+brew install localias
+```
+
+Nix (flakes):
+```bash
+# run it
+nix run github:peterldowns/localias --help
+# install it
+nix profile install github:peterldowns/localias --refresh
+```
+
+Manual:
+- Visit [the latest Github release](https://github.com/peterldowns/localias/releases/latest)
+- Download the appropriate binary: `localias-$os-$arch`
 
 ## Configuration
+Every time you run `localias`, it looks for a config file in the following places, using the first one that it finds:
 
-TODO
+- If you pass an explicit `--configfile <path>`, it will attempt to use `<path>`
+- If you set an environment variable `LOCALIAS_CONFIGFILE=<path>`, it will attempt to use `<path>`
+- If your current directory has `.localias.yaml`, it will use `$pwd/.localias.yaml`
+- If you are in a git repository and there is a `.localias.yaml` at the root of the repository, use `$repo_root/.localias.yaml`
+- Otherwise, use `$XDG_CONFIG_HOME/localias.yaml`, creating it if necessary.
+  - On MacOS, this defaults to `~/Library/Application\ Support/localias.yaml`
+  - On Linux or on WSL, this defaults to `~/.config/localias.yaml`
+
+This means that your whole dev team can share the same aliases by adding `.localias.yaml` to the root of your git repository.
+
+To show the configuration file currently in use, you can run
+
+```bash
+# Print the path to the current configuration file
+localias debug config
+# Print the contents of the current configuration file
+localias debug config --print
+```
+
+### Syntax
+
+The configuration file is just a YAML map of `<alias>: <port>`! For example, this is a valid configuration file:
+
+```yaml
+https://secure.test: 9000
+http://insecure.test: 9001
+insecure2.test: 9002
+bareTLD: 9003
+```
 
 ## How it works
 
@@ -68,6 +128,7 @@ TODO
 
 ## TODOS
 
+- [ ] Allow picking the config file from the macos app
 - [ ] Instructions for installing / using the macos app
 - [ ] homebrew bottles for the cli
 - [ ] Docs for the WSL support

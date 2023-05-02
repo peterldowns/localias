@@ -8,15 +8,15 @@ import (
 
 var Command = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "daemon",
-	Short: "interact with the daemon process",
+	Short: "control the proxy server daemon",
 	Example: shared.Example(`
-# Run the server as a daemon
+# Start the proxy server as a daemon process
 localias daemon start
-# Check whether or not the daemon is running
+# Show the status of the daemon process
 localias daemon status
-# Reload the config that the daemon is using
+# Apply the latest configuration to the proxy server in the daemon process
 localias daemon reload
-# Stop the daemon if it is running
+# Stop the daemon process
 localias daemon stop
 	`),
 }

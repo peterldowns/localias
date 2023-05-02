@@ -15,16 +15,15 @@ var configFlags struct { //nolint:gochecknoglobals
 
 func configImpl(_ *cobra.Command, _ []string) error {
 	cfg := shared.Config()
-	if !*configFlags.Print {
-		fmt.Println(cfg.Path)
+	if *configFlags.Print {
+		content, err := os.ReadFile(cfg.Path)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(content))
 		return nil
 	}
-	fmt.Println(cfg.Caddyfile())
-	content, err := os.ReadFile(cfg.Path)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(content))
+	fmt.Println(cfg.Path)
 	return nil
 }
 

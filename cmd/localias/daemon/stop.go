@@ -14,7 +14,7 @@ func stopImpl(_ *cobra.Command, _ []string) error {
 
 var stopCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "stop",
-	Short: "stop running the background daemon",
+	Short: "stop the daemon process",
 	RunE:  stopImpl,
 }
 

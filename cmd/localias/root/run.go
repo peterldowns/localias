@@ -22,7 +22,7 @@ func runImpl(_ *cobra.Command, _ []string) error {
 
 var runCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "run",
-	Short: "run the caddy server",
+	Short: "run the proxy server in the foreground",
 	RunE:  runImpl,
 }
 

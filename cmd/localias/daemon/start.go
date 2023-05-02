@@ -19,7 +19,7 @@ func startImpl(_ *cobra.Command, _ []string) error {
 
 var startCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "start",
-	Short: "start running the background daemon",
+	Short: "start the proxy server as a daemon process",
 	RunE:  startImpl,
 }
 

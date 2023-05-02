@@ -61,28 +61,26 @@ var setCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Example: shared.Example(`
 # Add secure aliases (automatically upgrade http:// requests to https://)
 ## alias https://secure-explicit.test to 127.0.0.1:9001
-localias set --alias https://secure-explicit.test --port 9001
+localias set https://secure-explicit.test 9001
 ## alias https://secure-implicit.test to 127.0.0.1:9002
-localias set --alias secure-implicit.test --port 9002
+localias set secure-implicit.test 9002
 
 # Add insecure aliases (only support http:// requests)
 ## alias http://not-secure.test to 127.0.0.1:9003
-localias set --alias http://not-secure.test --port 9003
+localias set http://not-secure.test 9003
 
 # Add multiple aliases for the same local port
-localias set --alias door1.test --port 9000
-localias set --alias door2.test --port 9000
+localias set door1.test 9000
+localias set door2.test 9000
 
 # Update an existing alias
-localias set --alias example.test --port 9001
-localias set --alias example.test --port 9002
+localias set example.test 9001
+localias set example.test 9002
 
 # Alternative forms
 localias set example.test 9001
 localias set -a example.test -p 9001
 localias set --alias example.test --port 9001
-
-
 	`),
 	RunE: setImpl,
 }

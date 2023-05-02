@@ -23,7 +23,7 @@ func statusImpl(_ *cobra.Command, _ []string) error {
 
 var statusCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "status",
-	Short: "show the status of the background daemon",
+	Short: "show the status of the daemon process",
 	RunE:  statusImpl,
 }
 

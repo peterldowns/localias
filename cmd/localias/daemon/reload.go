@@ -19,7 +19,7 @@ func reloadImpl(_ *cobra.Command, _ []string) error {
 
 var reloadCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "reload",
-	Short: "reload the background daemon's config",
+	Short: "apply the latest configuration to the proxy server in the daemon process",
 	RunE:  reloadImpl,
 }
 

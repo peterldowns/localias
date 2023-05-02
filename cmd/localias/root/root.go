@@ -11,7 +11,7 @@ import (
 var Command = &cobra.Command{ //nolint:gochecknoglobals
 	Version: shared.VersionString(),
 	Use:     "localias",
-	Short:   "securely proxy domains to local development servers",
+	Short:   "securely manage local aliases for development servers",
 	Example: shared.Example(`
 # Add an alias forwarding https://secure.test to http://127.0.0.1:9000
 localias set secure.test 9000
@@ -19,20 +19,19 @@ localias set secure.test 9000
 localias set secure.test 9001
 # Remove an alias
 localias remove secure.test
-# Show aliases
+# List all aliases
 localias list
 # Clear all aliases
 localias clear
-# Run the server, automatically applying all necessary rules to
-# /etc/hosts and creating any necessary TLS certificates
+# Run the proxy server in the foreground
 localias run
-# Run the server as a daemon
+# Start the proxy server as a daemon process
 localias daemon start
-# Check whether or not the daemon is running
+# Show the status of the daemon process
 localias daemon status
-# Reload the config that the daemon is using
+# Apply the latest configuration to the proxy server in the daemon process
 localias daemon reload
-# Stop the daemon if it is running
+# Stop the daemon process
 localias daemon stop
   `),
 }
