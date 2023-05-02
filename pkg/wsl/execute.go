@@ -14,7 +14,7 @@ import (
 //go:embed scripts
 var scripts embed.FS
 
-func powershell(scriptPath string, args ...string) (string, error) {
+func powershell(scriptPath string, args ...string) (string, error) { //nolint:unparam // stdout not yet used
 	scriptContents, err := scripts.ReadFile(scriptPath)
 	if err != nil {
 		return "", err

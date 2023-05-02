@@ -89,12 +89,18 @@ func (w *WSL2Controller) Clear() error {
 	return nil
 }
 
-func (w *WSL2Controller) Apply() error {
-	if err := w.EtcHostsController.Apply(); err != nil {
-		return err
+// TODO: this is definitely the wrong abstraction for dealing wth
+// multiple controllers. fuck it.
+func (w *WSL2Controller) Apply() (bool, error) {
+	if _, err := w.EtcHostsController.Apply(); err != nil {
+		return false, err
 	}
-	if err := w.TmpController.Apply(); err != nil {
-		return err
+	changes, err := w.TmpController.Apply()
+	if err != nil {
+		return changes, err
 	}
-	return wsl.WriteWindowsHostsFromFile(w.TmpController.HostsFile)
+	if changes {
+		return true, wsl.WriteWindowsHostsFromFile(w.TmpController.HostsFile)
+	}
+	return false, nil
 }

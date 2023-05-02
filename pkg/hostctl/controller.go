@@ -22,7 +22,7 @@ type Controller interface {
 	Remove(alias string) error
 	List() ([]*Line, error)
 	Clear() error
-	Apply() error
+	Apply() (bool, error)
 }
 
 type FileController struct {
@@ -118,9 +118,9 @@ func (c *FileController) Clear() error {
 	return nil
 }
 
-func (c *FileController) Apply() error {
+func (c *FileController) Apply() (bool, error) {
 	if err := c.read(); err != nil {
-		return err
+		return false, err
 	}
 	var changed bool
 	var result []*Line
@@ -156,9 +156,9 @@ func (c *FileController) Apply() error {
 	}
 	c.lines = result
 	if !changed {
-		return nil
+		return false, nil
 	}
-	return c.save()
+	return true, c.save()
 }
 
 func (c *FileController) save() error {

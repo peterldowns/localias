@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 
 	"github.com/peterldowns/localias/pkg/hostctl"
@@ -20,7 +18,7 @@ func Apply(hctl hostctl.Controller, cfg *Config) error {
 		if err := hctl.SetLocal(up.Host); err != nil {
 			return err
 		}
-		fmt.Println(entry.String())
 	}
-	return hctl.Apply()
+	_, err := hctl.Apply()
+	return err
 }
