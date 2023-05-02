@@ -31,6 +31,9 @@ schema = 3
   [mod."github.com/alecthomas/chroma/v2"]
     version = "v2.5.0"
     hash = "sha256-eYjXjerKbWc3IZACr771c3y3kFQmhmeahU57N8Nfbtw="
+  [mod."github.com/alessio/shellescape"]
+    version = "v1.4.1"
+    hash = "sha256-rTWqbtC+EVz4fT2HmDWpucUTMtQyraInPYf2hlG8/pM="
   [mod."github.com/antlr/antlr4/runtime/Go/antlr"]
     version = "v1.4.10"
     hash = "sha256-QZn1eltqxkZYvf7g/GQv6HftH+OuKJTVjIjyyHZw9jI="

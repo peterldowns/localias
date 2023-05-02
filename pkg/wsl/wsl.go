@@ -1,94 +1,29 @@
 package wsl
 
-import (
-	"bytes"
-	"embed"
-	"fmt"
-	"os/exec"
-)
-
-//go:embed scripts
-var scripts embed.FS
-
 func IsWSL() bool {
-	return false
+	msg, err := bash("scripts/detect.sh")
+	if err != nil {
+		panic(err)
+	}
+	return msg != ""
 }
 
-func Bash(script string, args ...string) ([]byte, error) {
-	scriptContents, err := scripts.ReadFile("scripts/" + script)
+func IP() string {
+	ip, err := bash("scripts/wsl-ip.sh")
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-
-	// this is how you send flags/params/args to a script being executed via
-	// stdin:
-	//
-	// 		cat script.sh | bash -s - foo bar
-	//
-	// https://stackoverflow.com/a/8514318
-	cmdArgs := append([]string{"-s", "-"}, args...)
-	cmd := exec.Command("bash", cmdArgs...)
-
-	var stdout, stderr bytes.Buffer
-	cmd.Stdin = bytes.NewReader(scriptContents)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Start(); err != nil {
-		return nil, err
-	}
-
-	if err := cmd.Wait(); err != nil {
-		if errMsg := stderr.String(); errMsg != "" {
-			return nil, fmt.Errorf("%w: script %s failed: %s", err, script, errMsg)
-		}
-		return nil, err
-	}
-	return stdout.Bytes(), nil
+	return ip
 }
 
-/*
-	cmd := exec.Command("bash")
-	stdin, err := cmd.StdinPipe()
+func ReadWindowsHosts() (string, error) {
+	return bash("scripts/read-etc-hosts.sh")
+}
+
+func Example(message string) (string, error) {
+	out, err := powershell("scripts/example.ps1", message)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return "", err
 	}
-	defer stdin.Close()
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err = cmd.Start()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	script, err := helloScript.ReadFile("hello.sh")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	if len(os.Args) > 1 {
-		script = []byte(fmt.Sprintf("%s %s", string(script), os.Args[1]))
-	}
-
-	_, err = stdin.Write(script)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	err = stdin.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}*/
+	return string(out), nil
+}
