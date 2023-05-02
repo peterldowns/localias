@@ -14,51 +14,53 @@ Major features:
 - Uses a shared configuration file if your team puts one in your git repository.
 - Built with [`caddy`](https://caddyserver.com/) so it's fast and secure by default.
 
-```shell
-securely manage local aliases for development servers
+## Quickstart
 
-Usage:
-  localias [command]
+After installing `localias`, getting started is easy. First, add some aliases. We'll assume you're running a standard http devserver on `http://localhost:3000`:
 
-Examples:
-  # Add an alias forwarding https://secure.test to http://127.0.0.1:9000
-  localias set secure.test 9000
-  # Update an existing alias to forward to a different port
-  localias set secure.test 9001
-  # Remove an alias
-  localias remove secure.test
-  # List all aliases
-  localias list
-  # Clear all aliases
-  localias clear
-  # Run the proxy server in the foreground
-  localias run
-  # Start the proxy server as a daemon process
-  localias daemon start
-  # Show the status of the daemon process
-  localias daemon status
-  # Apply the latest configuration to the proxy server in the daemon process
-  localias daemon reload
-  # Stop the daemon process
-  localias daemon stop
-
-Available Commands:
-  clear       clear all aliases
-  daemon      control the proxy server daemon
-  help        Help about any command
-  list        list all aliases
-  remove      remove an alias
-  run         run the proxy server in the foreground
-  set         add or edit an alias
-  version     show the version of this binary
-
-Flags:
-  -c, --configfile string   path to the configuration file to edit
-  -h, --help                help for localias
-  -v, --version             version for localias
-
-Use "localias [command] --help" for more information about a command.
+```console
+$ localias set frontend.test 3000
+[added] frontend.test -> 3000
 ```
+
+You can verify that the rules were added correctly:
+
+```console
+$ localias list
+frontend.test -> 3000
+```
+
+Now, run the proxy server. You can do this in the foreground with `localias run` or in the background with `localias daemon start`. For the purposes of this example, we'll do it in the foreground:
+
+```console
+$ localias run
+# some prompts to authenticate as root
+# ... lots of server logs like this:
+2023/05/02 23:12:58.218 INFO    tls.obtain      acquiring lock  {"identifier": "frontend.test"}
+2023/05/02 23:12:58.229 INFO    tls.obtain      lock acquired   {"identifier": "frontend.test"}
+2023/05/02 23:12:58.230 INFO    tls.obtain      obtaining certificate   {"identifier": "frontend.test"}
+2023/05/02 23:12:58.230 INFO    tls.obtain      certificate obtained successfully       {"identifier": "frontend.test"}
+2023/05/02 23:12:58.230 INFO    tls.obtain      releasing lock  {"identifier": "frontend.test"}
+# process is now waiting for requests
+```
+
+This will prompt you to authenticate at least once. Each time Localias runs, it will
+
+- Automatically edit your `/etc/hosts` file and add entries for each of your aliases.
+- Sign TLS certificates for your aliases, and install its root certificate to your system if it hasn't done so already. 
+
+Each of these steps requires sudo access. But starting/stopping Localias will only prompt for sudo when it needs to, so if you hit `control-C` and restart the process you won't get prompted again:
+
+```console
+^C
+$ localias run
+# ... lots of server logs
+# ... but no sudo prompts!
+```
+
+Congratulations, you're done!  Start your development servers (or just one of them) in another console. You should be able to visit [`https://frontend.test`](https://frontend.test) in your browser, or make a request with `curl`, and see everything work perfectly\*.
+
+\* *are you using Firefox, or are you on WSL? See the notes below for how to do the one-time install of the localias root certificate*
 
 ## Install
 
@@ -122,32 +124,53 @@ insecure2.test: 9002
 bareTLD: 9003
 ```
 
-## How it works
-
-TODO
-
 ## TODOS
 
-- [ ] Allow picking the config file from the macos app
-- [ ] Instructions for installing / using the macos app
-- [ ] homebrew bottles for the cli
-- [ ] Docs for the WSL support
-- [ ] Daemon config command for dumping running config
-- [ ] --json formatting for command line controller + caddy logs as well
-- [ ] Helper for doing explicit certificate installation
-  - [ ] Handle firefox as well
-  - [ ] automatically install localias root certs using powershell script when
-        running in wsl2 
+- [ ] Docs
+  - [ ] How it works section
+  - [ ] WSL2 details
+  - [ ] MacOS app details
+- [ ] MacOS App
+  - [ ] Allow picking the config file
+  - [ ] Instructions for installing / using the macos app
+- [ ] Installation
+  - [ ] homebrew bottles working correctly
+- [ ] Improvements
+  - [ ] Daemon config command for dumping running config
+  - [ ] `--json` formatting for command line controller + caddy logs as well
+  - [ ] Helper for doing explicit certificate installation
+    - [ ] Handle firefox as well
+    - [ ] automatically install localias root certs using powershell script when
+          running in wsl2 
 - [ ] Code review + cleanup
   - [ ] golang
   - [ ] swift
   - [ ] infra/scripts
 
-```
-powershell.exe ./installcert.ps1  $(wslpath -w ~/.local/state/localias/caddy/pki/authorities/local/root.crt)
-```
-
 ## Errata
+
+### Why build this?
+
+Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://jeansaad/chalet) (maintained). These projects (basically the same) have the following drawbacks compared to Localias:
+
+- They require NodeJS
+- They require configuring a proxy auto-config file
+- They do things I don't want (proxying requests to external domains, process management)
+- They don't install their self-signed SSL certificates
+- They don't allow teams to easily share configuration files
+
+I also wanted an excuse to play around with building a MacOS app, and this seemed like a small and well-defined problem that would be amenable to learning Swift.
+
+Finally, [my friend Justin wanted this to exist, too](https://twitter.com/jmduke/status/1628034461605539840?s=20):
+
+> I swear there's a tool that lets me do:
+> 
+> localhost:8000 → application.local
+> localhost:3000 → marketing.local
+> localhost:3002 → docs.local
+> 
+> But I can't for the life of me remember the name of it. Does anyone know what I'm talking about?
+
 
 ### Domain conflicts and HSTS
 
