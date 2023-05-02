@@ -35,3 +35,9 @@ func TestWriteWindowsHosts(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "", result)
 }
+
+func TestInstallCert(t *testing.T) {
+	path := "/home/pd/.local/state/localias/caddy/pki/authorities/local/root.crt"
+	err := InstallCert(path)
+	require.NoError(t, err)
+}

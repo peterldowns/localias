@@ -11,7 +11,6 @@ function Run {
     Start-Process powershell.exe -WindowStyle hidden -Wait -ArgumentList @args
 }
 
-# $command="Set-Content -Path $outfile -Value (Get-Content -Path $infile) -Force"
 $command="Copy-Item -Path $infile -Destination $outfile -Force"
 
 if ($sudo.ToString() -eq "sudo") {

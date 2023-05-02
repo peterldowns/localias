@@ -13,7 +13,7 @@ func IsWSL() bool {
 }
 
 func IP() string {
-	ip, err := bash("scripts/get-wsl-ip.sh")
+	ip, err := bash("scripts/ip.sh")
 	if err != nil {
 		panic(err)
 	}
@@ -21,7 +21,7 @@ func IP() string {
 }
 
 func ReadWindowsHosts() (string, error) {
-	return bash("scripts/read-windows-hostsfile.sh")
+	return bash("scripts/read-windows-hosts.sh")
 }
 
 func WriteWindowsHostsFromFile(tmpFilePath string) (string, error) {
@@ -48,4 +48,13 @@ func WriteWindowsHosts(contents string) (string, error) {
 	path := tmpfile.Name()
 	defer os.Remove(path) // delete the temporary file after the command is done
 	return WriteWindowsHostsFromFile(path)
+}
+
+func InstallCert(certPath string) error {
+	winCertPath, err := execute("wslpath", nil, "-w", certPath)
+	if err != nil {
+		return err
+	}
+	_, err = powershell("scripts/install-cert.ps1", winCertPath)
+	return err
 }
