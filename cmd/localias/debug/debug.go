@@ -1,15 +1,15 @@
-package main
+package debug
 
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/localias/pkg/util"
+	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
-var debugCmd = &cobra.Command{ //nolint:gochecknoglobals
+var Command = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "debug",
 	Short: "various helpers for debugging localias",
-	Example: util.Example(`
+	Example: shared.Example(`
 # show the path to the current configuration file
 localias debug config
 # print the contents of the current configuration file
@@ -21,8 +21,4 @@ localias debug cert --print
 
 	`),
 	Hidden: true,
-}
-
-func init() { //nolint:gochecknoinits
-	rootCmd.AddCommand(debugCmd)
 }

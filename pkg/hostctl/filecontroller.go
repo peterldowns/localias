@@ -7,60 +7,32 @@ import (
 	"strings"
 )
 
-const (
-	DefaultHostsFile = "/etc/hosts"
-	DefaultSudo      = true
-	DefaultDryRun    = false
-	DefaultName      = "localias"
-)
+var _ Controller = &FileController{}
 
-var ErrFileNotOpen = fmt.Errorf("file is nil, call .Open() first")
-
-type Controller interface {
-	Set(ip string, alias string) error
-	SetLocal(alias string) error
-	Remove(alias string) error
-	List() ([]*Line, error)
-	Clear() error
-	Apply() (bool, error)
+func NewFileController(
+	hostsFile string,
+	sudo bool,
+	name string,
+) *FileController {
+	return &FileController{
+		Path: hostsFile,
+		Sudo: sudo,
+		Name: name,
+	}
 }
 
 type FileController struct {
-	HostsFile string
-	Sudo      bool
-	DryRun    bool
-	Name      string
+	Path string
+	Sudo bool
+	Name string
 	// Internal details
 	lines []*Line
 	lmap  map[string]string
 }
 
-func NewController(
-	hostsFile string,
-	sudo bool,
-	dryRun bool,
-	name string,
-) *FileController {
-	return &FileController{
-		HostsFile: hostsFile,
-		Sudo:      sudo,
-		DryRun:    dryRun,
-		Name:      name,
-	}
-}
-
-func DefaultController() *FileController {
-	return NewController(
-		DefaultHostsFile,
-		DefaultSudo,
-		DefaultDryRun,
-		DefaultName,
-	)
-}
-
 func (c *FileController) read() error {
 	if c.lines == nil {
-		lines, err := Open(c.HostsFile)
+		lines, err := Open(c.Path)
 		if err != nil {
 			return err
 		}
@@ -95,19 +67,6 @@ func (c *FileController) Remove(alias string) error {
 	}
 	delete(c.lmap, alias)
 	return nil
-}
-
-func (c *FileController) List() ([]*Line, error) {
-	if err := c.read(); err != nil {
-		return nil, err
-	}
-	var toDisplay []*Line
-	for _, line := range c.lines {
-		if isControlled(line, c.Name) {
-			toDisplay = append(toDisplay, line)
-		}
-	}
-	return toDisplay, nil
 }
 
 func (c *FileController) Clear() error {
@@ -162,17 +121,14 @@ func (c *FileController) Apply() (bool, error) {
 }
 
 func (c *FileController) save() error {
-	if c.DryRun {
-		return nil
-	}
-	if c.HostsFile == "" {
+	if c.Path == "" {
 		return fmt.Errorf("cannot save file: path is empty")
 	}
 	var cmd *exec.Cmd
 	if c.Sudo {
-		cmd = exec.Command("sudo", "tee", c.HostsFile)
+		cmd = exec.Command("sudo", "tee", c.Path)
 	} else {
-		cmd = exec.Command("tee", c.HostsFile)
+		cmd = exec.Command("tee", c.Path)
 	}
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -186,7 +142,7 @@ func (c *FileController) save() error {
 		}
 	}()
 	if errtxt, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed to save file %s: %w: %s", c.HostsFile, err, errtxt)
+		return fmt.Errorf("failed to save file %s: %w: %s", c.Path, err, errtxt)
 	}
 	return nil
 }

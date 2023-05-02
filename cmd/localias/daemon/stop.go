@@ -1,13 +1,14 @@
-package main
+package daemon
 
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/peterldowns/localias/cmd/localias/shared"
 	"github.com/peterldowns/localias/pkg/daemon"
 )
 
 func stopImpl(_ *cobra.Command, _ []string) error {
-	cfg := loadConfig()
+	cfg := shared.Config()
 	return daemon.Stop(cfg)
 }
 
@@ -18,5 +19,5 @@ var stopCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
-	daemonCmd.AddCommand(stopCmd)
+	Command.AddCommand(stopCmd)
 }

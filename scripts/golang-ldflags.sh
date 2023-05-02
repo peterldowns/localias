@@ -20,4 +20,5 @@ if [ -z "$COMMIT" ]; then
   COMMIT="$(git rev-parse --short HEAD || echo 'unknown')"
 fi
 
-echo "-X main.Version=$VERSION -X main.Commit=$COMMIT"
+package="github.com/peterldowns/localias/cmd/localias/shared"
+echo "-X $package.Version=$VERSION -X $package.Commit=$COMMIT"

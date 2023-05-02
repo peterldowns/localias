@@ -12,14 +12,12 @@ import (
 	godaemon "github.com/sevlyar/go-daemon"
 
 	"github.com/peterldowns/localias/pkg/config"
-	"github.com/peterldowns/localias/pkg/hostctl"
 	"github.com/peterldowns/localias/pkg/server"
 )
 
-// Start will apply the latest configuration and start the caddy daemon server,
-// then exit. If the caddy daemon server is already running, it will exit with
-// an error.
-func Start(hctl *hostctl.FileController, cfg *config.Config) error {
+// Start will apply the latest configuration and then start the daemon process.
+// If it is already running, this function will return an error.
+func Start(cfg *config.Config) error {
 	existing, err := Status()
 	if err != nil {
 		return err
@@ -41,13 +39,13 @@ func Start(hctl *hostctl.FileController, cfg *config.Config) error {
 	defer func() {
 		_ = cntxt.Release()
 	}()
-	if err := server.Start(hctl, cfg); err != nil {
+	if err := server.Start(cfg); err != nil {
 		return err
 	}
 	select {}
 }
 
-// Status will determine whether or not the caddy daemon server is running.  If
+// Status will determine whether or not the daemon process is running. If
 // it is, it returns the non-nil os.Process of that daemon.
 func Status() (*os.Process, error) {
 	cntxt := daemonContext()
@@ -64,8 +62,8 @@ func Status() (*os.Process, error) {
 	return proc, nil
 }
 
-// Stop will attempt to stop the caddy daemon server by sending an API request
-// over http. If the daemon server is not running, it will return an error.
+// Stop will attempt to stop the daemon process by sending an API request
+// over http. If the daemon process is not running, this will return an error.
 func Stop(cfg *config.Config) error {
 	address, err := determineAPIAddress(cfg)
 	if err != nil {
@@ -80,13 +78,9 @@ func Stop(cfg *config.Config) error {
 }
 
 // Reload will apply the latest configuration details, and then update the
-// running caddy daemon server's configuration by sending an API request over
-// http.  If the daemon server is not running, it will return an error.
-func Reload(hctl hostctl.Controller, cfg *config.Config) error {
-	err := config.Apply(hctl, cfg)
-	if err != nil {
-		return err
-	}
+// running daemon process's server configuration by sending an API request over
+// http. If the daemon process is not running, this will return an error.
+func Reload(cfg *config.Config) error {
 	cfgJSON, _, err := cfg.CaddyJSON()
 	if err != nil {
 		return err
@@ -106,7 +100,7 @@ func Reload(hctl hostctl.Controller, cfg *config.Config) error {
 }
 
 // daemonContext returns a consistent godaemon context that is used to control
-// the caddy daemon server.
+// the daemon process that will run the caddy server.
 func daemonContext() *godaemon.Context {
 	pidFile, err := xdg.StateFile("localias/daemon.pid")
 	if err != nil {

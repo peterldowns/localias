@@ -1,14 +1,16 @@
-package main
+package root
 
 import (
 	"fmt"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+
+	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
 func clearImpl(_ *cobra.Command, _ []string) error {
-	cfg := loadConfig()
+	cfg := shared.Config()
 	removed := cfg.Clear()
 	if err := cfg.Save(); err != nil {
 		return err
@@ -31,5 +33,5 @@ var clearCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
-	rootCmd.AddCommand(clearCmd)
+	Command.AddCommand(clearCmd)
 }

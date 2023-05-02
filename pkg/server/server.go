@@ -5,15 +5,10 @@ import (
 
 	_ "github.com/peterldowns/localias/pkg/caddymodules" // necessary caddy configuration
 	"github.com/peterldowns/localias/pkg/config"
-	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
-// Start will start the caddy server (if it hasn't been started already) and apply
-// the latest configuration.
-func Start(hctl hostctl.Controller, cfg *config.Config) error {
-	if err := config.Apply(hctl, cfg); err != nil {
-		return err
-	}
+// Start will start the caddy server (if it hasn't been started already).
+func Start(cfg *config.Config) error {
 	cfgJSON, _, err := cfg.CaddyJSON()
 	if err != nil {
 		return err
@@ -21,7 +16,7 @@ func Start(hctl hostctl.Controller, cfg *config.Config) error {
 	return caddy.Load(cfgJSON, false)
 }
 
-// Stop the caddy server (if it is running)
+// Stop will stop the caddy server (if it is running).
 func Stop() error {
 	return caddy.Stop()
 }

@@ -1,4 +1,4 @@
-package main
+package debug
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/peterldowns/localias/cmd/localias/shared"
 	"github.com/peterldowns/localias/pkg/wsl"
 )
 
@@ -16,7 +17,7 @@ var certFlags struct { //nolint:gochecknoglobals
 }
 
 func certImpl(_ *cobra.Command, _ []string) error {
-	cfg := loadConfig()
+	cfg := shared.Config()
 	caddyStatePath := cfg.CaddyStatePath()
 	rootCrtPath := filepath.Join(caddyStatePath, "pki/authorities/local/root.crt")
 	fmt.Println(rootCrtPath)
@@ -47,5 +48,5 @@ var certCmd = &cobra.Command{ //nolint:gochecknoglobals
 func init() { //nolint:gochecknoinits
 	certFlags.Print = certCmd.Flags().BoolP("print", "p", false, "print the contents of the certificate")
 	certFlags.Install = certCmd.Flags().BoolP("install", "i", false, "install the certificate to the windows cert store")
-	debugCmd.AddCommand(certCmd)
+	Command.AddCommand(certCmd)
 }

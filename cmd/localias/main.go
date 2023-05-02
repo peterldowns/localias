@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/fatih/color"
+
+	"github.com/peterldowns/localias/cmd/localias/root"
 )
 
 func main() {
@@ -20,7 +22,7 @@ func main() {
 			}
 		}
 	}()
-	if err := rootCmd.Execute(); err != nil {
+	if err := root.Command.Execute(); err != nil {
 		onError(err)
 	}
 }

@@ -1,14 +1,16 @@
-package main
+package root
 
 import (
 	"fmt"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+
+	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
 func removeImpl(_ *cobra.Command, aliases []string) error {
-	cfg := loadConfig()
+	cfg := shared.Config()
 	removed := cfg.Remove(aliases...)
 	if err := cfg.Save(); err != nil {
 		return err
@@ -33,5 +35,5 @@ var removeCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
-	rootCmd.AddCommand(removeCmd)
+	Command.AddCommand(removeCmd)
 }

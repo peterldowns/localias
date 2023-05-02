@@ -1,4 +1,4 @@
-package main
+package daemon
 
 import (
 	"fmt"
@@ -28,5 +28,5 @@ var statusCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
-	daemonCmd.AddCommand(statusCmd)
+	Command.AddCommand(statusCmd)
 }

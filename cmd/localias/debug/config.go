@@ -1,10 +1,12 @@
-package main
+package debug
 
 import (
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
 var configFlags struct { //nolint:gochecknoglobals
@@ -12,7 +14,7 @@ var configFlags struct { //nolint:gochecknoglobals
 }
 
 func configImpl(_ *cobra.Command, _ []string) error {
-	cfg := loadConfig()
+	cfg := shared.Config()
 	if !*configFlags.Print {
 		fmt.Println(cfg.Path)
 		return nil
@@ -34,5 +36,5 @@ var configCmd = &cobra.Command{ //nolint:gochecknoglobals
 
 func init() { //nolint:gochecknoinits
 	configFlags.Print = configCmd.Flags().BoolP("print", "p", false, "print the contents of the config file")
-	debugCmd.AddCommand(configCmd)
+	Command.AddCommand(configCmd)
 }

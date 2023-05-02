@@ -70,16 +70,21 @@ TODO
 
 - [ ] Instructions for installing / using the macos app
 - [ ] homebrew bottles for the cli
-- [ ] WSL2 support for the cli
+- [ ] Docs for the WSL support
+- [ ] Daemon config command for dumping running config
+- [ ] --json formatting for command line controller + caddy logs as well
+- [ ] Helper for doing explicit certificate installation
+  - [ ] Handle firefox as well
+  - [ ] automatically install localias root certs using powershell script when
+        running in wsl2 
 - [ ] Code review + cleanup
   - [ ] golang
   - [ ] swift
   - [ ] infra/scripts
-- [ ] Install localias root & intermediate certs using powershell script when
-      running in wsl2 
-      ```
-      powershell.exe ./installcert.ps1  $(wslpath -w ~/.local/state/localias/caddy/pki/authorities/local/root.crt)
-      ```
+
+```
+powershell.exe ./installcert.ps1  $(wslpath -w ~/.local/state/localias/caddy/pki/authorities/local/root.crt)
+```
 
 ## Errata
 

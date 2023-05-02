@@ -25,9 +25,8 @@
       in
       rec {
         packages = rec {
-          # TODO: somehow pass ldflags here?
           localias = pkgs.buildGoApplication {
-            ldflags = [ "-X main.Version=${localiasVersion}" ];
+            ldflags = [ "-X github.com/peterldowns/localias/cmd/localias/shared.Version=${localiasVersion}" ];
             pname = "localias";
             version = localiasVersion;
             src = ./.;
@@ -71,11 +70,6 @@
                 # for xcodebuild / clang / etc to all work correctly.
                 # When not on MacOS, no problem, just won't be able to build
                 # the app.
-                #
-                # TODO: the xcodeenv in nixpkgs is tuned for iOS applications,
-                # not for MacOS. May as well modify it and keep something local.
-                # Or create a separate repo for it as a flake + correctly
-                # set LD=clang.
                 (xcodewrapper { allowHigher = true; })
                 # Makes the xcodebuild invocation prettier
                 xcpretty

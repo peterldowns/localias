@@ -1,4 +1,4 @@
-package main
+package root
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
+	"github.com/peterldowns/localias/cmd/localias/shared"
 	"github.com/peterldowns/localias/pkg/config"
-	"github.com/peterldowns/localias/pkg/util"
 )
 
 var setFlags struct { //nolint:gochecknoglobals
@@ -32,7 +32,7 @@ func setImpl(_ *cobra.Command, args []string) error {
 		port = int(x)
 	}
 
-	cfg := loadConfig()
+	cfg := shared.Config()
 	updated := cfg.Upsert(config.Entry{
 		Alias: alias,
 		Port:  port,
@@ -58,7 +58,7 @@ var setCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:     "set",
 	Short:   "add or edit an alias",
 	Aliases: []string{"add", "upsert", "update", "edit"},
-	Example: util.Example(`
+	Example: shared.Example(`
 # Add secure aliases (automatically upgrade http:// requests to https://)
 ## alias https://secure-explicit.test to 127.0.0.1:9001
 localias set --alias https://secure-explicit.test --port 9001
@@ -91,5 +91,5 @@ func init() { //nolint:gochecknoinits
 	setFlags.Alias = setCmd.Flags().StringP("alias", "a", "", "domain alias e.g. example.test")
 	setFlags.Port = setCmd.Flags().IntP("port", "p", 0, "local port e.g. 9000")
 	setCmd.MarkFlagsRequiredTogether("alias", "port")
-	rootCmd.AddCommand(setCmd)
+	Command.AddCommand(setCmd)
 }

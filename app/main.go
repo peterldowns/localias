@@ -41,8 +41,11 @@ func config_save(cfgjson *C.char) *C.char {
 //export server_start
 func server_start() *C.char {
 	cfg, _ := config.Load(nil)
-	hctl := hostctl.DefaultController()
-	if err := server.Start(hctl, cfg); err != nil {
+	hctl := hostctl.NewFileController("/etc/hosts", true, "localias")
+	if err := config.Apply(hctl, cfg); err != nil {
+		return C.CString(err.Error())
+	}
+	if err := server.Start(cfg); err != nil {
 		return C.CString(err.Error())
 	}
 	return nil

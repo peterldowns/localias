@@ -1,14 +1,16 @@
-package main
+package root
 
 import (
 	"fmt"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+
+	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
 func listImpl(_ *cobra.Command, _ []string) error {
-	cfg := loadConfig()
+	cfg := shared.Config()
 	for _, entry := range cfg.Entries {
 		fmt.Printf(
 			"%s -> %s\n",
@@ -27,5 +29,5 @@ var listCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func init() { //nolint:gochecknoinits
-	rootCmd.AddCommand(listCmd)
+	Command.AddCommand(listCmd)
 }
