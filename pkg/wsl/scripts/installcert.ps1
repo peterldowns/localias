@@ -18,4 +18,3 @@ if ($sudo.ToString() -eq "sudo") {
 } else {
   Run $command
 }
-

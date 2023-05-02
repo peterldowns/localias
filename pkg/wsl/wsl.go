@@ -1,7 +1,11 @@
 package wsl
 
+import (
+	"os"
+)
+
 func IsWSL() bool {
-	msg, err := bash("scripts/detect.sh")
+	msg, err := bash("scripts/is-wsl.sh")
 	if err != nil {
 		panic(err)
 	}
@@ -9,7 +13,7 @@ func IsWSL() bool {
 }
 
 func IP() string {
-	ip, err := bash("scripts/wsl-ip.sh")
+	ip, err := bash("scripts/get-wsl-ip.sh")
 	if err != nil {
 		panic(err)
 	}
@@ -17,13 +21,31 @@ func IP() string {
 }
 
 func ReadWindowsHosts() (string, error) {
-	return bash("scripts/read-etc-hosts.sh")
+	return bash("scripts/read-windows-hostsfile.sh")
 }
 
-func Example(message string) (string, error) {
-	out, err := powershell("scripts/example.ps1", message)
+func WriteWindowsHostsFromFile(tmpFilePath string) (string, error) {
+	winTmpFilePath, err := execute("wslpath", nil, "-w", tmpFilePath)
 	if err != nil {
 		return "", err
 	}
-	return string(out), nil
+	return powershell("scripts/write-file.ps1", winTmpFilePath, `$env:windir\System32\drivers\etc\hosts`, "sudo")
+}
+
+func WriteWindowsHosts(contents string) (string, error) {
+	// Create a temporary file
+	tmpfile, err := os.CreateTemp("", "localias-write-windows-hosts-*")
+	if err != nil {
+		panic(err)
+	}
+	defer tmpfile.Close()
+	if _, err := tmpfile.Write([]byte(contents)); err != nil {
+		return "", err
+	}
+	if err := tmpfile.Close(); err != nil {
+		return "", err
+	}
+	path := tmpfile.Name()
+	defer os.Remove(path) // delete the temporary file after the command is done
+	return WriteWindowsHostsFromFile(path)
 }

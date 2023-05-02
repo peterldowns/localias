@@ -1,3 +1,9 @@
+//go:build manual
+
+// These are tests designed to be run manually while working in a WSL environment.
+// They are not included in the automatic test suite since they depend on being run
+// from inside a WSL environment.
+
 package wsl
 
 import (
@@ -15,14 +21,17 @@ func TestIP(t *testing.T) {
 	require.Equal(t, "172.20.166.118", ip)
 }
 
-func TestExample(t *testing.T) {
-	msg, err := Example("hello, world")
-	require.NoError(t, err)
-	require.Equal(t, "Received message=hello, world", msg)
-}
-
 func TestReadWindowsHosts(t *testing.T) {
 	hosts, err := ReadWindowsHosts()
 	require.NoError(t, err)
-	require.Equal(t, "hello", hosts)
+	require.NotEqual(t, "", hosts)
+}
+
+func TestWriteWindowsHosts(t *testing.T) {
+	hosts, err := ReadWindowsHosts()
+	require.NoError(t, err)
+	hosts += "\n# added from inside golang TestWriteWindowsHosts!"
+	result, err := WriteWindowsHosts(hosts)
+	require.NoError(t, err)
+	require.Equal(t, "", result)
 }
