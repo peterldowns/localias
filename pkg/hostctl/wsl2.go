@@ -1,10 +1,15 @@
 package hostctl
 
-import "os"
+import (
+	"os"
+
+	"github.com/peterldowns/localias/pkg/wsl"
+)
 
 type WSL2Controller struct {
 	EtcHostsController *FileController
 	TmpController      *FileController
+	IP                 string
 }
 
 func NewWSL2Controller() *WSL2Controller {
@@ -17,26 +22,26 @@ func NewWSL2Controller() *WSL2Controller {
 		DryRun:    dryrun,
 		Name:      name,
 	}
-
+	x.IP = wsl.IP()
 	tmpfile, err := os.CreateTemp("", "localias-hosts-*")
 	if err != nil {
 		panic(err)
 	}
 	defer tmpfile.Close()
 
-	// TODO: get the contents from the WSL hosts file
-	if _, err := tmpfile.Write([]byte("127.0.0.1 localhost")); err != nil {
+	contents, err := wsl.ReadWindowsHosts()
+	if err != nil {
 		panic(err)
 	}
-
-	// defer os.Remove(f.Name()) // clean up
+	if _, err := tmpfile.Write([]byte(contents)); err != nil {
+		panic(err)
+	}
 	x.TmpController = &FileController{
 		HostsFile: tmpfile.Name(),
 		Sudo:      false,
 		DryRun:    dryrun,
 		Name:      name,
 	}
-
 	return &x
 }
 
@@ -45,6 +50,16 @@ func (w *WSL2Controller) Set(ip string, alias string) error {
 		return err
 	}
 	if err := w.TmpController.Set(ip, alias); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *WSL2Controller) SetLocal(alias string) error {
+	if err := w.EtcHostsController.SetLocal(alias); err != nil {
+		return err
+	}
+	if err := w.TmpController.Set(w.IP, alias); err != nil {
 		return err
 	}
 	return nil
@@ -81,6 +96,5 @@ func (w *WSL2Controller) Apply() error {
 	if err := w.TmpController.Apply(); err != nil {
 		return err
 	}
-	// TODO: now sync back to the windows host
-	return nil
+	return wsl.WriteWindowsHostsFromFile(w.TmpController.HostsFile)
 }

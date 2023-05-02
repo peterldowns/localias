@@ -31,9 +31,8 @@ func TestWriteWindowsHosts(t *testing.T) {
 	hosts, err := ReadWindowsHosts()
 	require.NoError(t, err)
 	hosts += "\n# added from inside golang TestWriteWindowsHosts!"
-	result, err := WriteWindowsHosts(hosts)
+	err = WriteWindowsHosts(hosts)
 	require.NoError(t, err)
-	require.Equal(t, "", result)
 }
 
 func TestInstallCert(t *testing.T) {

@@ -191,9 +191,9 @@ func (c Config) Caddyfile() string {
 	storage file_system "%s"
 	pki {
 		ca local {
-			name localias
-			root_cn localias
-			intermediate_cn localias
+			name "Localias"
+			root_cn "Localias Root"
+			intermediate_cn "Localias Intermediate"
 		}
 	}
 }

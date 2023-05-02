@@ -18,6 +18,7 @@ var ErrFileNotOpen = fmt.Errorf("file is nil, call .Open() first")
 
 type Controller interface {
 	Set(ip string, alias string) error
+	SetLocal(alias string) error
 	Remove(alias string) error
 	List() ([]*Line, error)
 	Clear() error
@@ -82,6 +83,10 @@ func (c *FileController) Set(ip string, alias string) error {
 	}
 	c.lmap[alias] = ip
 	return nil
+}
+
+func (c *FileController) SetLocal(alias string) error {
+	return c.Set("127.0.0.1", alias)
 }
 
 func (c *FileController) Remove(alias string) error {

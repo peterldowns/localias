@@ -24,26 +24,27 @@ func ReadWindowsHosts() (string, error) {
 	return bash("scripts/read-windows-hosts.sh")
 }
 
-func WriteWindowsHostsFromFile(tmpFilePath string) (string, error) {
-	winTmpFilePath, err := execute("wslpath", nil, "-w", tmpFilePath)
+func WriteWindowsHostsFromFile(tmpFilePath string) error {
+	winTmpFilePath, err := Execute("wslpath", nil, "-w", tmpFilePath)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return powershell("scripts/write-file.ps1", winTmpFilePath, `$env:windir\System32\drivers\etc\hosts`, "sudo")
+	_, err = powershell("scripts/write-file.ps1", winTmpFilePath, `$env:windir\System32\drivers\etc\hosts`, "sudo")
+	return err
 }
 
-func WriteWindowsHosts(contents string) (string, error) {
+func WriteWindowsHosts(contents string) error {
 	// Create a temporary file
 	tmpfile, err := os.CreateTemp("", "localias-write-windows-hosts-*")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer tmpfile.Close()
 	if _, err := tmpfile.Write([]byte(contents)); err != nil {
-		return "", err
+		return err
 	}
 	if err := tmpfile.Close(); err != nil {
-		return "", err
+		return err
 	}
 	path := tmpfile.Name()
 	defer os.Remove(path) // delete the temporary file after the command is done
@@ -51,7 +52,7 @@ func WriteWindowsHosts(contents string) (string, error) {
 }
 
 func InstallCert(certPath string) error {
-	winCertPath, err := execute("wslpath", nil, "-w", certPath)
+	winCertPath, err := Execute("wslpath", nil, "-w", certPath)
 	if err != nil {
 		return err
 	}

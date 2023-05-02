@@ -17,18 +17,10 @@ func Apply(hctl hostctl.Controller, cfg *Config) error {
 		if err != nil {
 			return err
 		}
-		if err := hctl.Set("127.0.0.1", up.Host); err != nil {
+		if err := hctl.SetLocal(up.Host); err != nil {
 			return err
 		}
 		fmt.Println(entry.String())
-	}
-	fmt.Println("entries!")
-	entries, err := hctl.List()
-	if err != nil {
-		panic(err)
-	}
-	for _, e := range entries {
-		fmt.Println(e.Raw)
 	}
 	return hctl.Apply()
 }

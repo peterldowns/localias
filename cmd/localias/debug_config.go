@@ -17,6 +17,7 @@ func configImpl(_ *cobra.Command, _ []string) error {
 		fmt.Println(cfg.Path)
 		return nil
 	}
+	fmt.Println(cfg.Caddyfile())
 	content, err := os.ReadFile(cfg.Path)
 	if err != nil {
 		return err
