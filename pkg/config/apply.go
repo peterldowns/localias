@@ -6,7 +6,7 @@ import (
 	"github.com/peterldowns/localias/pkg/hostctl"
 )
 
-func Apply(hctl *hostctl.Controller, cfg *Config) error {
+func Apply(hctl hostctl.Controller, cfg *Config) error {
 	if err := hctl.Clear(); err != nil {
 		return err
 	}
@@ -15,9 +15,10 @@ func Apply(hctl *hostctl.Controller, cfg *Config) error {
 		if err != nil {
 			return err
 		}
-		if err := hctl.Set("127.0.0.1", up.Host); err != nil {
+		if err := hctl.SetLocal(up.Host); err != nil {
 			return err
 		}
 	}
-	return hctl.Apply()
+	_, err := hctl.Apply()
+	return err
 }

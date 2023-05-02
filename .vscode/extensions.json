@@ -3,6 +3,7 @@
       "golang.go",
       "jnoortheen.nix-ide",
       "skellock.just",
-      "timonwong.shellcheck"
+      "timonwong.shellcheck",
+      "ms-vscode.powershell"
     ]
 }

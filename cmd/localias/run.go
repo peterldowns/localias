@@ -8,7 +8,7 @@ import (
 )
 
 func runImpl(_ *cobra.Command, _ []string) error {
-	hctl := hostctl.DefaultController()
+	hctl := hostctl.NewWSL2Controller()
 	cfg := loadConfig()
 	if err := server.Start(hctl, cfg); err != nil {
 		return err
