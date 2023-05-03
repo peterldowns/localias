@@ -32,9 +32,6 @@ func certImpl(_ *cobra.Command, _ []string) error {
 		if err := wsl.InstallCert(rootCrtPath); err != nil {
 			return err
 		}
-		if _, err := wsl.Execute("update-ca-certificates", nil, rootCrtPath); err != nil {
-			return err
-		}
 	}
 	return nil
 }
