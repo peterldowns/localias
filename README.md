@@ -1,19 +1,50 @@
 # Localias
 
-| :warning: Work In Progress |
-|----------------------------|
-
 Localias is a tool for developers to securely manage local aliases for development servers.
 
-You can use Localias to make it possible to visit `https://server.test` in your browser, and have that request served by a local devserver running at `http://localhost:3000`.
+Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line.
 
 Major features:
-- Works perfectly on MacOS, Linux, and even WSL2 (!)
+- Works on MacOS, Linux, and even WSL2 (!)
 - Automatically provisions and installs TLS certificates for all of your aliases by default.
 - Automatically updates `/etc/hosts` as you add and remove aliases.
 - Runs in the foreground or as a background daemon process.
 - Uses a shared configuration file if your team puts one in your git repository.
 - Built with [`caddy`](https://caddyserver.com/) so it's fast and secure by default.
+
+<img width="464" alt="iTerm showing the most basic usage of Localias" src="https://user-images.githubusercontent.com/824173/235960302-8b6f4bdd-1403-4a8f-a14f-7de938f9d1c4.png">
+
+# Install
+
+
+Homebrew:
+```bash
+# install it
+brew peterldowns/tap/localias
+```
+
+Golang:
+```bash
+# run it
+go run github.com/peterldowns/localias/cmd/localias@latest --help
+# install it
+go install github.com/peterldowns/localias/cmd/localias@latest
+```
+
+Nix (flakes):
+```bash
+# run it
+nix run github:peterldowns/localias --help
+# install it
+nix profile install github:peterldowns/localias --refresh
+```
+
+Download binaries:
+Visit [the latest Github release](https://github.com/peterldowns/localias/releases/latest) and pick the appropriate binary. Or, click one of the shortcuts here:
+- [darwin-amd64](https://github.com/peterldowns/localias/releases/latest/download/localias-darwin-amd64)
+- [darwin-arm64](https://github.com/peterldowns/localias/releases/latest/download/localias-darwin-arm64)
+- [linux-amd64](https://github.com/peterldowns/localias/releases/latest/download/localias-linux-amd64)
+- [linux-arm64](https://github.com/peterldowns/localias/releases/latest/download/localias-linux-arm64)
 
 # Quickstart
 
@@ -62,35 +93,6 @@ $ localias run
 Congratulations, you're done!  Start your development servers (or just one of them) in another console. You should be able to visit [`https://frontend.test`](https://frontend.test) in your browser, or make a request with `curl`, and see everything work perfectly\*.
 
 \* *are you using Firefox, or are you on WSL? See the notes below for how to do the one-time install of the localias root certificate*
-
-# Install
-
-Golang:
-```bash
-# run it
-go run github.com/peterldowns/localias/cmd/localias@latest --help
-# install it
-go install github.com/peterldowns/localias/cmd/localias@latest
-```
-
-Homebrew:
-```bash
-# install it
-brew tap peterldowns/tap
-brew install localias
-```
-
-Nix (flakes):
-```bash
-# run it
-nix run github:peterldowns/localias --help
-# install it
-nix profile install github:peterldowns/localias --refresh
-```
-
-Manual:
-- Visit [the latest Github release](https://github.com/peterldowns/localias/releases/latest)
-- Download the appropriate binary: `localias-$os-$arch`
 
 # Configuration
 Every time you run `localias`, it looks for a config file in the following places, using the first one that it finds:
