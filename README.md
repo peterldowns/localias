@@ -292,7 +292,9 @@ For more information, view the [arch man pages for `capabilities`](https://man.a
 
 ## There's a Mac application?
 
-Sharp eyes --- yes, but it's not done yet. You can download it from the releases page or install it with `brew install peterldowns/tap/localias-app` if you'd like to try an early version. It's built by compiling the golang binary into a shared C library and then embedding that into a Swift app. It works great, sort of.  Once I've improved it a bit I'll update this documentation.
+Sharp eyes --- yes, there's a MacOS menu bar application, but it's not done yet. You can download it from the releases page or install it with `brew install peterldowns/tap/localias-app` if you'd like to try an early version. It's built by compiling the golang binary into a shared C library and then embedding that into a Swift app. It works great, sort of. Once I've improved it a bit I'll update this documentation.
+
+<img width="410" alt="Localias.app running in the menu bar" src="https://user-images.githubusercontent.com/824173/235967836-5e79a282-357a-44a0-b9a1-271558299e46.png">
 
 Remaining major items:
  - [ ] Allow choosing the configuration file
@@ -310,8 +312,4 @@ Remaining major items:
   - [ ] Helper for doing explicit certificate installation
     - [ ] Handle firefox if `certutil` is available?
     - [ ] automatically install localias root certs using powershell script when
-          running in wsl2 ?
-- [ ] Code review + cleanup
-  - [ ] golang
-  - [ ] swift
-  - [ ] infra/scripts
+          running in wsl2
