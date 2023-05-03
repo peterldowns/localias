@@ -253,7 +253,7 @@ secure alias, you should see that the certificate is trusted and no errors or
 warnings are displayed.
 
 
-## Allow Caddy to bind to ports 443/80 on Linux
+## Allow Localias to bind to ports 443/80 on Linux
 Localias works by proxying requests from ports 80 and 443 to your development servers. When you run Localias, it therefore will attempt to listen on ports 80 and 443. On Linux you may not be allowed to do this by default -- you may see an error like:
 
 ```console
