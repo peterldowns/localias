@@ -36,7 +36,7 @@ func powershell(scriptPath string, args ...string) (string, error) { //nolint:un
 		scriptContents,
 		shellescape.QuoteCommand(args),
 	)
-	return Execute("powershell.exe", strings.NewReader(wrappedScript), "-command", "-")
+	return execute("powershell.exe", strings.NewReader(wrappedScript), "-command", "-")
 }
 
 func bash(scriptPath string, args ...string) (string, error) {
@@ -52,10 +52,10 @@ func bash(scriptPath string, args ...string) (string, error) {
 	//
 	// https://stackoverflow.com/a/8514318
 	cmdArgs := append([]string{"-s", "-"}, args...)
-	return Execute("bash", bytes.NewReader(scriptContents), cmdArgs...)
+	return execute("bash", bytes.NewReader(scriptContents), cmdArgs...)
 }
 
-func Execute(program string, stdin io.Reader, args ...string) (string, error) {
+func execute(program string, stdin io.Reader, args ...string) (string, error) {
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command(program, args...)
 	cmd.Stdin = stdin

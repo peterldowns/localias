@@ -7,5 +7,4 @@
 #   Linux Eve 4.4.0-18362-Microsoft #476-Microsoft Fri Nov 01 16:53:00 PST 2019 x86_64 x86_64 x86_64 GNU/Linux
 #
 # see https://stackoverflow.com/a/59765344
-
-uname -a | grep -i 'microsoft'
+uname -a | grep -i 'microsoft' || echo ""

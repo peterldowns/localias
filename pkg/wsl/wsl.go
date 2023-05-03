@@ -25,7 +25,7 @@ func ReadWindowsHosts() (string, error) {
 }
 
 func WriteWindowsHostsFromFile(tmpFilePath string) error {
-	winTmpFilePath, err := Execute("wslpath", nil, "-w", tmpFilePath)
+	winTmpFilePath, err := execute("wslpath", nil, "-w", tmpFilePath)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func WriteWindowsHosts(contents string) error {
 }
 
 func InstallCert(certPath string) error {
-	winCertPath, err := Execute("wslpath", nil, "-w", certPath)
+	winCertPath, err := execute("wslpath", nil, "-w", certPath)
 	if err != nil {
 		return err
 	}
