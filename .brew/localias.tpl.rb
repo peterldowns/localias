@@ -1,5 +1,5 @@
 class Localias < Formula
-  desc "Manage local domain aliases for devservers"
+  desc "Localias is a tool for developers to securely manage local aliases for development servers."
   homepage "https://github.com/peterldowns/localias"
   url "$SOURCE_URL"
   sha256 "$SOURCE_SHA_256"

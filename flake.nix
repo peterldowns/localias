@@ -1,5 +1,5 @@
 {
-  description = "securely proxy domains to local development servers";
+  description = "Localias is a tool for developers to securely manage local aliases for development servers.";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
 
