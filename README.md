@@ -288,21 +288,29 @@ For more information, view the [arch man pages for `capabilities`](https://man.a
 - https://stackoverflow.com/a/49553299
 - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/certutil
 - https://github.com/christian-korneck/firefox_add-certs
+- https://rud.is/b/2021/04/24/making-macos-universal-apps-with-universal-golang-static-libraries/
 
-## TODOS
+## There's a Mac application?
+
+Sharp eyes --- yes, but it's not done yet. You can download it from the releases page or install it with `brew install peterldowns/tap/localias-app` if you'd like to try an early version. It's built by compiling the golang binary into a shared C library and then embedding that into a Swift app. It works great, sort of.  Once I've improved it a bit I'll update this documentation.
+
+Remaining major items:
+ - [ ] Allow choosing the configuration file
+ - [ ] Better display error messages (if daemon is already running, for example)
+ - [ ] Info / help inside application explaining how the buttons work
+
+## Future Work
 
 - [ ] Docs
   - [ ] How it works section
   - [ ] WSL2 details
-- [ ] Installation
-  - [ ] homebrew bottles working correctly
 - [ ] Improvements
   - [ ] Daemon config command for dumping running config
   - [ ] `--json` formatting for command line controller + caddy logs as well
   - [ ] Helper for doing explicit certificate installation
-    - [ ] Handle firefox as well
+    - [ ] Handle firefox if `certutil` is available?
     - [ ] automatically install localias root certs using powershell script when
-          running in wsl2 
+          running in wsl2 ?
 - [ ] Code review + cleanup
   - [ ] golang
   - [ ] swift
