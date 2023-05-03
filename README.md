@@ -129,13 +129,14 @@ bareTLD: 9003
 
 ## Why build this?
 
-Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://jeansaad/chalet) (maintained). These projects (basically the same) have the following drawbacks compared to Localias:
+Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://jeansaad/chalet) (maintained). These are wonderful projects that served as inspiration for Localias, but I think that Localias compares favorably:
 
-- They require NodeJS
-- They require configuring a proxy auto-config file
-- They do things I don't want (proxying requests to external domains, process management)
-- They don't install their self-signed SSL certificates
-- They don't allow teams to easily share configuration files
+- Localias is a single binary, whereas Hotel require a working NodeJS runtime
+- Localias works by modifying /etc/hosts (and the windows equivalent), which makes it easy to observe and debug. Hotel requires you to configure itself as a proxy in your browser or in your operating system.
+  - As a consequence, aliases configured with Localias will also work in command-line scipts or requests sent by progarms like `curl`, whereas aliases managed by Hotel will not wokr.
+- Localias allows you to create any number of aliases on different TLDs at the same time, but Hotel only allows you to use one TLD.
+- Localias will install its root certificate to your system store so that you do not see any warnings about invalid self-signed certificates.
+- Localias will automatically discover configuration files committed to your git repository, which makes it easy to share a configuration with you development team. 
 
 I also wanted an excuse to play around with building a MacOS app, and this seemed like a small and well-defined problem that would be amenable to learning Swift.
 
@@ -143,9 +144,9 @@ Finally, [my friend Justin wanted this to exist, too](https://twitter.com/jmduke
 
 > I swear there's a tool that lets me do:
 > 
-> localhost:8000 → application.local
-> localhost:3000 → marketing.local
-> localhost:3002 → docs.local
+> localhost:8000 → application.local  
+> localhost:3000 → marketing.local  
+> localhost:3002 → docs.local  
 > 
 > But I can't for the life of me remember the name of it. Does anyone know what I'm talking about?
 
