@@ -20,7 +20,7 @@ Major features:
 #### Homebrew:
 ```bash
 # install it
-brew peterldowns/tap/localias
+brew install peterldowns/tap/localias
 ```
 
 #### Golang:
@@ -34,9 +34,9 @@ go install github.com/peterldowns/localias/cmd/localias@latest
 #### Nix (flakes):
 ```bash
 # run it
-nix run github:peterldowns/localias --help
+nix run github:peterldowns/localias -- --help
 # install it
-nix profile install github:peterldowns/localias --refresh
+nix profile install --refresh github:peterldowns/localias
 ```
 
 #### Manually download binaries
