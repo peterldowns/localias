@@ -133,10 +133,11 @@ Localias is the tool I've always wanted to use for local web development. After 
 
 - Localias is a single binary, whereas Hotel require a working NodeJS runtime
 - Localias works by modifying /etc/hosts (and the windows equivalent), which makes it easy to observe and debug. Hotel requires you to configure itself as a proxy in your browser or in your operating system.
-  - As a consequence, aliases configured with Localias will also work in command-line scipts or requests sent by progarms like `curl`, whereas aliases managed by Hotel will not wokr.
+  - As a consequence, aliases configured with Localias will also work in command-line scipts or requests sent by progarms like `curl`, whereas aliases managed by Hotel will not work.
 - Localias allows you to create any number of aliases on different TLDs at the same time, but Hotel only allows you to use one TLD.
 - Localias will install its root certificate to your system store so that you do not see any warnings about invalid self-signed certificates.
 - Localias will automatically discover configuration files committed to your git repository, which makes it easy to share a configuration with you development team. 
+- Localias does not attempt to do any kind of process management or launching, leaving that entirely up to you.
 
 I also wanted an excuse to play around with building a MacOS app, and this seemed like a small and well-defined problem that would be amenable to learning Swift.
 
