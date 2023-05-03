@@ -17,13 +17,13 @@ Major features:
 # Install
 
 
-Homebrew:
+#### Homebrew:
 ```bash
 # install it
 brew peterldowns/tap/localias
 ```
 
-Golang:
+#### Golang:
 ```bash
 # run it
 go run github.com/peterldowns/localias/cmd/localias@latest --help
@@ -31,7 +31,7 @@ go run github.com/peterldowns/localias/cmd/localias@latest --help
 go install github.com/peterldowns/localias/cmd/localias@latest
 ```
 
-Nix (flakes):
+#### Nix (flakes):
 ```bash
 # run it
 nix run github:peterldowns/localias --help
@@ -39,7 +39,7 @@ nix run github:peterldowns/localias --help
 nix profile install github:peterldowns/localias --refresh
 ```
 
-Download binaries:
+#### Manually download binaries
 Visit [the latest Github release](https://github.com/peterldowns/localias/releases/latest) and pick the appropriate binary. Or, click one of the shortcuts here:
 - [darwin-amd64](https://github.com/peterldowns/localias/releases/latest/download/localias-darwin-amd64)
 - [darwin-arm64](https://github.com/peterldowns/localias/releases/latest/download/localias-darwin-arm64)
