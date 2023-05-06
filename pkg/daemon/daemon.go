@@ -11,6 +11,7 @@ import (
 	caddycmd "github.com/caddyserver/caddy/v2/cmd"
 	godaemon "github.com/sevlyar/go-daemon"
 
+	"github.com/peterldowns/localias/cmd/localias/shared"
 	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/server"
 )
@@ -23,7 +24,7 @@ func Start(cfg *config.Config) error {
 		return err
 	}
 	if existing != nil {
-		return fmt.Errorf("daemon is already running")
+		return shared.DaemonRunning{Pid: existing.Pid}
 	}
 
 	cntxt := daemonContext()
@@ -65,6 +66,13 @@ func Status() (*os.Process, error) {
 // Stop will attempt to stop the daemon process by sending an API request
 // over http. If the daemon process is not running, this will return an error.
 func Stop(cfg *config.Config) error {
+	existing, err := Status()
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return shared.DaemonNotRunning{}
+	}
 	address, err := determineAPIAddress(cfg)
 	if err != nil {
 		return fmt.Errorf("could not determine api address: %w", err)
@@ -81,6 +89,13 @@ func Stop(cfg *config.Config) error {
 // running daemon process's server configuration by sending an API request over
 // http. If the daemon process is not running, this will return an error.
 func Reload(cfg *config.Config) error {
+	existing, err := Status()
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return shared.DaemonNotRunning{}
+	}
 	cfgJSON, _, err := cfg.CaddyJSON()
 	if err != nil {
 		return err

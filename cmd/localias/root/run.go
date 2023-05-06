@@ -5,12 +5,21 @@ import (
 
 	"github.com/peterldowns/localias/cmd/localias/shared"
 	"github.com/peterldowns/localias/pkg/config"
+	"github.com/peterldowns/localias/pkg/daemon"
 	"github.com/peterldowns/localias/pkg/server"
 )
 
 func runImpl(_ *cobra.Command, _ []string) error {
 	hctl := shared.Controller()
 	cfg := shared.Config()
+
+	existing, err := daemon.Status()
+	if err != nil {
+		return err
+	}
+	if existing != nil {
+		return shared.DaemonRunning{Pid: existing.Pid}
+	}
 	if err := config.Apply(hctl, cfg); err != nil {
 		return err
 	}
@@ -21,9 +30,10 @@ func runImpl(_ *cobra.Command, _ []string) error {
 }
 
 var runCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "run",
-	Short: "run the proxy server in the foreground",
-	RunE:  runImpl,
+	Use:     "run",
+	Short:   "run the proxy server in the foreground",
+	Aliases: []string{"start", "launch"},
+	RunE:    runImpl,
 }
 
 func init() { //nolint:gochecknoinits

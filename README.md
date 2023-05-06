@@ -289,6 +289,7 @@ For more information, view the [arch man pages for `capabilities`](https://man.a
 - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/certutil
 - https://github.com/christian-korneck/firefox_add-certs
 - https://rud.is/b/2021/04/24/making-macos-universal-apps-with-universal-golang-static-libraries/
+- https://caddyserver.com/docs/automatic-https#overview
 
 ## There's a Mac application?
 

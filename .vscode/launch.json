@@ -9,8 +9,8 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "args": ["run"],
-            "program": ".",
+            "args": ["daemon", "stop"],
+            "program": "./cmd/localias",
 
         }
     ]

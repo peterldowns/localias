@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/peterldowns/localias/cmd/localias/root"
+	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
 func main() {
@@ -28,7 +29,15 @@ func main() {
 }
 
 func onError(err error) {
-	msg := color.New(color.FgRed, color.Italic).Sprintf("error: %s\n", err)
-	fmt.Fprintln(os.Stderr, msg)
+	err = shared.ConvertErr(err)
+	// var msg string
+	// var le shared.LocaliasError
+	// if errors.As(err, &le) {
+	// 	msg = fmt.Sprintf("error(%s): %s", le.Code(), le.Error())
+	// } else {
+	// 	msg = fmt.Sprintf("error: %s", err)
+	// }
+	msg := fmt.Sprintf("error: %s", err)
+	fmt.Fprintln(os.Stderr, color.New(color.FgRed, color.Italic).Sprintf(msg))
 	os.Exit(1)
 }
