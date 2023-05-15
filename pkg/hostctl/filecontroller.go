@@ -77,6 +77,21 @@ func (c *FileController) Clear() error {
 	return nil
 }
 
+func (c *FileController) List() (map[string][]*Line, error) {
+	if err := c.read(); err != nil {
+		return nil, err
+	}
+	var results []*Line
+	for _, line := range c.lines {
+		if isControlled(line, c.Name) {
+			results = append(results, line)
+		}
+	}
+	return map[string][]*Line{
+		c.Path: results,
+	}, nil
+}
+
 func (c *FileController) Apply() (bool, error) {
 	if err := c.read(); err != nil {
 		return false, err

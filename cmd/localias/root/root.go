@@ -5,6 +5,7 @@ import (
 
 	"github.com/peterldowns/localias/cmd/localias/daemon"
 	"github.com/peterldowns/localias/cmd/localias/debug"
+	"github.com/peterldowns/localias/cmd/localias/hostctl"
 	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
@@ -23,6 +24,7 @@ localias remove secure.test
 localias list
 # Clear all aliases
 localias clear
+
 # Run the proxy server in the foreground
 localias run
 # Start the proxy server as a daemon process
@@ -33,6 +35,13 @@ localias daemon status
 localias daemon reload
 # Stop the daemon process
 localias daemon stop
+
+# Show the host file(s) that localias edits
+localias hostctl print
+# Show the entries that localias has added to the host file(s)
+localias hostctl list
+# Remove all localias-managed entries from the host file(s)
+localias hostctl clear
   `),
 }
 
@@ -47,4 +56,5 @@ func init() { //nolint:gochecknoinits
 
 	Command.AddCommand(daemon.Command)
 	Command.AddCommand(debug.Command)
+	Command.AddCommand(hostctl.Command)
 }

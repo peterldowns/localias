@@ -12,4 +12,5 @@ type Controller interface {
 	Remove(alias string) error
 	Clear() error
 	Apply() (bool, error)
+	List() (map[string][]*Line, error)
 }

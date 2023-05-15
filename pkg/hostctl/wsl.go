@@ -62,3 +62,7 @@ func (w *WSLController) Apply() (bool, error) {
 	}
 	return false, nil
 }
+
+func (w *WSLController) List() (map[string][]*Line, error) {
+	return w.FileController.List()
+}

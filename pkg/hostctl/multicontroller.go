@@ -55,3 +55,17 @@ func (mc MultiController) Apply() (bool, error) {
 	}
 	return anyChanges, nil
 }
+
+func (mc MultiController) List() (map[string][]*Line, error) {
+	result := make(map[string][]*Line)
+	for _, c := range mc {
+		l, err := c.List()
+		if err != nil {
+			return nil, err
+		}
+		for path, lines := range l {
+			result[path] = lines
+		}
+	}
+	return result, nil
+}
