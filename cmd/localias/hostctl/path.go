@@ -18,9 +18,10 @@ func pathImpl(_ *cobra.Command, _ []string) error {
 }
 
 var pathCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "path",
-	Short: "show the path(s) of the host file(s) being edited by localias",
-	RunE:  pathImpl,
+	Use:     "path",
+	Aliases: []string{"paths"},
+	Short:   "show the path(s) of the host file(s) being edited by localias",
+	RunE:    pathImpl,
 }
 
 func init() { //nolint:gochecknoinits

@@ -36,11 +36,13 @@ localias daemon reload
 # Stop the daemon process
 localias daemon stop
 
-# Show the host file(s) that localias edits
-localias hostctl print
-# Show the entries that localias has added to the host file(s)
+# Show the path(s) of the host file(s)
+localias hostctl path
+# Show any entries that localias has made to the host file(s)
 localias hostctl list
-# Remove all localias-managed entries from the host file(s)
+# Apply the current configuration to the host file(s)
+localias hostctl apply
+# Clear all entries from the host file(s)
 localias hostctl clear
   `),
 }
