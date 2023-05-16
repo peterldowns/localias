@@ -3,8 +3,8 @@ export VERSION=$(cat ./VERSION)
 export COMMIT="$(git rev-parse --short HEAD || echo 'unknown')"
 export TAG_NAME="$VERSION+commit.$COMMIT"
 export MODIFIED_TIME=$(date +%s)
-export BINARY=./bin/localias-darwin-arm64
-export ARCH=arm64
+export BINARY=$1 #./bin/localias-darwin-arm64
+export BOTTLE_TAG=$2 # arm64_monterey
 export TAP_GIT_HEAD=$(gh api --method GET 'repos/peterldowns/homebrew-tap/commits/HEAD' | jq -r .sha)
 export LDFLAGS=$(./scripts/golang-ldflags.sh $VERSION $COMMIT)
 export SOURCE_URL="https://github.com/peterldowns/localias/archive/refs/tags/$VERSION+commit.$COMMIT.tar.gz"
@@ -29,6 +29,6 @@ cp ./LICENSE "$_BOTTLEDIR/LICENSE"
 envsubst < ./.brew/INSTALL_RECEIPT.tpl.json > "$_BOTTLEDIR/INSTALL_RECEIPT.json"
 envsubst < ./.brew/localias.tpl.rb > "$_BREWDIR/localias.rb"
 
-export BOTTLE_NAME="localias-$VERSION.arm64_monterey.bottle.tar.gz"
+export BOTTLE_NAME="localias-$VERSION.${BOTTLE_TAG}.bottle.tar.gz"
 tar -czf "$BOTTLE_NAME" ./localias
 echo $BOTTLE_NAME
