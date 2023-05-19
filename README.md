@@ -2,20 +2,36 @@
 
 Localias is a tool for developers to securely manage local aliases for development servers.
 
-Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line.
+Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line. This is commonly useful for web developers or teams for the following reasons:
+- Use convenient names, without ports, in your URLs
+- Serve your development website behind TLS, minimizing differences between development and production.
+  - No more CORS problems!
+  - Set secure cookies!
 
 Major features:
 - Works on MacOS, Linux, and even WSL2 (!)
-- Automatically provisions and installs TLS certificates for all of your aliases by default.
-- Automatically updates `/etc/hosts` as you add and remove aliases.
-- Runs in the foreground or as a background daemon process.
-- Uses a shared configuration file if your team puts one in your git repository.
-- Built with [`caddy`](https://caddyserver.com/) so it's fast and secure by default.
+- Automatically provisions and installs TLS certificates for all of your aliases
+  by default.
+- Automatically updates `/etc/hosts` as you add and remove aliases, so that they
+  work with all of your tools.
+- Runs in the foreground or as a background daemon process, your choice.
+- Supports shared configuration files so your whole team can use the same
+  aliases for your development services.
+- Proxies requests and generates TLS certs with
+  [`caddy`](https://caddyserver.com/) so it's fast and secure by default.
+
+Localias is designed to replace alternative tools like [hotel](https://github.com/typicode/hotel)/[chalet](https://jeansaad/chalet):
+  - Localias is a single binary, Hotel requires a working NodeJS runtime
+  - Localias works by modifying `/etc/hosts` (and the windows equivalent), which makes it easy to observe and debug. Hotel requires you to configure itself as a proxy in your browser or in your operating system.
+    - aliases configured with Localias will also work in command-line scipts or requests sent by programs like `curl`. Hotel aliases only work in your browser
+  - Localias allows you to create any number of aliases on different TLDs at the same time, but Hotel only allows you to use one TLD.
+  - Localias will generate a root certificate and any necessary certificates for each alias, and install the root certificate in your system store so you do not see any warnings about invalid self-signed certificates.
+  - Localias will automatically discover configuration files committed to your git repository, which makes it easy to share a configuration with you development team. 
+  - Localias does not attempt to do any kind of process management or launching, leaving that entirely up to you.
 
 <img width="464" alt="iTerm showing the most basic usage of Localias" src="https://user-images.githubusercontent.com/824173/235960302-8b6f4bdd-1403-4a8f-a14f-7de938f9d1c4.png">
 
 # Install
-
 
 #### Homebrew:
 ```bash
@@ -46,55 +62,15 @@ Visit [the latest Github release](https://github.com/peterldowns/localias/releas
 - [linux-amd64](https://github.com/peterldowns/localias/releases/latest/download/localias-linux-amd64)
 - [linux-arm64](https://github.com/peterldowns/localias/releases/latest/download/localias-linux-arm64)
 
-# Quickstart
+# How does it work?
 
-After installing `localias`, getting started is easy. First, add some aliases. We'll assume you're running a standard http devserver on `http://localhost:3000`:
+Localias has two parts:
+- the configuration file
+- the proxy server
 
-```console
-$ localias set frontend.test 3000
-[added] frontend.test -> 3000
-```
+The configuration file is where Localias keeps track of your aliases, and to which local ports they should be pointing. The proxy server is what runs to actuall proxy requests based on that configuration
 
-You can verify that the rules were added correctly:
-
-```console
-$ localias list
-frontend.test -> 3000
-```
-
-Now, run the proxy server. You can do this in the foreground with `localias run` or in the background with `localias daemon start`. For the purposes of this example, we'll do it in the foreground:
-
-```console
-$ localias run
-# some prompts to authenticate as root
-# ... lots of server logs like this:
-2023/05/02 23:12:58.218 INFO    tls.obtain      acquiring lock  {"identifier": "frontend.test"}
-2023/05/02 23:12:58.229 INFO    tls.obtain      lock acquired   {"identifier": "frontend.test"}
-2023/05/02 23:12:58.230 INFO    tls.obtain      obtaining certificate   {"identifier": "frontend.test"}
-2023/05/02 23:12:58.230 INFO    tls.obtain      certificate obtained successfully       {"identifier": "frontend.test"}
-2023/05/02 23:12:58.230 INFO    tls.obtain      releasing lock  {"identifier": "frontend.test"}
-# process is now waiting for requests
-```
-
-This will prompt you to authenticate at least once. Each time Localias runs, it will
-
-- Automatically edit your `/etc/hosts` file and add entries for each of your aliases.
-- Sign TLS certificates for your aliases, and install its root certificate to your system if it hasn't done so already. 
-
-Each of these steps requires sudo access. But starting/stopping Localias will only prompt for sudo when it needs to, so if you hit `control-C` and restart the process you won't get prompted again:
-
-```console
-^C
-$ localias run
-# ... lots of server logs
-# ... but no sudo prompts!
-```
-
-Congratulations, you're done!  Start your development servers (or just one of them) in another console. You should be able to visit [`https://frontend.test`](https://frontend.test) in your browser, or make a request with `curl`, and see everything work perfectly\*.
-
-\* *are you using Firefox, or are you on WSL? See the notes below for how to do the one-time install of the localias root certificate*
-
-# Configuration
+### configuration file
 Every time you run `localias`, it looks for a config file in the following places, using the first one that it finds:
 
 - If you pass an explicit `--configfile <path>`, it will attempt to use `<path>`
@@ -116,7 +92,18 @@ localias debug config
 localias debug config --print
 ```
 
-## Syntax
+The following commands all interact directly with the configuration file:
+
+```shell
+# add or edit an alias
+localias set <alias> <port>
+# clear all aliases
+localias clear
+# list all aliases
+localias list
+# remove an alias
+localias remove <alias>
+```
 
 The configuration file is just a YAML map of `<alias>: <port>`! For example, this is a valid configuration file:
 
@@ -127,19 +114,181 @@ insecure2.test: 9002
 bareTLD: 9003
 ```
 
-# Errata
+### proxy server
 
+When you execute `localias run` or `localias daemon start` to run the proxy server, Localias performs the following operations:
+
+- Reads the current Localias configuration file to find all the current aliases and the ports to which they're pointing.
+- Checks the `/etc/hosts` file to make sure that every alias is present
+  - Adds any new aliases that aren't already present
+  - Removes any old aliases that are no longer in the Localias config
+  - Only updates the file if any changes were made, since this requires `sudo` privileges.
+- Runs the Caddy proxy server
+  - If Caddy has not already generated a local root certificate:
+    - Generate a local root certificate to sign TLS certificates
+    - Install the local root certificate to the system's trust stores, and the Firefox certificate store if it exists and an be accessed.
+  - Generate a Caddy configuration telling it how to redirect each alias to the correct local port.
+  - Generate and sign TLS certificates for each of the aliases currently in use
+  - Bind to ports 80/443 in order to proxy requests
+
+Localias requires elevated privileges to perform these actions as part of running the proxy server:
+- Edit `/etc/hosts`
+- Install the locally generated root certificate to your system store
+- Bind to ports 80/443 in order to run the proxy server
+
+When you run Localias, each time it needs to do these things, it will open a subshell using `sudo` to perform these actions, and this will prompt you for your password. Localias *does not read or interact with your password*.
+
+Localias is entirely local and performs no telemetry.
+
+# Quickstart
+
+## Running the server for the first time
+
+After installing `localias`, you will need to configure some aliases. For this quickstart example, we'll assume that you're running a local http frontend devserver on `http://localhost:3000`, and that you'd like to be able to access it at `https://frontend.test` in your browser and via tools like `curl`.
+
+First, create the alias:
+
+```console
+$ localias set frontend.test 3000
+[added] frontend.test -> 3000
+```
+
+You can check to see that it was added correctly:
+
+```console
+$ localias list
+frontend.test -> 3000
+```
+
+That's it in terms of configuration!
+
+Now, start the proxy server. You can do this in the foreground with `localias run` (and stop it with `ctrl-c`) or you can start the server in the background with `localias daemon start`. For the purposes of this quickstart, we'll do it in the foreground.
+
+```console
+$ localias run
+# some prompts to authenticate as root
+# ... lots of server logs like this:
+2023/05/02 23:12:58.218 INFO    tls.obtain      acquiring lock  {"identifier": "frontend.test"}
+2023/05/02 23:12:58.229 INFO    tls.obtain      lock acquired   {"identifier": "frontend.test"}
+2023/05/02 23:12:58.230 INFO    tls.obtain      obtaining certificate   {"identifier": "frontend.test"}
+2023/05/02 23:12:58.230 INFO    tls.obtain      certificate obtained successfully       {"identifier": "frontend.test"}
+2023/05/02 23:12:58.230 INFO    tls.obtain      releasing lock  {"identifier": "frontend.test"}
+# process is now waiting for requests
+```
+
+This will prompt you to authenticate at least once. Each time Localias runs, it will
+
+- Automatically edit your `/etc/hosts` file and add entries for each of your aliases.
+- Sign TLS certificates for your aliases, and generate+install a custom root certificate to your system if it hasn't done so already. 
+
+Each of these steps requires sudo access. But starting/stopping Localias will only prompt for sudo when it needs to, so if you hit `control-C` and restart the process you won't get prompted again:
+
+```console
+^C
+$ localias run
+# ... lots of server logs
+# ... but no sudo prompts!
+```
+
+Congratulations, you're done! Start your development servers (or just one of them) in another console. You should be able to visit [`https://frontend.test`](https://frontend.test) in your browser, or make a request with `curl`, and see everything work perfectly\*.
+
+\* *are you using Firefox, or are you on WSL? See the notes below for how to do the one-time install of the localias root certificate*
+
+
+
+## Running as a daemon
+
+Instead of explicitly running the proxy server as a foreground process with `localias run`, you can also run Localias in the background with `localias daemon start`. You can interact with this daemon with the following commands:
+
+```shell
+# Start the proxy server as a daemon process
+localias daemon start
+# Show the status of the daemon process
+localias daemon status
+# Apply the latest configuration to the proxy server in the daemon process
+localias daemon reload
+# Stop the daemon process
+localias daemon stop
+```
+
+When running as a daemon process, if you make any changes to your configuration you
+will need to explicitly reload the daemon:
+
+```shell
+# Start with frontend.test -> 3000
+localias set frontend.test 3000
+localias daemon start
+# Update frontend.test -> 4004. 
+localias set frontend.test 4004
+# The daemon will still be running with frontend.test -> 3000, so
+# to apply the new changes you'll need to reload it
+localias daemon reload
+```
+
+# Using the CLI 
+
+`localias` has many different subcommands, each of which is documented (including usage examples). To see the available subcommands, run `localias`. To see help on any command, you can run `localias help $command` or `localias $command --help`. 
+
+```console
+$ localias
+securely manage local aliases for development servers
+
+Usage:
+  localias [command]
+
+Examples:
+  # Add an alias forwarding https://secure.test to http://127.0.0.1:9000
+  localias set secure.test 9000
+  # Update an existing alias to forward to a different port
+  localias set secure.test 9001
+  # Remove an alias
+  localias remove secure.test
+  # List all aliases
+  localias list
+  # Clear all aliases
+  localias clear
+  
+  # Run the proxy server in the foreground
+  localias run
+  # Start the proxy server as a daemon process
+  localias daemon start
+  # Show the status of the daemon process
+  localias daemon status
+  # Apply the latest configuration to the proxy server in the daemon process
+  localias daemon reload
+  # Stop the daemon process
+  localias daemon stop
+  
+  # Show the host file(s) that localias edits
+  localias hostctl print
+  # Show the entries that localias has added to the host file(s)
+  localias hostctl list
+  # Remove all localias-managed entries from the host file(s)
+  localias hostctl clear
+
+Available Commands:
+  clear       clear all aliases
+  daemon      control the proxy server daemon
+  help        Help about any command
+  hostctl     interact with the hosts file(s) that localias manages
+  list        list all aliases
+  remove      remove an alias
+  run         run the proxy server in the foreground
+  set         add or edit an alias
+  version     show the version of this binary
+
+Flags:
+  -c, --configfile string   path to the configuration file to edit
+  -h, --help                help for localias
+  -v, --version             version for localias
+
+Use "localias [command] --help" for more information about a command.
+```
+
+# FAQ
 ## Why build this?
 
-Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://jeansaad/chalet) (maintained). These are wonderful projects that served as inspiration for Localias, but I think that Localias compares favorably:
-
-- Localias is a single binary, whereas Hotel require a working NodeJS runtime
-- Localias works by modifying /etc/hosts (and the windows equivalent), which makes it easy to observe and debug. Hotel requires you to configure itself as a proxy in your browser or in your operating system.
-  - As a consequence, aliases configured with Localias will also work in command-line scipts or requests sent by progarms like `curl`, whereas aliases managed by Hotel will not work.
-- Localias allows you to create any number of aliases on different TLDs at the same time, but Hotel only allows you to use one TLD.
-- Localias will install its root certificate to your system store so that you do not see any warnings about invalid self-signed certificates.
-- Localias will automatically discover configuration files committed to your git repository, which makes it easy to share a configuration with you development team. 
-- Localias does not attempt to do any kind of process management or launching, leaving that entirely up to you.
+Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://jeansaad/chalet) (maintained). These are wonderful projects that served as inspiration for Localias, but I think Localias is implemented in a better and more useful way.
 
 I also wanted an excuse to play around with building a MacOS app, and this seemed like a small and well-defined problem that would be amenable to learning Swift.
 
