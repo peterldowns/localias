@@ -2,13 +2,18 @@
 
 Localias is a tool for developers to securely manage local aliases for development servers.
 
-Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line. This is commonly useful for web developers or teams for the following reasons:
+Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line. 
+
+<img width="464" alt="iTerm showing the most basic usage of Localias" src="https://user-images.githubusercontent.com/824173/235960302-8b6f4bdd-1403-4a8f-a14f-7de938f9d1c4.png">
+
+This is commonly useful for web developers or teams for the following reasons:
 - Use convenient names, without ports, in your URLs
 - Serve your development website behind TLS, minimizing differences between development and production.
   - No more CORS problems!
   - Set secure cookies!
 
-Major features:
+
+### Major Features
 - Works on MacOS, Linux, and even WSL2 (!)
 - Automatically provisions and installs TLS certificates for all of your aliases
   by default.
@@ -20,16 +25,6 @@ Major features:
 - Proxies requests and generates TLS certs with
   [`caddy`](https://caddyserver.com/) so it's fast and secure by default.
 
-Localias is designed to replace alternative tools like [hotel](https://github.com/typicode/hotel)/[chalet](https://jeansaad/chalet):
-  - Localias is a single binary, Hotel requires a working NodeJS runtime
-  - Localias works by modifying `/etc/hosts` (and the windows equivalent), which makes it easy to observe and debug. Hotel requires you to configure itself as a proxy in your browser or in your operating system.
-    - aliases configured with Localias will also work in command-line scipts or requests sent by programs like `curl`. Hotel aliases only work in your browser
-  - Localias allows you to create any number of aliases on different TLDs at the same time, but Hotel only allows you to use one TLD.
-  - Localias will generate a root certificate and any necessary certificates for each alias, and install the root certificate in your system store so you do not see any warnings about invalid self-signed certificates.
-  - Localias will automatically discover configuration files committed to your git repository, which makes it easy to share a configuration with you development team. 
-  - Localias does not attempt to do any kind of process management or launching, leaving that entirely up to you.
-
-<img width="464" alt="iTerm showing the most basic usage of Localias" src="https://user-images.githubusercontent.com/824173/235960302-8b6f4bdd-1403-4a8f-a14f-7de938f9d1c4.png">
 
 # Install
 
@@ -68,7 +63,7 @@ Localias has two parts:
 - the configuration file
 - the proxy server
 
-The configuration file is where Localias keeps track of your aliases, and to which local ports they should be pointing. The proxy server is what runs to actuall proxy requests based on that configuration
+The configuration file is where Localias keeps track of your aliases, and to which local ports they should be pointing. The proxy server then runs and actually proxies requests based on the configuration.
 
 ### configuration file
 Every time you run `localias`, it looks for a config file in the following places, using the first one that it finds:
@@ -285,7 +280,8 @@ Flags:
 Use "localias [command] --help" for more information about a command.
 ```
 
-# FAQ
+# Errata
+
 ## Why build this?
 
 Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://jeansaad/chalet) (maintained). These are wonderful projects that served as inspiration for Localias, but I think Localias is implemented in a better and more useful way.
@@ -301,6 +297,17 @@ Finally, [my friend Justin wanted this to exist, too](https://twitter.com/jmduke
 > localhost:3002 → docs.local  
 > 
 > But I can't for the life of me remember the name of it. Does anyone know what I'm talking about?
+
+## Why not hotel/chalet?
+Localias is designed to replace alternative tools like [hotel](https://github.com/typicode/hotel)/[chalet](https://jeansaad/chalet). Hotel is no longer maintained, and Chalet is a fork of Hotel with basically the same features. I think Localias compares favorably:
+
+  - Localias is a single binary. Hotel requires a working NodeJS runtime.
+  - Localias works by modifying `/etc/hosts` (and the windows equivalent), which makes it easy to observe and debug. Hotel requires you to configure itself as a proxy in your browser or in your operating system.
+    - Aliases configured with Localias will also work in command-line scipts or requests sent by programs like `curl`. Hotel aliases only work in your browser.
+  - Localias allows you to create any number of aliases on different TLDs at the same time. Hotel only allows you to use one TLD.
+  - Localias will generate a root certificate and any necessary certificates for each alias, and install the root certificate in your system store so you do not see any warnings about invalid self-signed certificates. Hotel does not do any TLS signing.
+  - Localias will automatically discover configuration files committed to your git repository, which makes it easy to share a configuration with you development team. Hotel does not allow for shared configuration files.
+  - Localias does not attempt to do any kind of process management or launching, leaving that entirely up to you. Hotel attemps to run and manage processes for you.
 
 
 ## Domain conflicts and HSTS
