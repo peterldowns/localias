@@ -284,7 +284,7 @@ Use "localias [command] --help" for more information about a command.
 
 ## Why build this?
 
-Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://jeansaad/chalet) (maintained). These are wonderful projects that served as inspiration for Localias, but I think Localias is implemented in a better and more useful way.
+Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://github.com/jeansaad/chalet) (maintained). These are wonderful projects that served as inspiration for Localias, but I think Localias is implemented in a better and more useful way.
 
 I also wanted an excuse to play around with building a MacOS app, and this seemed like a small and well-defined problem that would be amenable to learning Swift.
 
@@ -299,7 +299,7 @@ Finally, [my friend Justin wanted this to exist, too](https://twitter.com/jmduke
 > But I can't for the life of me remember the name of it. Does anyone know what I'm talking about?
 
 ## Why not hotel/chalet?
-Localias is designed to replace alternative tools like [hotel](https://github.com/typicode/hotel)/[chalet](https://jeansaad/chalet). Hotel is no longer maintained, and Chalet is a fork of Hotel with basically the same features. I think Localias compares favorably:
+Localias is designed to replace alternative tools like [hotel](https://github.com/typicode/hotel)/[chalet](https://github.com/jeansaad/chalet). Hotel is no longer maintained, and Chalet is a fork of Hotel with basically the same features. I think Localias compares favorably:
 
   - Localias is a single binary. Hotel requires a working NodeJS runtime.
   - Localias works by modifying `/etc/hosts` (and the windows equivalent), which makes it easy to observe and debug. Hotel requires you to configure itself as a proxy in your browser or in your operating system.
