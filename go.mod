@@ -58,6 +58,7 @@ require (
 	github.com/google/cel-go v0.13.0 // indirect
 	github.com/google/pprof v0.0.0-20230222194610-99052d3372e7 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/hashicorp/mdns v1.0.5
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
