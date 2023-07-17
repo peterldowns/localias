@@ -29,7 +29,7 @@ func determineAPIAddress(cfg *config.Config) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to parse configuration: %w", err)
 	}
-	address, err := caddycmd.DetermineAdminAPIAddress("", cfgJSON, "", "")
+	address, err := caddycmd.DetermineAdminAPIAddress("", cfgJSON, caddyfile, "caddyfile")
 	if err != nil {
 		return "", fmt.Errorf("could not determine api address: %w", err)
 	}

@@ -166,6 +166,18 @@ func (c *Config) Save() error {
 	return os.WriteFile(c.Path, bytes, 0o644)
 }
 
+func (c Config) CaddySocketPath() string {
+	path, err := xdg.StateFile("localias/caddy.sock")
+	if err != nil {
+		panic(err)
+	}
+	path, err = filepath.Abs(path)
+	if err != nil {
+		panic(err)
+	}
+	return "unix/" + path
+}
+
 func (c Config) CaddyStatePath() string {
 	path, err := xdg.StateFile("localias/caddy")
 	if err != nil {
@@ -179,12 +191,13 @@ func (c Config) CaddyStatePath() string {
 }
 
 func (c Config) Caddyfile() string {
-	path := c.CaddyStatePath()
+	socketPath := c.CaddySocketPath()
+	statePath := c.CaddyStatePath()
 	// TODO: take an admin port/interface as part of the config settings, and also
 	// as part of the CLI?
 	global := fmt.Sprintf(strings.TrimSpace(`
 {
-	admin localhost:2019
+	admin "%s"
 	persist_config off
 	local_certs
 	ocsp_stapling off
@@ -197,7 +210,7 @@ func (c Config) Caddyfile() string {
 		}
 	}
 }
-`), path)
+`), socketPath, statePath)
 	blocks := []string{global}
 	for _, x := range c.Entries {
 		blocks = append(blocks, x.Caddyfile())
