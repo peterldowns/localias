@@ -1,3 +1,12 @@
+// caddymodules is a package that imports all the plugins necessary to make the
+// embedded caddy proxy server work correctly. After importing _this_ package, a
+// golang program can call `caddy.Load(...)` to start the proxy server.
+//
+// Normally a golang program could import
+// `"github.com/caddyserver/caddy/v2/modules/standard"` to achieve the same
+// goal, but something in the nix/golang module building code chokes on some
+// deep dependency in the caddy modules. Through trial and error, this set of
+// imports seems to work.
 package caddymodules
 
 import (

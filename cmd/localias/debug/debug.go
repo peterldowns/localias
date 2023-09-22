@@ -3,6 +3,7 @@ package debug
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/peterldowns/localias/cmd/localias/debug/hostctl"
 	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
@@ -18,7 +19,10 @@ localias debug config --print
 localias debug cert
 # print the contents of the root certificate
 localias debug cert --print
-
 	`),
 	Hidden: true,
+}
+
+func init() { //nolint:gochecknoinits
+	Command.AddCommand(hostctl.Command)
 }

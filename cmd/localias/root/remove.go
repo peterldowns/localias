@@ -9,6 +9,14 @@ import (
 	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
+var removeCmd = &cobra.Command{ //nolint:gochecknoglobals
+	Use:     "rm alias [...more aliases]",
+	Aliases: []string{"remove", "delete"},
+	Args:    cobra.MinimumNArgs(1),
+	Short:   "remove an alias",
+	RunE:    removeImpl,
+}
+
 func removeImpl(_ *cobra.Command, aliases []string) error {
 	cfg := shared.Config()
 	removed := cfg.Remove(aliases...)
@@ -24,14 +32,6 @@ func removeImpl(_ *cobra.Command, aliases []string) error {
 		)
 	}
 	return nil
-}
-
-var removeCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:     "remove alias [...more aliases]",
-	Aliases: []string{"rm", "delete"},
-	Args:    cobra.MinimumNArgs(1),
-	Short:   "remove an alias",
-	RunE:    removeImpl,
 }
 
 func init() { //nolint:gochecknoinits

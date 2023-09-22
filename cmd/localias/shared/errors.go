@@ -56,7 +56,18 @@ func (x DaemonRunning) Error() string {
 	if x.Pid != 0 {
 		return fmt.Sprintf("the localias daemon is already running (pid=%d)", x.Pid)
 	}
-	return "a localias daemon or server is already running"
+	return strings.TrimSpace(`
+localias could not start successfully. Most likely there is another instance of
+localias or some other kind of proxy or server listening to ports 443/80, which
+is preventing another instance from starting. Common causes:
+
+- You have another instance of localias running in a different terminal
+- You have a proxy server like Caddy, Nginx, or Apache running
+- There is a bug in localias
+
+Please see the https://github.com/peterldowns/localias README for some
+diagnostics and ideas for how to debug this.
+`)
 }
 
 func (x DaemonRunning) Code() string {

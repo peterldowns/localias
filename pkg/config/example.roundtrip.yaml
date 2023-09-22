@@ -4,10 +4,10 @@
 #
 # for example,
 #
-#   https://secure.test: 9000
-#   http://insecure.test: 9001
-#   insecure2.test: 9002
 #   bareTLD: 9003
+#   secure.test: 9002
+#   https://explicit_secure.test: 9000
+#   http://explicit_insecure.test: 9001
 #
 bare: 9003
 bare.test: 9002

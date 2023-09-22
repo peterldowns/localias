@@ -1,4 +1,7 @@
-# Localias
+# 🏠 localias
+
+![Latest Version](https://badgers.space/badge/latest%20version/v2.0.0/blueviolet?corner_radius=m)
+![Golang](https://badgers.space/badge/golang/1.18+/blue?corner_radius=m)
 
 Localias is a tool for developers to securely manage local aliases for development servers.
 
@@ -24,6 +27,8 @@ This is commonly useful for web developers or teams for the following reasons:
   aliases for your development services.
 - Proxies requests and generates TLS certs with
   [`caddy`](https://caddyserver.com/) so it's fast and secure by default.
+- Serves `.local` domains over mDNS, so you can visit your development
+  servers from your phone or any other device connected to the same network.
 
 
 # Install
@@ -103,10 +108,10 @@ localias remove <alias>
 The configuration file is just a YAML map of `<alias>: <port>`! For example, this is a valid configuration file:
 
 ```yaml
-https://secure.test: 9000
-http://insecure.test: 9001
-insecure2.test: 9002
-bareTLD: 9003
+bareTLD: 9003 # serves over https and http
+implicitly_secure.test: 9002 # serves over https and http
+https://explicit_secure.test: 9000 # serves over https and http
+http://explicit_insecure.test: 9001 # serves over http only
 ```
 
 ### proxy server
@@ -189,21 +194,19 @@ Congratulations, you're done! Start your development servers (or just one of the
 
 \* *are you using Firefox, or are you on WSL? See the notes below for how to do the one-time install of the localias root certificate*
 
-
-
 ## Running as a daemon
 
 Instead of explicitly running the proxy server as a foreground process with `localias run`, you can also run Localias in the background with `localias daemon start`. You can interact with this daemon with the following commands:
 
 ```shell
 # Start the proxy server as a daemon process
-localias daemon start
+localias start
 # Show the status of the daemon process
-localias daemon status
+localias status
 # Apply the latest configuration to the proxy server in the daemon process
-localias daemon reload
+localias reload
 # Stop the daemon process
-localias daemon stop
+localias stop
 ```
 
 When running as a daemon process, if you make any changes to your configuration you
@@ -212,17 +215,20 @@ will need to explicitly reload the daemon:
 ```shell
 # Start with frontend.test -> 3000
 localias set frontend.test 3000
-localias daemon start
+localias start
 # Update frontend.test -> 4004. 
 localias set frontend.test 4004
 # The daemon will still be running with frontend.test -> 3000, so
 # to apply the new changes you'll need to reload it
-localias daemon reload
+localias reload
 ```
 
 # Using the CLI 
 
-`localias` has many different subcommands, each of which is documented (including usage examples). To see the available subcommands, run `localias`. To see help on any command, you can run `localias help $command` or `localias $command --help`. 
+`localias` has many different subcommands, each of which is documented
+(including usage examples). To see the available subcommands, run `localias`. To
+see help on any command, you can run `localias help $command` or
+`localias $command --help`. 
 
 ```console
 $ localias
@@ -254,11 +260,13 @@ Examples:
   # Stop the daemon process
   localias daemon stop
   
-  # Show the host file(s) that localias edits
-  localias hostctl print
-  # Show the entries that localias has added to the host file(s)
+  # Show the path(s) of the host file(s)
+  localias hostctl path
+  # Show any entries that localias has made to the host file(s)
   localias hostctl list
-  # Remove all localias-managed entries from the host file(s)
+  # Apply the current configuration to the host file(s)
+  localias hostctl apply
+  # Clear all entries from the host file(s)
   localias hostctl clear
 
 Available Commands:
@@ -285,8 +293,6 @@ Use "localias [command] --help" for more information about a command.
 ## Why build this?
 
 Localias is the tool I've always wanted to use for local web development. After years of just visiting `localhost:8080`, I finally got around to looking for a solution, and came across [hotel](https://github.com/typicode/hotel) (unmaintained) and its fork [chalet](https://github.com/jeansaad/chalet) (maintained). These are wonderful projects that served as inspiration for Localias, but I think Localias is implemented in a better and more useful way.
-
-I also wanted an excuse to play around with building a MacOS app, and this seemed like a small and well-defined problem that would be amenable to learning Swift.
 
 Finally, [my friend Justin wanted this to exist, too](https://twitter.com/jmduke/status/1628034461605539840?s=20):
 
@@ -323,9 +329,24 @@ your browser may do things you don't expect:
 
 In general, it's best to avoid this problem entirely and use aliases that end in [`.test`](https://en.wikipedia.org/wiki/.test), [`.example`](https://en.wikipedia.org/wiki/.example), [`.localhost`](https://en.wikipedia.org/wiki/.localhost), or some other TLD that is not in use.
 
-## `.local` domains on MacOS
-If you add an alias to a `.local` domain on a Mac, resolving the domain for the first time [will take add ~5-10s to every
-request thanks to Bonjour](https://superuser.com/questions/1596225/dns-resolution-delay-for-entries-in-etc-hosts). The workaround would be to set `127.0.0.1 domain.local` as well as `::1 domain.local` but that's tricky with the way that the `hostctl` package is currently implemented. 
+## `.local` domains
+Thanks to ["mDNS", or "multicast
+dns"](https://en.wikipedia.org/wiki/Multicast_DNS), any aliases that you create
+that end in `.local` will be broadcast to your entire network. This makes it
+easy to visit a development server from any other device, including your phone,
+which makes testing responsive websites really easy. All you need to do is create
+an alias ending in `.local`:
+
+```console
+$ localias add frontend.local 8080
+[added] frontend.local -> 8080
+$ localias add http://insecure.local 8080
+[added] http://insecure.local 8080
+```
+
+When you visit a secure local alias from another device, you may be prompted with
+a certificate warning. You should feel free to accept the warning and continue
+on to the site, which is just your local development site.
 
 ## The Localias Root Certificate and System Trust Stores
 Localias's proxy server, Caddy, automatically generates certificates for any
@@ -358,9 +379,7 @@ localias debug cert --install
 Firefox [does not trust the system certificate store by
 default](https://blog.mozilla.org/security/2019/02/14/why-does-mozilla-maintain-our-own-root-certificate-store/).
 This means that unfortunately, if you visit you secure alias, you will see a
-warning that the certificate is invalid:
-
-(TODO: image)
+warning that the certificate is invalid.
 
 On MacOS/Linux, Firefox can be configured to trust the system store by changing
 a configuration setting.
@@ -410,7 +429,10 @@ warnings are displayed.
 
 
 ## Allow Localias to bind to ports 443/80 on Linux
-Localias works by proxying requests from ports 80 and 443 to your development servers. When you run Localias, it therefore will attempt to listen on ports 80 and 443. On Linux you may not be allowed to do this by default -- you may see an error like:
+Localias works by proxying requests from ports 80 and 443 to your development
+servers. When you run Localias, it therefore will attempt to listen on ports 80
+and 443. On Linux you may not be allowed to do this by default -- you may see an
+error like:
 
 ```console
 $ localias run
@@ -434,8 +456,60 @@ sudo setcap CAP_NET_BIND_SERVICE=+eip $(which localias)
 
 For more information, view the [arch man pages for `capabilities`](https://man.archlinux.org/man/capabilities.7#CAP_NET_BIND_SERVICE) and [this Stackoverflow answer](https://stackoverflow.com/a/414258).
 
+## error: localias could not start successfully
 
-## General reading / links / sources
+If you've tried running `localias run` and see this error:
+
+```console
+$ localias run
+error: localias could not start successfully. Most likely there is another instance of
+localias or some other kind of proxy or server listening to ports 443/80, which
+is preventing another instance from starting. Common causes:
+
+- You have another instance of localias running in a different terminal
+- You have a proxy server like Caddy, Nginx, or Apache running
+- There is a bug in localias
+
+Please see the https://github.com/peterldowns/localias README for some
+diagnostics and ideas for how to debug this.
+```
+
+Or you've tried to start the daemon `localias start` but no daemon gets started:
+
+```console
+$ localias start
+$ localias status
+daemon is not running
+```
+
+Then most likely some other process is bound to ports 443/80, preventing
+localias from starting up correctly. The only way localias will start is if it
+is able to bind to these ports, which it needs to do to act as a proxy.
+
+To find out if there are any other instances of localias running, use `ps`. In
+this example, the first result is an instance of localias, and the second result
+is the `grep` process itself.
+
+```console
+$ ps aux | grep -i localias
+pd               39020   0.0  0.1 409289408  38736 s003  S+    1:42PM   0:00.09 localias run
+pd               39198   0.0  0.0 407965536    624 s005  R+    1:47PM   0:00.00 grep -i localias
+```
+
+You can find out what services are listening on your ports by using `lsof`. In this example,
+there the results show that there is an instance of localias bound to both port 80 and port 443:
+
+```console
+$  lsof -Pn | grep -E '\*:443|\*:80'
+localias  39020   pd    9u     IPv6 0xb3abbd50442d943f       0t0                 TCP *:443 (LISTEN)
+localias  39020   pd   11u     IPv6 0xb3abbd4b78f6ba3f       0t0                 UDP *:443
+localias  39020   pd   12u     IPv6 0xb3abbd50442da23f       0t0                 TCP *:80 (LISTEN)
+```
+
+In order for localias to start, you'll have to kill the process that is
+interfering and binding to these ports.
+
+# General reading / links / sources
 
 - https://blog.mozilla.org/security/2019/02/14/why-does-mozilla-maintain-our-own-root-certificate-store/
 - https://support.mozilla.org/en-US/kb/setting-certificate-authorities-firefox
@@ -447,26 +521,15 @@ For more information, view the [arch man pages for `capabilities`](https://man.a
 - https://rud.is/b/2021/04/24/making-macos-universal-apps-with-universal-golang-static-libraries/
 - https://caddyserver.com/docs/automatic-https#overview
 
-## There's a Mac application?
-
-Sharp eyes &mdash; yes, there's a MacOS menu bar application, but it's not done yet. You can download it from the releases page or install it with `brew install peterldowns/tap/localias-app` if you'd like to try an early version. It's built by compiling the golang binary into a shared C library and then embedding that into a Swift app. It works great, sort of. Once I've improved it a bit I'll update this documentation.
-
-<img width="410" alt="Localias.app running in the menu bar" src="https://user-images.githubusercontent.com/824173/235967836-5e79a282-357a-44a0-b9a1-271558299e46.png">
-
-Remaining major items:
- - [ ] Allow choosing the configuration file
- - [ ] Better display error messages (if daemon is already running, for example)
- - [ ] Info / help inside application explaining how the buttons work
 
 ## Future Work
 
-- [ ] Docs
-  - [ ] How it works section
-  - [ ] WSL2 details
-- [ ] Improvements
-  - [ ] Daemon config command for dumping running config
-  - [ ] `--json` formatting for command line controller + caddy logs as well
-  - [ ] Helper for doing explicit certificate installation
-    - [ ] Handle firefox if `certutil` is available?
-    - [ ] automatically install localias root certs using powershell script when
-          running in wsl2
+- [ ] Daemon config command for dumping running config
+- [ ] `--json` formatting for command line controller + caddy logs as well
+- [ ] Helper for doing explicit certificate installation
+  - [ ] Handle firefox if `certutil` is available?
+  - [ ] automatically install localias root certs using powershell script when
+        running in wsl2
+- [ ] Daemonized server errors are reported if it fails to start
+- [ ] Better helpers for getting access to logs
+- [ ] General code cleanup and tests
