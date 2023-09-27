@@ -5,6 +5,7 @@ import (
 
 	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/hostctl"
+	"github.com/peterldowns/localias/pkg/windows"
 	"github.com/peterldowns/localias/pkg/wsl"
 )
 
@@ -29,12 +30,19 @@ func Config() *config.Config {
 
 func Controller() hostctl.Controller {
 	name := "localias"
+
+	// On Windows, always edit the Windows hosts file
+	if windows.IsWindows() {
+		return hostctl.NewWindowsController(name)
+	}
+
 	// On WSL/Mac/Linux, we're always going to need to edit /etc/hosts.
 	etcHostController := hostctl.NewFileController(
 		"/etc/hosts",
 		true,
 		name,
 	)
+
 	// If we're on WSL, we'll also need to update the window machine's
 	// host file.
 	if wsl.IsWSL() {
@@ -44,6 +52,7 @@ func Controller() hostctl.Controller {
 			etcHostController,
 		)
 	}
+
 	return etcHostController
 }
 

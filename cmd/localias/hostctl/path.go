@@ -32,6 +32,8 @@ func getPaths(hctl hostctl.Controller) []string {
 	switch c := hctl.(type) {
 	case *hostctl.FileController:
 		return []string{c.Path}
+	case *hostctl.WindowsController:
+		return []string{c.WindowsHostsFile}
 	case *hostctl.WSLController:
 		return []string{
 			// TODO: extract to a constant and a helper for getting the unix

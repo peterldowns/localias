@@ -3,7 +3,9 @@ package hostctl
 import (
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -139,6 +141,16 @@ func (c *FileController) save() error {
 	if c.Path == "" {
 		return fmt.Errorf("cannot save file: path is empty")
 	}
+
+	// On Windows, the FileController writes to a temporary file, after which
+	// the actual Windows hosts file is updated if there are changes.
+	if runtime.GOOS == "windows" {
+		if err := os.WriteFile(c.Path, []byte(asFile(c.lines)), 0o644); err != nil {
+			return fmt.Errorf("failed writing to %q: %w", c.Path, err)
+		}
+		return nil
+	}
+
 	var cmd *exec.Cmd
 	if c.Sudo {
 		cmd = exec.Command("sudo", "tee", c.Path)

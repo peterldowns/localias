@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/cmd/localias/shared"
+	"github.com/peterldowns/localias/pkg/windows"
 	"github.com/peterldowns/localias/pkg/wsl"
 )
 
@@ -29,7 +31,14 @@ func certImpl(_ *cobra.Command, _ []string) error {
 		fmt.Println(string(content))
 	}
 	if *certFlags.Install {
-		if err := wsl.InstallCert(rootCrtPath); err != nil {
+		var err error
+		switch runtime.GOOS {
+		case "windows":
+			err = windows.InstallCert(rootCrtPath)
+		default:
+			err = wsl.InstallCert(rootCrtPath)
+		}
+		if err != nil {
 			return err
 		}
 	}
