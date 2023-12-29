@@ -9,6 +9,13 @@ import (
 	"github.com/peterldowns/localias/cmd/localias/shared"
 )
 
+var listCmd = &cobra.Command{ //nolint:gochecknoglobals
+	Use:     "list",
+	Aliases: []string{"l", "ls", "show"},
+	Short:   "list all aliases",
+	RunE:    listImpl,
+}
+
 func listImpl(_ *cobra.Command, _ []string) error {
 	cfg := shared.Config()
 	for _, entry := range cfg.Entries {
@@ -19,13 +26,6 @@ func listImpl(_ *cobra.Command, _ []string) error {
 		)
 	}
 	return nil
-}
-
-var listCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:     "list",
-	Aliases: []string{"l"},
-	Short:   "list all aliases",
-	RunE:    listImpl,
 }
 
 func init() { //nolint:gochecknoinits

@@ -8,29 +8,48 @@
     flake-compat.url = "github:edolstra/flake-compat";
     flake-compat.flake = false;
 
-    gomod2nix.url = "github:nix-community/gomod2nix";
-    gomod2nix.inputs.nixpkgs.follows = "nixpkgs";
+    nix-filter.url = "github:numtide/nix-filter";
   };
 
   outputs = { self, ... }@inputs:
     inputs.flake-utils.lib.eachDefaultSystem (system:
       let
-        # standard nix definitions
-        overlays = [ inputs.gomod2nix.overlays.default ];
-        pkgs = import inputs.nixpkgs { inherit system overlays; };
+        overlays = [ ];
+        pkgs = import inputs.nixpkgs {
+          inherit system overlays;
+        };
         lib = pkgs.lib;
-        # localias specific
-        localiasVersion = (builtins.readFile ./VERSION);
-        xcodewrapper = (pkgs.callPackage ./xcodewrapper.nix { });
+        version = (builtins.readFile ./VERSION);
+        commit = if (builtins.hasAttr "rev" self) then (builtins.substring 0 7 self.rev) else "unknown";
       in
       rec {
         packages = rec {
-          localias = pkgs.buildGoApplication {
-            ldflags = [ "-X github.com/peterldowns/localias/cmd/localias/shared.Version=${localiasVersion}" ];
+          localias = pkgs.buildGo120Module {
             pname = "localias";
-            version = localiasVersion;
-            src = ./.;
-            modules = ./gomod2nix.toml;
+            version = version;
+            vendorHash = "sha256-L81PJ1MpXFfcZ/BPYaYlr2rS549i6Lle9l9IRIhh2iE=";
+            src =
+              let
+                # Set this to `true` in order to show all of the source files
+                # that will be included in the module build.
+                debug-tracing = false;
+                source-files = inputs.nix-filter.lib.filter {
+                  root = ./.;
+                };
+              in
+              (
+                if (debug-tracing) then
+                  pkgs.lib.sources.trace source-files
+                else
+                  source-files
+              );
+            # Add any extra packages required to build the binaries should go here.
+            buildInputs = [ ];
+            ldflags = [
+              "-X github.com/peterldowns/localias/cmd/localias/shared.Version=${version}"
+              "-X github.com/peterldowns/localias/cmd/localias/shared.Commit=${commit}"
+            ];
+            modRoot = "./.";
             subPackages = [ "cmd/localias" ];
             doCheck = false;
           };
@@ -52,27 +71,17 @@
                 # golang
                 delve
                 go-outline
-                go
+                go_1_20
                 golangci-lint
                 gopkgs
                 gopls
                 gotools
                 # nix
-                gomod2nix # have to use pkgs. prefix or it breaks lorri
                 rnix-lsp
                 nixpkgs-fmt
-                # xcode: this wrapper symlinks to the host system.
                 # other tools
                 just
                 cobra-cli
-              ] ++ lib.optional stdenv.isDarwin [
-                # When in a MacOS environment, must use this wrapper in order
-                # for xcodebuild / clang / etc to all work correctly.
-                # When not on MacOS, no problem, just won't be able to build
-                # the app.
-                (xcodewrapper { allowHigher = true; })
-                # Makes the xcodebuild invocation prettier
-                xcpretty
               ];
 
             shellHook = ''

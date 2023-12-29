@@ -1,4 +1,4 @@
-package daemon
+package root
 
 import (
 	"fmt"
@@ -7,6 +7,13 @@ import (
 
 	"github.com/peterldowns/localias/pkg/daemon"
 )
+
+var statusCmd = &cobra.Command{ //nolint:gochecknoglobals
+	Use:     "status",
+	Aliases: []string{"ps"},
+	Short:   "show the status of the daemon process",
+	RunE:    statusImpl,
+}
 
 func statusImpl(_ *cobra.Command, _ []string) error {
 	proc, err := daemon.Status()
@@ -19,12 +26,6 @@ func statusImpl(_ *cobra.Command, _ []string) error {
 		fmt.Printf("daemon running with pid %d\n", proc.Pid)
 	}
 	return nil
-}
-
-var statusCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "status",
-	Short: "show the status of the daemon process",
-	RunE:  statusImpl,
 }
 
 func init() { //nolint:gochecknoinits

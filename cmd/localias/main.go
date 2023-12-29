@@ -30,13 +30,6 @@ func main() {
 
 func onError(err error) {
 	err = shared.ConvertErr(err)
-	// var msg string
-	// var le shared.LocaliasError
-	// if errors.As(err, &le) {
-	// 	msg = fmt.Sprintf("error(%s): %s", le.Code(), le.Error())
-	// } else {
-	// 	msg = fmt.Sprintf("error: %s", err)
-	// }
 	msg := fmt.Sprintf("error: %s", err)
 	fmt.Fprintln(os.Stderr, color.New(color.FgRed, color.Italic).Sprintf(msg))
 	os.Exit(1)

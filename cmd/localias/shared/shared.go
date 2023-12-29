@@ -20,7 +20,11 @@ var Flags struct { //nolint:gochecknoglobals
 }
 
 func Config() *config.Config {
-	cfg, err := config.Load(Flags.Configfile)
+	path, err := config.Path(Flags.Configfile)
+	if err != nil {
+		panic(fmt.Errorf("failed to find config: %w", err))
+	}
+	cfg, err := config.Open(path)
 	if err != nil {
 		panic(fmt.Errorf("failed to load config: %w", err))
 	}

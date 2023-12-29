@@ -16,44 +16,6 @@ var setFlags struct { //nolint:gochecknoglobals
 	Alias *string
 }
 
-func setImpl(_ *cobra.Command, args []string) error {
-	alias := *setFlags.Alias
-	port := *setFlags.Port
-
-	if port == 0 && alias == "" {
-		if len(args) != 2 {
-			return fmt.Errorf("invalid arguments: expected [alias] [port]")
-		}
-		alias = args[0]
-		x, err := strconv.ParseInt(args[1], 0, 0)
-		if err != nil {
-			return fmt.Errorf("valid to parse port: %w", err)
-		}
-		port = int(x)
-	}
-
-	cfg := shared.Config()
-	updated := cfg.Upsert(config.Entry{
-		Alias: alias,
-		Port:  port,
-	})
-	if err := cfg.Save(); err != nil {
-		return err
-	}
-
-	action := "[added]"
-	if updated {
-		action = "[updated]"
-	}
-	fmt.Printf(
-		"%s %s -> %s\n",
-		color.New(color.FgGreen).Sprint(action),
-		color.New(color.FgBlue).Sprintf(alias),
-		color.New(color.FgWhite).Sprintf("%d", port),
-	)
-	return nil
-}
-
 var setCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:     "set",
 	Short:   "add or edit an alias",
@@ -83,6 +45,44 @@ localias set -a example.test -p 9001
 localias set --alias example.test --port 9001
 	`),
 	RunE: setImpl,
+}
+
+func setImpl(_ *cobra.Command, args []string) error {
+	alias := *setFlags.Alias
+	port := *setFlags.Port
+
+	if port == 0 && alias == "" {
+		if len(args) != 2 {
+			return fmt.Errorf("invalid arguments: expected [alias] [port]")
+		}
+		alias = args[0]
+		x, err := strconv.ParseInt(args[1], 0, 0)
+		if err != nil {
+			return fmt.Errorf("valid to parse port: %w", err)
+		}
+		port = int(x)
+	}
+
+	cfg := shared.Config()
+	updated := cfg.Set(config.Entry{
+		Alias: alias,
+		Port:  port,
+	})
+	if err := cfg.Save(); err != nil {
+		return err
+	}
+
+	action := "[added]"
+	if updated {
+		action = "[updated]"
+	}
+	fmt.Printf(
+		"%s %s -> %s\n",
+		color.New(color.FgGreen).Sprint(action),
+		color.New(color.FgBlue).Sprintf(alias),
+		color.New(color.FgWhite).Sprintf("%d", port),
+	)
+	return nil
 }
 
 func init() { //nolint:gochecknoinits

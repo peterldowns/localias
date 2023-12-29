@@ -1,4 +1,4 @@
-package daemon
+package root
 
 import (
 	"github.com/spf13/cobra"
@@ -7,15 +7,23 @@ import (
 	"github.com/peterldowns/localias/pkg/daemon"
 )
 
-func stopImpl(_ *cobra.Command, _ []string) error {
-	cfg := shared.Config()
-	return daemon.Stop(cfg)
-}
-
 var stopCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "stop",
 	Short: "stop the daemon process",
 	RunE:  stopImpl,
+}
+
+func stopImpl(_ *cobra.Command, _ []string) error {
+	// Ensure that the daemon is running .
+	existing, err := daemon.Status()
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return shared.DaemonNotRunning{}
+	}
+	// Request that the daemon gracefully stop and exit.
+	return daemon.Stop()
 }
 
 func init() { //nolint:gochecknoinits

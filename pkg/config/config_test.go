@@ -49,11 +49,11 @@ func TestUpsertUpdatesExistingEntry(t *testing.T) {
 	cfg := &Config{
 		Path: "./example.upsert.yaml",
 	}
-	cfg.Upsert(Entry{
+	cfg.Set(Entry{
 		Alias: "dev.test",
 		Port:  8000,
 	})
-	cfg.Upsert(Entry{
+	cfg.Set(Entry{
 		Alias: "dev.test",
 		Port:  9000,
 	})
@@ -66,14 +66,6 @@ func TestUpsertUpdatesExistingEntry(t *testing.T) {
 	cfg2, err := Open(cfg.Path)
 	require.NoError(t, err)
 	require.Equal(t, expected, cfg2.Entries)
-}
-
-func TestLoad(t *testing.T) {
-	cfg, err := Load(nil)
-	require.NoError(t, err)
-	require.NotNil(t, cfg)
-	err = cfg.Save()
-	require.NoError(t, err)
 }
 
 func TestDefaultPath(t *testing.T) {

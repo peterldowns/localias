@@ -7,31 +7,6 @@ on:
     branches:
       - main
 jobs:
-  upload-application:
-    runs-on: macos-12
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: setup-go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-          cache: true
-          cache-dependency-path: go.sum
-      - name: build-liblocalias
-        run: |
-          ./scripts/build-liblocalias.sh
-      - name: build-app
-        run: |
-          ./scripts/build-app.sh
-      - name: upload-app
-        run: |
-          upload_url=$(./scripts/upsert-gh-release.sh)
-          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/octet-stream" \
-            --data-binary @app/build/Localias.app.zip \
-            "$upload_url?name=Localias.app.zip&label=Localias.app.zip"
   upload-binaries:
     runs-on: ubuntu-latest
     env:

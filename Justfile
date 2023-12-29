@@ -25,11 +25,3 @@ build:
   #!/usr/bin/env bash
   ldflags=$(./scripts/golang-ldflags.sh)
   go build -ldflags "$ldflags" -o bin/localias ./cmd/localias
-
-# build the localias.a library for swift app
-build-liblocalias:
-  ./scripts/build-liblocalias.sh
-
-# build the swift app Localias.app
-build-app:
-  ./scripts/build-app.sh

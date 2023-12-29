@@ -17,7 +17,7 @@ if [ -z "$VERSION" ]; then
   VERSION=$(cat ./VERSION)
 fi
 if [ -z "$COMMIT" ]; then
-  COMMIT="$(git rev-parse --short HEAD || echo 'unknown')"
+  COMMIT="$(git rev-parse --short HEAD || echo '<dev>')"
 fi
 
 package="github.com/peterldowns/localias/cmd/localias/shared"

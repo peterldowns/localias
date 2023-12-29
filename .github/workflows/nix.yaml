@@ -9,11 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: cachix/install-nix-action@v18
+    - name: Install Nix
+      uses: cachix/install-nix-action@v22
       with:
         nix_path: nixpkgs=channel:nixos-unstable
         extra_nix_config: |
           access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+    - name: Install Cache
+      uses: DeterminateSystems/magic-nix-cache-action@v1
     # flakes
     - run: nix develop --command which go
     - run: nix build . && ./result/bin/localias --help
@@ -28,12 +31,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: cachix/install-nix-action@v18
+    - name: Install Nix
+      uses: cachix/install-nix-action@v22
       with:
         nix_path: nixpkgs=channel:nixos-unstable
         extra_nix_config: |
           access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-    - run: nix develop --command nixpkgs-fmt --check *.nix
+    - name: Install Cache
+      uses: DeterminateSystems/magic-nix-cache-action@v1
+    - run: find . -name '*.nix' | xargs nix run nixpkgs#nixpkgs-fmt --
     - run: |
         if ! git diff-index --quiet HEAD --; then
           echo "gomod2nix had changes"

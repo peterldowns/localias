@@ -20,19 +20,20 @@ func certImpl(_ *cobra.Command, _ []string) error {
 	cfg := shared.Config()
 	caddyStatePath := cfg.CaddyStatePath()
 	rootCrtPath := filepath.Join(caddyStatePath, "pki/authorities/local/root.crt")
-	fmt.Println(rootCrtPath)
 	if *certFlags.Print {
 		content, err := os.ReadFile(rootCrtPath)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(content))
+		return nil
 	}
 	if *certFlags.Install {
 		if err := wsl.InstallCert(rootCrtPath); err != nil {
 			return err
 		}
 	}
+	fmt.Println(rootCrtPath)
 	return nil
 }
 
