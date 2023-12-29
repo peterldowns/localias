@@ -33,7 +33,7 @@ jobs:
         nix_path: nixpkgs=channel:nixos-unstable
         extra_nix_config: |
           access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-    - run: nix develop --command nixpkgs-fmt --check *.nix
+    - run: find . -name '*.nix' | xargs nix run nixpkgs#nixpkgs-fmt --
     - run: |
         if ! git diff-index --quiet HEAD --; then
           echo "gomod2nix had changes"
