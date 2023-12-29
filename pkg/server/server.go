@@ -1,7 +1,11 @@
 package server
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/caddyserver/caddy/v2"
+	"github.com/fatih/color"
 	"github.com/hashicorp/mdns"
 
 	_ "github.com/peterldowns/localias/pkg/caddymodules" // necessary caddy configuration
@@ -21,7 +25,13 @@ func Start(cfg *config.Config) error {
 		}
 	}
 	instance = &Server{config: cfg}
-	return instance.Start()
+	if err := instance.StartCaddy(); err != nil {
+		return err
+	}
+	if err := instance.StartMDNS(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Stop will stop the caddy server (if it is running).
@@ -41,19 +51,23 @@ type Server struct {
 	mdnserver *mdns.Server
 }
 
-func (s *Server) Start() error {
+func (s *Server) StartCaddy() error {
 	// Start (or restart) the global Caddy service and load the current
 	// configuration.
 	cfgJSON, _, err := s.config.CaddyJSON()
 	if err != nil {
 		return err
 	}
-	if err := caddy.Load(cfgJSON, false); err != nil {
-		return err
-	}
+	return caddy.Load(cfgJSON, false)
+}
+
+func (s *Server) StartMDNS() error {
+	var err error
 	s.mdnserver, err = newMDNSServer(s.config.Entries)
 	if err != nil {
-		return err
+		warn := color.New(color.FgYellow, color.Italic)
+		fmt.Fprintln(os.Stderr, warn.Sprintf("failed to start mDNS server:"))
+		fmt.Fprintln(os.Stderr, warn.Sprintf(err.Error()))
 	}
 	return nil
 }

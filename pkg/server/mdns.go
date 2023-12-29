@@ -45,7 +45,7 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 	}
 	baseIPs, err := net.LookupIP(baseHost + ".local")
 	if err != nil {
-		return nil, fmt.Errorf("failed to find local IP: %w", err)
+		return nil, fmt.Errorf("could not determine host IP for .local domains: %w", err)
 	}
 	var ms multiservice
 	for _, entry := range localEntries {
@@ -90,6 +90,7 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 		if err != nil {
 			return nil, err
 		}
+		fmt.Printf("mDNS: serving %s\n", entry.Host())
 		ms = append(ms, service)
 	}
 	return mdns.NewServer(&mdns.Config{Zone: ms})
