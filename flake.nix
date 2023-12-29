@@ -50,7 +50,7 @@
               "-X github.com/peterldowns/localias/cmd/localias/shared.Commit=${commit}"
             ];
             modRoot = "./.";
-            subPackages = ["cmd/localias"];
+            subPackages = [ "cmd/localias" ];
             doCheck = false;
           };
           default = localias;
