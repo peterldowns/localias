@@ -8,10 +8,6 @@ linters-settings:
     enable-all: true
     disable:
       - fieldalignment
-  depguard:
-    list-type: blacklist
-    include-go-root: true
-    include-go-std-lib: true
   exhaustive:
     default-signifies-exhaustive: true
   nolintlint:
@@ -84,7 +80,6 @@ linters:
   disable-all: true
   enable:
     - asciicheck
-    - depguard
     - errcheck
     - errorlint
     - exhaustive
