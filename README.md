@@ -7,16 +7,13 @@ Localias is a tool for developers to securely manage local aliases for developme
 
 Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line. 
 
-<img width="464" alt="iTerm showing the most basic usage of Localias" src="https://user-images.githubusercontent.com/824173/235960302-8b6f4bdd-1403-4a8f-a14f-7de938f9d1c4.png">
+<img width="464" alt="iTerm showing the most basic usage of Localias" src="https://github.com/peterldowns/localias/assets/824173/5b0121df-237e-47e7-92b8-d09017fcf95f.png">
 
-This is commonly useful for web developers or teams for the following reasons:
+### Major Features
 - Use convenient names, without ports, in your URLs
 - Serve your development website behind TLS, minimizing differences between development and production.
   - No more CORS problems!
   - Set secure cookies!
-
-
-### Major Features
 - Works on MacOS, Linux, and even WSL2 (!)
 - Automatically provisions and installs TLS certificates for all of your aliases
   by default.
