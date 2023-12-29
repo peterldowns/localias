@@ -1,6 +1,8 @@
 package root
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/cmd/localias/debug"
@@ -34,6 +36,12 @@ localias stop
 # Run the proxy server in the foreground
 localias run
   `),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 0 {
+			return fmt.Errorf(`invalid command: "%s"`, args[0])
+		}
+		return cmd.Help()
+	},
 }
 
 func init() { //nolint:gochecknoinits
@@ -46,6 +54,4 @@ func init() { //nolint:gochecknoinits
 	shared.Flags.Configfile = Command.PersistentFlags().StringP("configfile", "c", "", "path to the configuration file to edit")
 
 	Command.AddCommand(debug.Command)
-
-	Command.AddCommand()
 }
