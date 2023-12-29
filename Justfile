@@ -11,6 +11,11 @@ set positional-arguments
 default:
   just --list
 
+# remove any previously-built binaries
+clean:
+  rm -rf ./bin
+  rm -rf ./result
+
 # run the test suite
 test *args='./...':
   go test "$@"
