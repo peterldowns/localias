@@ -113,7 +113,7 @@ http://explicit_insecure.test: 9001 # serves over http only
 
 ### proxy server
 
-When you execute `localias run` or `localias daemon start` to run the proxy server, Localias performs the following operations:
+When you execute `localias run` or `localias start` to run the proxy server, Localias performs the following operations:
 
 - Reads the current Localias configuration file to find all the current aliases and the ports to which they're pointing.
 - Checks the `/etc/hosts` file to make sure that every alias is present
@@ -159,7 +159,7 @@ frontend.test -> 3000
 
 That's it in terms of configuration!
 
-Now, start the proxy server. You can do this in the foreground with `localias run` (and stop it with `ctrl-c`) or you can start the server in the background with `localias daemon start`. For the purposes of this quickstart, we'll do it in the foreground.
+Now, start the proxy server. You can do this in the foreground with `localias run` (and stop it with `ctrl-c`) or you can start the server in the background with `localias start`. For the purposes of this quickstart, we'll do it in the foreground.
 
 ```console
 $ localias run
@@ -193,7 +193,7 @@ Congratulations, you're done! Start your development servers (or just one of the
 
 ## Running as a daemon
 
-Instead of explicitly running the proxy server as a foreground process with `localias run`, you can also run Localias in the background with `localias daemon start`. You can interact with this daemon with the following commands:
+Instead of explicitly running the proxy server as a foreground process with `localias run`, you can also run Localias in the background with `localias start`. You can interact with this daemon with the following commands:
 
 ```shell
 # Start the proxy server as a daemon process
@@ -232,6 +232,7 @@ $ localias
 securely manage local aliases for development servers
 
 Usage:
+  localias [flags]
   localias [command]
 
 Examples:
@@ -240,41 +241,34 @@ Examples:
   # Update an existing alias to forward to a different port
   localias set secure.test 9001
   # Remove an alias
-  localias remove secure.test
+  localias rm secure.test
   # List all aliases
   localias list
   # Clear all aliases
   localias clear
   
+  # Start the proxy server as a daemon process
+  localias start
+  # Show the status of the daemon process
+  localias status
+  # Apply the latest configuration to the proxy server in the daemon process
+  localias reload
+  # Stop the daemon process
+  localias stop
   # Run the proxy server in the foreground
   localias run
-  # Start the proxy server as a daemon process
-  localias daemon start
-  # Show the status of the daemon process
-  localias daemon status
-  # Apply the latest configuration to the proxy server in the daemon process
-  localias daemon reload
-  # Stop the daemon process
-  localias daemon stop
-  
-  # Show the path(s) of the host file(s)
-  localias hostctl path
-  # Show any entries that localias has made to the host file(s)
-  localias hostctl list
-  # Apply the current configuration to the host file(s)
-  localias hostctl apply
-  # Clear all entries from the host file(s)
-  localias hostctl clear
 
 Available Commands:
   clear       clear all aliases
-  daemon      control the proxy server daemon
   help        Help about any command
-  hostctl     interact with the hosts file(s) that localias manages
   list        list all aliases
-  remove      remove an alias
+  reload      apply the latest configuration to the proxy server in the daemon process
+  rm          remove an alias
   run         run the proxy server in the foreground
   set         add or edit an alias
+  start       start the proxy server as a daemon process
+  status      show the status of the daemon process
+  stop        stop the daemon process
   version     show the version of this binary
 
 Flags:
@@ -439,8 +433,8 @@ error: loading new config: http app module: start: listening on :443: listen tcp
 
 or you may notice that starting the daemon does not result in a running daemon
 ```console
-$ localias daemon start
-$ localias daemon status
+$ localias start
+$ localias status
 daemon is not running
 ```
 
