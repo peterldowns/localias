@@ -39,11 +39,16 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 	if localEntries == nil {
 		return nil, nil
 	}
-	baseHost, err := os.Hostname()
+	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
 	}
-	baseIPs, err := net.LookupIP(baseHost + ".local")
+	// To start the mDNS server, have to look up the IP of the host machine that
+	// it will run on. If the hostname doesn't have a `.local` suffix, we need
+	// to add one for some reason based on the example mDNS code I've found.
+	// If the hostname already has a `.local` suffix, we should keep it.
+	localhost := ensureSuffix(hostname, ".local")
+	baseIPs, err := net.LookupIP(localhost)
 	if err != nil {
 		return nil, fmt.Errorf("could not determine host IP for .local domains: %w", err)
 	}
@@ -85,7 +90,7 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 			// actually running.
 			baseIPs,
 			// Just for fun, include a TXT record giving Localias credit.
-			[]string{ehost + " @ " + baseHost + " via localias"},
+			[]string{ehost + " @ " + localhost + " via localias"},
 		)
 		if err != nil {
 			return nil, err
@@ -109,4 +114,8 @@ func caddyPort(entry config.Entry) int {
 		return 443
 	}
 	return 80
+}
+
+func ensureSuffix(s, suffix string) string { //nolint:unparam // ignore
+	return strings.TrimSuffix(s, suffix) + suffix
 }
