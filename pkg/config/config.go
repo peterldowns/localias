@@ -123,6 +123,7 @@ func (c Config) Caddyfile() string {
 	local_certs
 	ocsp_stapling off
 	storage file_system "%s"
+
 	pki {
 		ca local {
 			name "Localias"
@@ -130,8 +131,17 @@ func (c Config) Caddyfile() string {
 			intermediate_cn "Localias Intermediate"
 		}
 	}
+
+	# Allow the internal CA to re-issue certificates for all of the sites
+	# in this file at the same time, every second. We have to put a configuration
+	# here or the logs will show a scary security warning.
+	# https://caddyserver.com/docs/automatic-https#on-demand-tls
+	on_demand_tls {
+		interval 1s
+		burst %d
+	}
 }
-`), path)
+`), path, len(c.Entries))
 	blocks := []string{global}
 	for _, x := range c.Entries {
 		blocks = append(blocks, x.Caddyfile())
@@ -175,8 +185,13 @@ func (entry Entry) Caddyfile() string {
 		tls = strings.TrimSpace(`
 	tls {
 		issuer internal {
+			ca local
+			# allow on_demand issuing, but doesn't turn it on
 			on_demand
 		}
+		# turn on on_demand issuing to automatically renew certs
+		# when they expire
+		on_demand
 	}
 `)
 	}
