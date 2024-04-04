@@ -1,6 +1,6 @@
 # 🏠 localias
 
-![Latest Version](https://badgers.space/badge/latest%20version/v2.0.0/blueviolet?corner_radius=m)
+![Latest Version](https://badgers.space/badge/latest%20version/v2.0.3/blueviolet?corner_radius=m)
 ![Golang](https://badgers.space/badge/golang/1.18+/blue?corner_radius=m)
 
 Localias is a tool for developers to securely manage local aliases for development servers.
