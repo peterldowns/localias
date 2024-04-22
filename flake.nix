@@ -24,10 +24,11 @@
       in
       rec {
         packages = rec {
-          localias = pkgs.buildGo120Module {
+          localias = pkgs.buildGoModule {
             pname = "localias";
             version = version;
-            vendorHash = "sha256-8FlLPDJ6hZq1dc+dKpQLJ6Zp2LASTCt4QDq+GxS1q2U=";
+            vendorHash = pkgs.lib.fakeHash;
+            #vendorHash = "sha256-8FlLPDJ6hZq1dc+dKpQLJ6Zp2LASTCt4QDq+GxS1q2U=";
             src =
               let
                 # Set this to `true` in order to show all of the source files
