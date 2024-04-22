@@ -27,8 +27,8 @@
           localias = pkgs.buildGoModule {
             pname = "localias";
             version = version;
-            vendorHash = pkgs.lib.fakeHash;
-            #vendorHash = "sha256-8FlLPDJ6hZq1dc+dKpQLJ6Zp2LASTCt4QDq+GxS1q2U=";
+            #vendorHash = pkgs.lib.fakeHash;
+            vendorHash = "sha256-yr8aeTQ0H0STBnaQnMDqvFaEez8oFfF1kShX8TAIPS4=";
             src =
               let
                 # Set this to `true` in order to show all of the source files
