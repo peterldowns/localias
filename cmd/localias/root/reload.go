@@ -16,14 +16,6 @@ var reloadCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func reloadImpl(_ *cobra.Command, _ []string) error {
-	// Ensure that the daemon is running.
-	existing, err := daemon.Status()
-	if err != nil {
-		return err
-	}
-	if existing == nil {
-		return shared.DaemonNotRunning{}
-	}
 	// Apply the config to /etc/hosts
 	hctl := shared.Controller()
 	cfg := shared.Config()
@@ -31,7 +23,7 @@ func reloadImpl(_ *cobra.Command, _ []string) error {
 		return err
 	}
 	// Reload the daemon with the new config.
-	return daemon.Reload(cfg)
+	return daemon.Start(cfg)
 }
 
 func init() { //nolint:gochecknoinits

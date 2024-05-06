@@ -157,7 +157,7 @@ func (c Config) Caddyfile() string {
 	respond @allowed 200
 	respond 400
 }
-`), path, len(c.Entries), allowedMap, "`", "`")
+`), path, len(c.Entries)+1, allowedMap, "`", "`")
 	blocks := []string{global}
 	for _, x := range c.Entries {
 		blocks = append(blocks, x.Caddyfile())

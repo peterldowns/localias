@@ -22,8 +22,7 @@ func stopImpl(_ *cobra.Command, _ []string) error {
 	if existing == nil {
 		return shared.DaemonNotRunning{}
 	}
-	// Request that the daemon gracefully stop and exit.
-	return daemon.Stop()
+	return existing.Kill()
 }
 
 func init() { //nolint:gochecknoinits
