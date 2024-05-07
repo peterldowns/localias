@@ -24,8 +24,7 @@ func TestReadConfig(t *testing.T) {
 	require.Equal(t, exampleEntries, cfg.Entries)
 }
 
-func TestWriteConfig(t *testing.T) {
-	t.Parallel()
+func TestWriteConfig(t *testing.T) { //nolint:paralleltest // weird race on the file
 	cfg := &Config{
 		Path:    "./example.roundtrip.yaml",
 		Entries: exampleEntries,
@@ -34,8 +33,7 @@ func TestWriteConfig(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestConfigRoundtripsPreservingOrder(t *testing.T) {
-	t.Parallel()
+func TestConfigRoundtripsPreservingOrder(t *testing.T) { //nolint:paralleltest // weird race on the file
 	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
 
@@ -48,8 +46,7 @@ func TestConfigRoundtripsPreservingOrder(t *testing.T) {
 	require.Equal(t, cfg.Entries, cfg2.Entries)
 }
 
-func TestUpsertUpdatesExistingEntry(t *testing.T) {
-	t.Parallel()
+func TestUpsertUpdatesExistingEntry(t *testing.T) { //nolint:paralleltest // weird race on the file
 	cfg := &Config{
 		Path: "./example.upsert.yaml",
 	}
