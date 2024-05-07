@@ -43,7 +43,7 @@ var certCmd = &cobra.Command{ //nolint:gochecknoglobals
 	RunE:  certImpl,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	certFlags.Print = certCmd.Flags().BoolP("print", "p", false, "print the contents of the certificate")
 	certFlags.Install = certCmd.Flags().BoolP("install", "i", false, "install the certificate to the windows cert store")
 	Command.AddCommand(certCmd)

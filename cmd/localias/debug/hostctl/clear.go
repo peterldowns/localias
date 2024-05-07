@@ -24,6 +24,6 @@ var clearCmd = &cobra.Command{ //nolint:gochecknoglobals
 	RunE:    clearImpl,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(clearCmd)
 }

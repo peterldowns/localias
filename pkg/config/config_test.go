@@ -16,6 +16,7 @@ var exampleEntries = []Entry{ //nolint:gochecknoglobals
 }
 
 func TestReadConfig(t *testing.T) {
+	t.Parallel()
 	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
 	require.Equal(t, "./example.roundtrip.yaml", cfg.Path)
@@ -24,6 +25,7 @@ func TestReadConfig(t *testing.T) {
 }
 
 func TestWriteConfig(t *testing.T) {
+	t.Parallel()
 	cfg := &Config{
 		Path:    "./example.roundtrip.yaml",
 		Entries: exampleEntries,
@@ -33,6 +35,7 @@ func TestWriteConfig(t *testing.T) {
 }
 
 func TestConfigRoundtripsPreservingOrder(t *testing.T) {
+	t.Parallel()
 	cfg, err := Open("./example.roundtrip.yaml")
 	require.NoError(t, err)
 
@@ -46,6 +49,7 @@ func TestConfigRoundtripsPreservingOrder(t *testing.T) {
 }
 
 func TestUpsertUpdatesExistingEntry(t *testing.T) {
+	t.Parallel()
 	cfg := &Config{
 		Path: "./example.upsert.yaml",
 	}
@@ -69,6 +73,7 @@ func TestUpsertUpdatesExistingEntry(t *testing.T) {
 }
 
 func TestDefaultPath(t *testing.T) {
+	t.Parallel()
 	path, err := Path(nil)
 	require.NoError(t, err)
 	require.NotEqual(t, "", path)

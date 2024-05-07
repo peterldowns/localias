@@ -30,6 +30,6 @@ var listCmd = &cobra.Command{ //nolint:gochecknoglobals
 	RunE:    listImpl,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(listCmd)
 }

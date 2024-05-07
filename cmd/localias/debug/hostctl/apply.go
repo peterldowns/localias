@@ -10,10 +10,7 @@ import (
 func applyImpl(_ *cobra.Command, _ []string) error {
 	cfg := shared.Config()
 	hctl := shared.Controller()
-	if err := config.Apply(hctl, cfg); err != nil {
-		return err
-	}
-	return nil
+	return config.Apply(hctl, cfg)
 }
 
 var applyCmd = &cobra.Command{ //nolint:gochecknoglobals
@@ -23,6 +20,6 @@ var applyCmd = &cobra.Command{ //nolint:gochecknoglobals
 	RunE:    applyImpl,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(applyCmd)
 }

@@ -5,10 +5,9 @@ import (
 	"os"
 
 	"github.com/caddyserver/caddy/v2"
+	_ "github.com/caddyserver/caddy/v2/modules/standard"
 	"github.com/fatih/color"
 	"github.com/hashicorp/mdns"
-
-	_ "github.com/caddyserver/caddy/v2/modules/standard"
 
 	"github.com/peterldowns/localias/pkg/config"
 )
@@ -18,10 +17,7 @@ func Start(cfg *config.Config) error {
 	if err := instance.StartCaddy(); err != nil {
 		return err
 	}
-	if err := instance.StartMDNS(); err != nil {
-		return err
-	}
-	return nil
+	return instance.StartMDNS()
 }
 
 type Server struct {

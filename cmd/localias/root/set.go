@@ -85,7 +85,7 @@ func setImpl(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	setFlags.Alias = setCmd.Flags().StringP("alias", "a", "", "domain alias e.g. example.test")
 	setFlags.Port = setCmd.Flags().IntP("port", "p", 0, "local port e.g. 9000")
 	setCmd.MarkFlagsRequiredTogether("alias", "port")

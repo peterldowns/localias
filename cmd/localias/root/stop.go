@@ -20,11 +20,11 @@ func stopImpl(_ *cobra.Command, _ []string) error {
 		return err
 	}
 	if existing == nil {
-		return shared.DaemonNotRunning{}
+		return shared.DaemonNotRunningError{}
 	}
 	return existing.Kill()
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(stopCmd)
 }

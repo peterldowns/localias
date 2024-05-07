@@ -44,7 +44,7 @@ localias run
 	},
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.CompletionOptions.HiddenDefaultCmd = true
 	Command.TraverseChildren = true
 	Command.SilenceErrors = true

@@ -102,7 +102,7 @@ func (c *Config) Save() error {
 	return os.WriteFile(c.Path, bytes, 0o644)
 }
 
-func (c Config) CaddyStatePath() string {
+func (Config) CaddyStatePath() string {
 	path, err := xdg.StateFile("localias/caddy")
 	if err != nil {
 		panic(err)

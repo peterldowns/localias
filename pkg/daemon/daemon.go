@@ -60,7 +60,7 @@ func Start(cfg *config.Config) error {
 
 // run is the logic that the daemon runs after it is forked.  It will loop until
 // it receives a shutdown request, after which the function exits cleanly.
-func Run(cfg *config.Config) error {
+func Run(_ *config.Config) error {
 	// Start the caddy proxy server and the mdns responders.
 	fmt.Print("daemon: running!")
 	quitChannel := make(chan os.Signal, 1)

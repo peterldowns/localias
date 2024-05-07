@@ -21,7 +21,7 @@ func runImpl(_ *cobra.Command, _ []string) error {
 		return err
 	}
 	if existing != nil {
-		return shared.DaemonRunning{Pid: existing.Pid}
+		return shared.DaemonRunningError{Pid: existing.Pid}
 	}
 	// Apply the config to /etc/hosts
 	hctl := shared.Controller()
@@ -32,6 +32,6 @@ func runImpl(_ *cobra.Command, _ []string) error {
 	return daemon.Run(cfg)
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(runCmd)
 }

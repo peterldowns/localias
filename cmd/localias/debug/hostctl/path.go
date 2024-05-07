@@ -24,7 +24,7 @@ var pathCmd = &cobra.Command{ //nolint:gochecknoglobals
 	RunE:    pathImpl,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(pathCmd)
 }
 

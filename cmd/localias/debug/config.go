@@ -33,7 +33,7 @@ var configCmd = &cobra.Command{ //nolint:gochecknoglobals
 	RunE:  configImpl,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	configFlags.Print = configCmd.Flags().BoolP("print", "p", false, "print the contents of the config file")
 	Command.AddCommand(configCmd)
 }

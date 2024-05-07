@@ -26,6 +26,6 @@ func reloadImpl(_ *cobra.Command, _ []string) error {
 	return daemon.Start(cfg)
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(reloadCmd)
 }
