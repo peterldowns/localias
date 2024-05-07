@@ -3,6 +3,8 @@ package server
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/caddyserver/caddy/v2"
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
@@ -12,17 +14,22 @@ import (
 	"github.com/peterldowns/localias/pkg/config"
 )
 
-func Start(cfg *config.Config) error {
-	instance := &Server{Config: cfg}
-	if err := instance.StartCaddy(); err != nil {
-		return err
-	}
-	return instance.StartMDNS()
+func WaitForExitSignal() {
+	quitChannel := make(chan os.Signal, 1)
+	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT)
+	<-quitChannel
 }
 
 type Server struct {
 	Config     *config.Config
 	MDNSServer *mdns.Server
+}
+
+func (s *Server) Start() error {
+	if err := s.StartCaddy(); err != nil {
+		return err
+	}
+	return s.StartMDNS()
 }
 
 func (s *Server) StartCaddy() error {

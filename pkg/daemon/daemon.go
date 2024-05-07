@@ -1,10 +1,8 @@
 package daemon
 
 import (
-	"fmt"
+	"errors"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/adrg/xdg"
 	godaemon "github.com/sevlyar/go-daemon"
@@ -13,23 +11,8 @@ import (
 	"github.com/peterldowns/localias/pkg/server"
 )
 
-// daemonContext returns a consistent go-daemon context that is used to control
-// the daemon process.
-func daemonContext() *godaemon.Context {
-	logFile, _ := xdg.StateFile("localias/daemon.log")
-	pidFile, err := xdg.StateFile("localias/daemon.pid")
-	if err != nil {
-		panic(err)
-	}
-	return &godaemon.Context{
-		LogFileName: logFile,
-		LogFilePerm: 0o644,
-		PidFileName: pidFile,
-		PidFilePerm: 0o644,
-		Umask:       0o27,
-	}
-}
-
+// Start will fork a daemon process that loops until it receives
+// sigint/sigterm/sigabrt.
 // Start will fork and start the daemon process, which will start the caddy
 // server and the mdns server (if needed) to proxy routes based on the current
 // configuration. It also starts an RPC server that will handle requests to
@@ -40,38 +23,66 @@ func Start(cfg *config.Config) error {
 		return err
 	}
 	instance := &server.Server{Config: cfg}
-	if err := instance.StartCaddy(); err != nil {
+	if err := instance.Start(); err != nil {
 		return err
 	}
-	fmt.Println("caddy started successfully")
 	cntxt := daemonContext()
 	proc, err := cntxt.Reborn()
 	if err != nil {
 		return err
 	}
-	// parent process, after fork succeeds
+	// parent process, after fork succeeds just exit
 	if proc != nil {
 		return nil
 	}
-	// child (daemon) process, after fork succeeds
-	defer cleanup(cntxt.Release) // removes the go-daemon PID file on shutdown.
-	return Run(cfg)
+	// child (daemon) process, after fork succeeds. the caddy/mdns servers are
+	// started and already running; just need to run until
+	// sigint/sigterm/sigabrt. waiting on the channel is cheaper than
+	// spinlocking and more correct, too.
+	server.WaitForExitSignal()
+	return cntxt.Release()
 }
 
-// run is the logic that the daemon runs after it is forked.  It will loop until
-// it receives a shutdown request, after which the function exits cleanly.
-func Run(_ *config.Config) error {
-	// Start the caddy proxy server and the mdns responders.
-	fmt.Print("daemon: running!")
-	quitChannel := make(chan os.Signal, 1)
-	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT)
-	<-quitChannel
+// Status will determine whether or not the daemon process is running. If it is,
+// it returns the non-nil os.Process of that daemon.
+func Status() (*os.Process, error) {
+	cntxt := daemonContext()
+	proc, err := cntxt.Search()
+	if err != nil && !isPathError(err) {
+		return nil, err
+	}
+	return proc, nil
+}
+
+// Kill force-kills the daemon if it's running, otherwise does nothing.
+func Kill() error {
+	proc, err := daemonContext().Search()
+	if err != nil && !isPathError(err) {
+		return err
+	}
+	if proc != nil {
+		return proc.Kill()
+	}
 	return nil
 }
 
-// cleanup is used to handle defer'd statements that may error.
-func cleanup(f func() error) {
-	if err := f(); err != nil {
-		fmt.Println(err)
+// If the pidfile for the daemon doesn't exist, cntxt.Search() throws a
+// PathError. In that case, we assume the daemon is not running, and return nil.
+func isPathError(err error) bool {
+	var pathError *os.PathError
+	return errors.As(err, &pathError)
+}
+
+// daemonContext returns a consistent go-daemon context that is used to control
+// the daemon process.
+func daemonContext() *godaemon.Context {
+	logFile, _ := xdg.StateFile("localias/daemon.log")
+	pidFile, _ := xdg.StateFile("localias/daemon.pid")
+	return &godaemon.Context{
+		LogFileName: logFile,
+		LogFilePerm: 0o644,
+		PidFileName: pidFile,
+		PidFilePerm: 0o644,
+		Umask:       0o27,
 	}
 }

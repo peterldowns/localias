@@ -1,6 +1,8 @@
 package root
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/cmd/localias/shared"
@@ -15,13 +17,13 @@ var startCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func startImpl(_ *cobra.Command, _ []string) error {
-	// Ensure that the daemon is not already running.
+	// Warn if the daemon was already running
 	existing, err := daemon.Status()
 	if err != nil {
 		return err
 	}
 	if existing != nil {
-		return shared.DaemonRunningError{Pid: existing.Pid}
+		fmt.Printf("replacing existing daemon on pid %d\n", existing.Pid)
 	}
 	// Apply the config to /etc/hosts
 	hctl := shared.Controller()

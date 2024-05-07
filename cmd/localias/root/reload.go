@@ -22,7 +22,6 @@ func reloadImpl(_ *cobra.Command, _ []string) error {
 	if err := config.Apply(hctl, cfg); err != nil {
 		return err
 	}
-	// Reload the daemon with the new config.
 	return daemon.Start(cfg)
 }
 
