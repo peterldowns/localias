@@ -70,15 +70,14 @@
             packages = with pkgs;
               [
                 # golang
+                go
                 delve
                 go-outline
-                go_1_20
                 golangci-lint
                 gopkgs
                 gopls
                 gotools
                 # nix
-                rnix-lsp
                 nixpkgs-fmt
                 # other tools
                 just
