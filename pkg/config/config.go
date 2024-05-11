@@ -163,9 +163,7 @@ func (c Config) Caddyfile() string {
 		blocks = append(blocks, x.Caddyfile())
 	}
 	// extra newline prevents "caddy fmt" warning in logs
-	out := strings.Join(blocks, "\n") + "\n"
-	fmt.Println(out)
-	return out
+	return strings.Join(blocks, "\n") + "\n"
 }
 
 func (c Config) CaddyJSON() ([]byte, []caddyconfig.Warning, error) {

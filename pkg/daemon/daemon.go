@@ -48,7 +48,7 @@ func Start(cfg *config.Config) error {
 func Status() (*os.Process, error) {
 	cntxt := daemonContext()
 	proc, err := cntxt.Search()
-	if err != nil && !isPathError(err) {
+	if err != nil && !isIgnorableError(err) {
 		return nil, err
 	}
 	return proc, nil
@@ -57,7 +57,7 @@ func Status() (*os.Process, error) {
 // Kill force-kills the daemon if it's running, otherwise does nothing.
 func Kill() error {
 	proc, err := daemonContext().Search()
-	if err != nil && !isPathError(err) {
+	if err != nil && !isIgnorableError(err) {
 		return err
 	}
 	if proc != nil {
@@ -68,9 +68,15 @@ func Kill() error {
 
 // If the pidfile for the daemon doesn't exist, cntxt.Search() throws a
 // PathError. In that case, we assume the daemon is not running, and return nil.
-func isPathError(err error) bool {
+func isIgnorableError(err error) bool {
 	var pathError *os.PathError
-	return errors.As(err, &pathError)
+	if errors.As(err, &pathError) {
+		return true
+	}
+	if err.Error() == "EOF" {
+		return true
+	}
+	return false
 }
 
 // daemonContext returns a consistent go-daemon context that is used to control
