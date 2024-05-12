@@ -11,9 +11,15 @@ import (
 )
 
 var startCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "start",
-	Short: "start the proxy server as a daemon process",
-	RunE:  startImpl,
+	Use:     "start",
+	Aliases: []string{"reload", "restart"},
+	Short:   "start the proxy server as a daemon process",
+	Long: shared.Example(`
+Apply the current configuration and start the proxy server as a daemon process.
+- If the daemon is not running, starts a new one.
+- If the daemon is already running, replaces it with a new one.
+	`),
+	RunE: startImpl,
 }
 
 func startImpl(_ *cobra.Command, _ []string) error {

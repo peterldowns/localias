@@ -29,7 +29,7 @@ localias clear
 localias start
 # Show the status of the daemon process
 localias status
-# Apply the latest configuration to the proxy server in the daemon process
+# Apply the latest configuration and relaunch the daemon process
 localias reload
 # Stop the daemon process
 localias stop
