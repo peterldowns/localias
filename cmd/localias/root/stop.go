@@ -1,9 +1,10 @@
 package root
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/localias/cmd/localias/shared"
 	"github.com/peterldowns/localias/pkg/daemon"
 )
 
@@ -14,18 +15,19 @@ var stopCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func stopImpl(_ *cobra.Command, _ []string) error {
-	// Ensure that the daemon is running .
 	existing, err := daemon.Status()
 	if err != nil {
 		return err
 	}
 	if existing == nil {
-		return shared.DaemonNotRunning{}
+		fmt.Println("daemon is not running")
+		return nil
 	}
-	// Request that the daemon gracefully stop and exit.
-	return daemon.Stop()
+
+	fmt.Printf("stopping daemon on pid %d\n", existing.Pid)
+	return existing.Kill()
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(stopCmd)
 }

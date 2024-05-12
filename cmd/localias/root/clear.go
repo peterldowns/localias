@@ -32,6 +32,6 @@ func clearImpl(_ *cobra.Command, _ []string) error {
 	return nil
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(clearCmd)
 }

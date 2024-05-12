@@ -23,6 +23,6 @@ localias debug cert --print
 	Hidden: true,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(hostctl.Command)
 }

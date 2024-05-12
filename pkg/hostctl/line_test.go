@@ -8,6 +8,7 @@ import (
 )
 
 func TestParseUncontrolledRoundtrips(t *testing.T) {
+	t.Parallel()
 	contents := etcfile(`
 # just a comment     
 
@@ -21,6 +22,7 @@ func TestParseUncontrolledRoundtrips(t *testing.T) {
 }
 
 func TestParseControlled(t *testing.T) {
+	t.Parallel()
 	contents := etcfile(`
 # /etc/hosts file blah blah blah
 127.0.0.1 localhost
@@ -35,6 +37,7 @@ func TestParseControlled(t *testing.T) {
 }
 
 func TestMeta(t *testing.T) {
+	t.Parallel()
 	contents := etcfile(`127.0.0.1 localhost #{"controller":"localias", "garbage": "hashtag#"}`)
 	lines := Parse(strings.NewReader(contents))
 	require.NotNil(t, lines)

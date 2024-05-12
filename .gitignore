@@ -1,5 +1,6 @@
 # created by the vscode debugger
 __debug_bin
+**/__debug_bin*
 
 # we use this to store the golang modules and caches
 .toolchain/

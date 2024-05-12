@@ -102,7 +102,7 @@ func (c *Config) Save() error {
 	return os.WriteFile(c.Path, bytes, 0o644)
 }
 
-func (c Config) CaddyStatePath() string {
+func (Config) CaddyStatePath() string {
 	path, err := xdg.StateFile("localias/caddy")
 	if err != nil {
 		panic(err)
@@ -116,9 +116,12 @@ func (c Config) CaddyStatePath() string {
 
 func (c Config) Caddyfile() string {
 	path := c.CaddyStatePath()
+	allowedMap := ""
+	for _, entry := range c.Entries {
+		allowedMap += fmt.Sprintf("		%s 1\n", entry.Host())
+	}
 	global := fmt.Sprintf(strings.TrimSpace(`
 {
-	admin localhost:2019
 	persist_config off
 	local_certs
 	ocsp_stapling off
@@ -139,9 +142,22 @@ func (c Config) Caddyfile() string {
 	on_demand_tls {
 		interval 1s
 		burst %d
+		ask http://127.0.0.1:2019
 	}
 }
-`), path, len(c.Entries))
+:2019 {
+	bind 127.0.0.1 ::1
+
+	map {query.domain} {allowed} {
+		%s
+		default 0
+	}
+
+	@allowed %s{allowed} == "1"%s
+	respond @allowed 200
+	respond 400
+}
+`), path, len(c.Entries)+1, allowedMap, "`", "`")
 	blocks := []string{global}
 	for _, x := range c.Entries {
 		blocks = append(blocks, x.Caddyfile())

@@ -34,6 +34,6 @@ func removeImpl(_ *cobra.Command, aliases []string) error {
 	return nil
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(removeCmd)
 }

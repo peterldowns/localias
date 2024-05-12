@@ -11,13 +11,13 @@ func ConvertErr(err error) error {
 	}
 	errMsg := err.Error()
 	if strings.Contains(errMsg, "address already in use") {
-		return DaemonRunning{}
+		return DaemonRunningError{}
 	}
 	if strings.Contains(errMsg, "connect: connection refused") {
-		return DaemonNotRunning{}
+		return DaemonNotRunningError{}
 	}
 	if strings.Contains(errMsg, "bind: permission denied") {
-		return BindNotAllowed{}
+		return BindNotAllowedError{}
 	}
 	return err
 }
@@ -28,31 +28,31 @@ type LocaliasError interface {
 }
 
 // bind: permission denied
-type BindNotAllowed struct{}
+type BindNotAllowedError struct{}
 
-func (x BindNotAllowed) Error() string {
+func (BindNotAllowedError) Error() string {
 	return "the server is not allowed to bind to ports 443/80"
 }
 
-func (x BindNotAllowed) Code() string {
+func (BindNotAllowedError) Code() string {
 	return "privports"
 }
 
-type DaemonNotRunning struct{}
+type DaemonNotRunningError struct{}
 
-func (x DaemonNotRunning) Error() string {
+func (DaemonNotRunningError) Error() string {
 	return "the localias daemon is not running"
 }
 
-func (x DaemonNotRunning) Code() string {
+func (DaemonNotRunningError) Code() string {
 	return "daemon_not_running"
 }
 
-type DaemonRunning struct {
+type DaemonRunningError struct {
 	Pid int
 }
 
-func (x DaemonRunning) Error() string {
+func (x DaemonRunningError) Error() string {
 	if x.Pid != 0 {
 		return fmt.Sprintf("the localias daemon is already running (pid=%d)", x.Pid)
 	}
@@ -70,6 +70,6 @@ diagnostics and ideas for how to debug this.
 `)
 }
 
-func (x DaemonRunning) Code() string {
+func (DaemonRunningError) Code() string {
 	return "daemon_running"
 }

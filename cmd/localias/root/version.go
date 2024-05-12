@@ -19,6 +19,6 @@ var versionCmd = &cobra.Command{ //nolint:gochecknoglobals
 	RunE:  versionImpl,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(versionCmd)
 }

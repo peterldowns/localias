@@ -1,6 +1,8 @@
 package root
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/cmd/localias/shared"
@@ -9,19 +11,25 @@ import (
 )
 
 var startCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:   "start",
-	Short: "start the proxy server as a daemon process",
-	RunE:  startImpl,
+	Use:     "start",
+	Aliases: []string{"reload", "restart"},
+	Short:   "start the proxy server as a daemon process",
+	Long: shared.Example(`
+Apply the current configuration and start the proxy server as a daemon process.
+- If the daemon is not running, starts a new one.
+- If the daemon is already running, replaces it with a new one.
+	`),
+	RunE: startImpl,
 }
 
 func startImpl(_ *cobra.Command, _ []string) error {
-	// Ensure that the daemon is not already running.
+	// Warn if the daemon was already running
 	existing, err := daemon.Status()
 	if err != nil {
 		return err
 	}
 	if existing != nil {
-		return shared.DaemonRunning{Pid: existing.Pid}
+		fmt.Printf("replacing existing daemon on pid %d\n", existing.Pid)
 	}
 	// Apply the config to /etc/hosts
 	hctl := shared.Controller()
@@ -33,6 +41,6 @@ func startImpl(_ *cobra.Command, _ []string) error {
 	return daemon.Start(cfg)
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	Command.AddCommand(startCmd)
 }
