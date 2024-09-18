@@ -339,6 +339,23 @@ When you visit a secure local alias from another device, you may be prompted wit
 a certificate warning. You should feel free to accept the warning and continue
 on to the site, which is just your local development site.
 
+### WSL2 support for mDNS
+
+By default, WSL2 environments are behind a NAT layer that breaks mDNS support. This means
+that when you run localias inside WSL2 and have an alias configured for `frontend.local`:
+
+- programs inside your WSL2 container can access `frontend.local`
+- programs in your Windows environment (like your browser) can access `frontend.local`
+- other devices on your network (like your phone's browser) **cannot access** `frontend.local`.
+
+This is frustrating, and I'm sorry that it doesn't work better by default. As of
+Windows 11, there seems to be a [Mirrored Mode Networking
+option](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking)
+that claims "multicast support", but I'm not sure if this will fix the problem.
+Localias has [an open Github
+Issue](https://github.com/peterldowns/localias/issues/36) for this problem,
+please comment there if you have been able to make this work.
+
 ## The Localias Root Certificate and System Trust Stores
 Localias's proxy server, Caddy, automatically generates certificates for any
 secure aliases you'd like to make. When Localias runs it will make sure that
