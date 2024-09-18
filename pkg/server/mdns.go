@@ -48,10 +48,22 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 	// to add one for some reason based on the example mDNS code I've found.
 	// If the hostname already has a `.local` suffix, we should keep it.
 	localhost := ensureSuffix(hostname, ".local")
-	baseIPs, err := net.LookupIP(localhost)
+	baseIPs, err := getHostIPAddresses()
 	if err != nil {
-		return nil, fmt.Errorf("could not determine host IP for .local domains: %w", err)
+		return nil, err
 	}
+
+	fmt.Println("found host IPs:")
+	for _, ip := range baseIPs {
+		fmt.Printf("  %s\n", ip.String())
+	}
+	// baseIPs := []net.IP{
+	// 	net.ParseIP("192.168.1.195"),
+	// }
+	// baseIPs, err := net.LookupIP(localhost)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("could not determine host IP for .local domains: %w", err)
+	// }
 	var ms multiservice
 	for _, entry := range localEntries {
 		ehost := entry.Host()
@@ -91,6 +103,7 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 			baseIPs,
 			// Just for fun, include a TXT record giving Localias credit.
 			[]string{ehost + " @ " + localhost + " via localias"},
+			// nil,
 		)
 		if err != nil {
 			return nil, err
@@ -116,6 +129,38 @@ func caddyPort(entry config.Entry) int {
 	return 80
 }
 
-func ensureSuffix(s, suffix string) string { //nolint:unparam // ignore
+func ensureSuffix(s, suffix string) string {
 	return strings.TrimSuffix(s, suffix) + suffix
+}
+
+func getHostIPAddresses() ([]net.IP, error) {
+	// Get a list of all network interfaces
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+
+	var ipAddresses []net.IP
+	for _, iface := range interfaces {
+		// Get a list of all unicast IP addresses associated with the interface
+		addrs, err := iface.Addrs()
+		if err != nil {
+			return nil, err
+		}
+
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			// Check if the IP address is not a loopback address
+			if ip != nil && !ip.IsLoopback() {
+				ipAddresses = append(ipAddresses, ip)
+			}
+		}
+	}
+	return ipAddresses, nil
 }
