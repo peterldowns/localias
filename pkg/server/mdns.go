@@ -47,23 +47,13 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 	// it will run on. If the hostname doesn't have a `.local` suffix, we need
 	// to add one for some reason based on the example mDNS code I've found.
 	// If the hostname already has a `.local` suffix, we should keep it.
-	localhost := ensureSuffix(hostname, ".local")
-	baseIPs, err := getHostIPAddresses()
+	baseIPs, err := getIPAddressesForMDNS()
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("found host IPs:")
-	for _, ip := range baseIPs {
-		fmt.Printf("  %s\n", ip.String())
+	if baseIPs == nil {
+		return nil, fmt.Errorf("unable to serve mDNS: could not determine a local IP for host %s", hostname)
 	}
-	// baseIPs := []net.IP{
-	// 	net.ParseIP("192.168.1.195"),
-	// }
-	// baseIPs, err := net.LookupIP(localhost)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("could not determine host IP for .local domains: %w", err)
-	// }
 	var ms multiservice
 	for _, entry := range localEntries {
 		ehost := entry.Host()
@@ -102,13 +92,13 @@ func newMDNSServer(entries []config.Entry) (*mdns.Server, error) {
 			// actually running.
 			baseIPs,
 			// Just for fun, include a TXT record giving Localias credit.
-			[]string{ehost + " @ " + localhost + " via localias"},
+			[]string{ehost + " @ " + hostname + " via localias"},
 			// nil,
 		)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Printf("mDNS: serving %s\n", entry.Host())
+		fmt.Printf("mDNS: serving %s (%s)\n", entry.Host(), ipStrings(baseIPs))
 		ms = append(ms, service)
 	}
 	return mdns.NewServer(&mdns.Config{Zone: ms})
@@ -133,7 +123,7 @@ func ensureSuffix(s, suffix string) string {
 	return strings.TrimSuffix(s, suffix) + suffix
 }
 
-func getHostIPAddresses() ([]net.IP, error) {
+func getIPAddressesForMDNS() ([]net.IP, error) {
 	// Get a list of all network interfaces
 	interfaces, err := net.Interfaces()
 	if err != nil {
@@ -156,11 +146,27 @@ func getHostIPAddresses() ([]net.IP, error) {
 			case *net.IPAddr:
 				ip = v.IP
 			}
-			// Check if the IP address is not a loopback address
-			if ip != nil && !ip.IsLoopback() {
-				ipAddresses = append(ipAddresses, ip)
+			// Exclude local loopback addresses and V6 addresses,
+			if ip == nil || ip.IsLoopback() || ip.To4() == nil {
+				continue
 			}
+			ipAddresses = append(ipAddresses, ip)
 		}
 	}
+	// On MacOS Sonoma 14.4.1, if you don't include the IPV6 link-local IP in
+	// the broadcast, DNS lookups will hang for like 5-6 seconds each time, even
+	// with the IPV4 address in /etc/hosts. I can't explain it but including
+	// fe80::1 makes the lookups instant.
+	if len(ipAddresses) != 0 {
+		ipAddresses = append(ipAddresses, net.ParseIP("::1"), net.ParseIP("127.0.0.1"))
+	}
 	return ipAddresses, nil
+}
+
+func ipStrings(ips []net.IP) string {
+	var ipStrings []string
+	for _, ip := range ips {
+		ipStrings = append(ipStrings, ip.String())
+	}
+	return strings.Join(ipStrings, ",")
 }
