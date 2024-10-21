@@ -28,7 +28,7 @@
             pname = "localias";
             version = version;
             #vendorHash = pkgs.lib.fakeHash;
-            vendorHash = "sha256-t8Crwi8dPWOTiCbyCfgOCYJboC7pC1G/wyUsFfcVVkQ=";
+            vendorHash = "sha256-c82/I0GTuqK8YbZbhSbjDm51GhP6rOGku1idFk7wb1w";
             src =
               let
                 # Set this to `true` in order to show all of the source files
