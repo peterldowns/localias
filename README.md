@@ -5,7 +5,7 @@
 
 Localias is a tool for developers to securely manage local aliases for development servers.
 
-Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line. 
+Use Localias to redirect `https://server.test` &rarr; `http://localhost:3000` in your browser and on your command line.
 
 <img width="464" alt="iTerm showing the most basic usage of Localias" src="https://github.com/peterldowns/localias/assets/824173/5b0121df-237e-47e7-92b8-d09017fcf95f.png">
 
@@ -50,6 +50,17 @@ go install github.com/peterldowns/localias/cmd/localias@latest
 nix run github:peterldowns/localias -- --help
 # install it
 nix profile install --refresh github:peterldowns/localias
+```
+
+#### Bash
+```bash
+curl -sS https://raw.githubusercontent.com/peterldowns/localias/refs/heads/main/install.sh | sh -s
+```
+
+Or, for a non-interactive install:
+
+```bash
+curl -sS https://raw.githubusercontent.com/peterldowns/localias/refs/heads/main/install.sh | sh -s -- --yes
 ```
 
 #### Manually download binaries
@@ -176,7 +187,7 @@ $ localias run
 This will prompt you to authenticate at least once. Each time Localias runs, it will
 
 - Automatically edit your `/etc/hosts` file and add entries for each of your aliases.
-- Sign TLS certificates for your aliases, and generate+install a custom root certificate to your system if it hasn't done so already. 
+- Sign TLS certificates for your aliases, and generate+install a custom root certificate to your system if it hasn't done so already.
 
 Each of these steps requires sudo access. But starting/stopping Localias will only prompt for sudo when it needs to, so if you hit `control-C` and restart the process you won't get prompted again:
 
@@ -213,19 +224,19 @@ will need to explicitly reload the daemon:
 # Start with frontend.test -> 3000
 localias set frontend.test 3000
 localias start
-# Update frontend.test -> 4004. 
+# Update frontend.test -> 4004.
 localias set frontend.test 4004
 # The daemon will still be running with frontend.test -> 3000, so
 # to apply the new changes you'll need to reload it
 localias reload
 ```
 
-# Using the CLI 
+# Using the CLI
 
 `localias` has many different subcommands, each of which is documented
 (including usage examples). To see the available subcommands, run `localias`. To
 see help on any command, you can run `localias help $command` or
-`localias $command --help`. 
+`localias $command --help`.
 
 ```console
 $ localias
@@ -246,7 +257,7 @@ Examples:
   localias list
   # Clear all aliases
   localias clear
-  
+
   # Start the proxy server as a daemon process
   localias start
   # Show the status of the daemon process
@@ -288,11 +299,11 @@ Localias is the tool I've always wanted to use for local web development. After 
 Finally, [my friend Justin wanted this to exist, too](https://twitter.com/jmduke/status/1628034461605539840?s=20):
 
 > I swear there's a tool that lets me do:
-> 
-> localhost:8000 → application.local  
-> localhost:3000 → marketing.local  
-> localhost:3002 → docs.local  
-> 
+>
+> localhost:8000 → application.local
+> localhost:3000 → marketing.local
+> localhost:3002 → docs.local
+>
 > But I can't for the life of me remember the name of it. Does anyone know what I'm talking about?
 
 ## Why not hotel/chalet?
