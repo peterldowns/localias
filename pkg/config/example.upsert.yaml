@@ -1,10 +1,11 @@
 # localias config file syntax
 #
-# 	alias: port
+# 	alias: port/optional origin schema
 #
 # for example,
 #
 #   bareTLD: 9003 # serves over https and http
+#   bareTLD: 9003/http # same as above but Origin header is set to http schema
 #   implicitly_secure.test: 9002 # serves over https and http
 #   https://explicit_secure.test: 9000 # serves over https and http
 #   http://explicit_insecure.test: 9001 # serves over http only

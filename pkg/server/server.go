@@ -36,6 +36,7 @@ func (s *Server) StartCaddy() error {
 	// Start (or restart) the global Caddy service and load the current
 	// configuration.
 	cfgJSON, _, err := s.Config.CaddyJSON()
+	fmt.Println(string(cfgJSON))
 	if err != nil {
 		return err
 	}

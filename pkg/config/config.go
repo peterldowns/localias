@@ -18,8 +18,9 @@ type Config struct {
 }
 
 type Entry struct {
-	Alias string
-	Port  int
+	Alias  string
+	Port   int
+	Origin string
 }
 
 // Set will add or update the existing list of entries.  If there is
@@ -74,19 +75,28 @@ func (c *Config) Clear() []Entry {
 func (c *Config) Save() error {
 	entries := yaml.MapSlice{}
 	for _, d := range c.Entries {
-		entries = append(entries, yaml.MapItem{
-			Key:   d.Alias,
-			Value: d.Port,
-		})
+		if len(strings.TrimSpace(d.Origin)) == 0 {
+			entries = append(entries, yaml.MapItem{
+				Key:   d.Alias,
+				Value: d.Port,
+			})
+		} else {
+			value := fmt.Sprintf("%d/%s", d.Port, d.Origin)
+			entries = append(entries, yaml.MapItem{
+				Key:   d.Alias,
+				Value: value,
+			})
+		}
 	}
 	bytes := []byte(strings.TrimSpace(`
 # localias config file syntax
 #
-# 	alias: port
+# 	alias: port/optional origin schema
 #
 # for example,
 #
 #   bareTLD: 9003 # serves over https and http
+#   bareTLD: 9003/http # same as above but Origin header is set to http schema
 #   implicitly_secure.test: 9002 # serves over https and http
 #   https://explicit_secure.test: 9000 # serves over https and http
 #   http://explicit_insecure.test: 9001 # serves over http only
@@ -182,7 +192,11 @@ func (c Config) CaddyJSON() ([]byte, []caddyconfig.Warning, error) {
 }
 
 func (entry Entry) String() string {
-	return fmt.Sprintf("%s: %d", entry.Alias, entry.Port)
+	if len(strings.TrimSpace(entry.Origin)) == 0 {
+		return fmt.Sprintf("%s: %d", entry.Alias, entry.Port)
+	} else {
+		return fmt.Sprintf("%s: %d/%s", entry.Alias, entry.Port, entry.Origin)
+	}
 }
 
 func (entry Entry) Host() string {
@@ -211,10 +225,22 @@ func (entry Entry) Caddyfile() string {
 	}
 `)
 	}
+	origin := a
+	switch entry.Origin {
+	case "":
+		fallthrough
+	case "http":
+		origin.Scheme = "http"
+	case "https":
+		origin.Scheme = "https"
+	}
+	o := origin.String()
 	return fmt.Sprintf(strings.TrimSpace(`
 %s {
-	reverse_proxy :%d
+	reverse_proxy :%d {
+		header_up Origin %s
+	}
 	%s
 }
-	`), entry.Alias, entry.Port, tls)
+	`), entry.Alias, entry.Port, o, tls)
 }

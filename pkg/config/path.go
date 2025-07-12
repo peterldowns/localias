@@ -1,9 +1,12 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/Integralist/go-findroot/find"
 	"github.com/adrg/xdg"
@@ -64,10 +67,27 @@ func Open(path string) (*Config, error) {
 	}
 	c := Config{Path: path}
 	for _, entry := range entries {
-		c.Set(Entry{
-			Alias: entry.Key.(string),
-			Port:  entry.Value.(int),
-		})
+		stringValue, ok := entry.Value.(string)
+		if ok && strings.Contains(stringValue, "/") {
+			split := strings.SplitN(stringValue, "/", 2)
+			port, err := strconv.Atoi(split[0])
+			if err != nil {
+				return nil, err
+			}
+			c.Set(Entry{
+				Alias:  entry.Key.(string),
+				Port:   port,
+				Origin: split[1],
+			})
+		} else {
+			c.Set(Entry{
+				Alias: entry.Key.(string),
+				Port:  entry.Value.(int),
+			})
+		}
+	}
+	for _, v := range c.Entries {
+		fmt.Printf("%s\n", v.String())
 	}
 	return &c, nil
 }
