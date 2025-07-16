@@ -24,6 +24,8 @@ localias rm secure.test
 localias list
 # Clear all aliases
 localias clear
+# Import aliases from another config file
+localias import path/to/another/config/localias.yaml
 
 # Start the proxy server as a daemon process
 localias start

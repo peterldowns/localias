@@ -75,3 +75,28 @@ func TestDefaultPath(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEqual(t, "", path)
 }
+
+func TestImport(t *testing.T) {
+	t.Parallel()
+	cfg := &Config{
+		Entries: []Entry{
+			{Alias: "a", Port: 1},
+			{Alias: "b", Port: 2},
+		},
+	}
+	other := &Config{
+		Entries: []Entry{
+			{Alias: "b", Port: 3}, // will update the existing entry
+			{Alias: "c", Port: 4}, // will be a new addition
+		},
+	}
+	added, updated := cfg.Import(other)
+	require.Equal(t, []Entry{{Alias: "c", Port: 4}}, added)
+	require.Equal(t, []Entry{{Alias: "b", Port: 3}}, updated)
+	expected := []Entry{
+		{Alias: "a", Port: 1},
+		{Alias: "b", Port: 3},
+		{Alias: "c", Port: 4},
+	}
+	require.ElementsMatch(t, expected, cfg.Entries)
+}
