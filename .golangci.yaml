@@ -56,7 +56,10 @@ linters-settings:
       - name: identical-branches
       - name: if-return
       - name: imports-blacklist
-        arguments: []
+        arguments:
+          - "github.com/stretchr/testify"
+          - "github.com/stretchr/testify/require"
+          - "github.com/stretchr/testify/assert"
       - name: import-shadowing
       - name: increment-decrement
       - name: indent-error-flow
