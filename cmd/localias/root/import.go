@@ -10,49 +10,41 @@ import (
 )
 
 var importCmd = &cobra.Command{ //nolint:gochecknoglobals
-	Use:     "import [path]",
+	Use:     "import [path]...",
 	Aliases: []string{"upsert"},
-	Short:   "import all aliases from another config file",
+	Short:   "import all aliases from one or more other config files",
 	Example: shared.Example(`
 # import aliases from a file named .localias.mybranch.yaml in the current directory
 localias import ./.localias.mybranch.yaml
 
-# import aliases from a file in another directory
-localias import path/to/another/config/localias.yaml
+# import aliases from multiple files
+localias import ./.localias.mybranch.yaml ../path/to/another.localias.yaml
 	`),
 	RunE: importImpl,
 }
 
 func importImpl(_ *cobra.Command, args []string) error {
-	if len(args) != 1 {
-		return fmt.Errorf("invalid arguments: expected [path]")
-	}
-	importPath := args[0]
-
-	// Read the config file to be imported
-	importCfg, err := config.Open(importPath)
-	if err != nil {
-		return fmt.Errorf("failed to open import file: %w", err)
+	if len(args) == 0 {
+		return fmt.Errorf("invalid arguments: expected at least one [path]")
 	}
 
-	// Get the current config
 	cfg := shared.Config()
+	for _, importPath := range args {
+		importCfg, err := config.Open(importPath)
+		if err != nil {
+			return fmt.Errorf("failed to open import file: %w", err)
+		}
 
-	// Add/update entries from the imported config
-	added, updated := cfg.Import(importCfg)
-
-	// Save the updated config
-	if err := cfg.Save(); err != nil {
-		return err
+		added, updated := cfg.Import(importCfg)
+		for _, entry := range added {
+			shared.PrintUpdate(entry, false)
+		}
+		for _, entry := range updated {
+			shared.PrintUpdate(entry, true)
+		}
 	}
 
-	for _, entry := range added {
-		shared.PrintUpdate(entry, false)
-	}
-	for _, entry := range updated {
-		shared.PrintUpdate(entry, true)
-	}
-	return nil
+	return cfg.Save()
 }
 
 func init() {
