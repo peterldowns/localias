@@ -135,6 +135,7 @@ func (c Config) Caddyfile() string {
 	}
 	global := fmt.Sprintf(strings.TrimSpace(`
 {
+	admin off
 	persist_config off
 	local_certs
 	ocsp_stapling off
