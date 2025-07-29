@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/peterldowns/testy/assert"
 )
 
 func TestParseUncontrolledRoundtrips(t *testing.T) {
@@ -16,9 +16,9 @@ func TestParseUncontrolledRoundtrips(t *testing.T) {
 127.0.0.1	localhost	host.test
 `)
 	lines := Parse(strings.NewReader(contents))
-	require.NotNil(t, lines)
-	require.Len(t, lines, 4)
-	require.Equal(t, contents, asFile(lines))
+	assert.NotNil(t, lines)
+	assert.Equal(t, 4, len(lines))
+	assert.Equal(t, contents, asFile(lines))
 }
 
 func TestParseControlled(t *testing.T) {
@@ -32,19 +32,19 @@ func TestParseControlled(t *testing.T) {
 127.0.0.1	localias.test	#{"controller":"localias"}
 `)
 	lines := Parse(strings.NewReader(contents))
-	require.NotNil(t, lines)
-	require.Equal(t, contents, asFile(lines))
+	assert.NotNil(t, lines)
+	assert.Equal(t, contents, asFile(lines))
 }
 
 func TestMeta(t *testing.T) {
 	t.Parallel()
 	contents := etcfile(`127.0.0.1 localhost #{"controller":"localias", "garbage": "hashtag#"}`)
 	lines := Parse(strings.NewReader(contents))
-	require.NotNil(t, lines)
-	require.Len(t, lines, 1)
-	require.NotNil(t, lines[0].Entry)
-	require.NotNil(t, lines[0].Entry.Meta)
-	require.Equal(t, "localias", lines[0].Entry.Meta.Controller)
+	assert.NotNil(t, lines)
+	assert.Equal(t, 1, len(lines))
+	assert.NotNil(t, lines[0].Entry)
+	assert.NotNil(t, lines[0].Entry.Meta)
+	assert.Equal(t, "localias", lines[0].Entry.Meta.Controller)
 }
 
 func etcfile(lines ...string) string {

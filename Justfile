@@ -20,13 +20,22 @@ clean:
 test *args='./...':
   go test "$@"
 
-# lint the entire codebase
-lint *args:
-  golangci-lint run --fix --config .golangci.yaml "$@"
-  find . -name '*.nix' | xargs nixpkgs-fmt
+# lint all
+lint:
+  just lint-go
+  just lint-nix
+# lint/fix go code with golangci-lint
+lint-go *args='./...':
+  go mod tidy
+  golangci-lint config verify --config .golangci.yaml
+  golangci-lint run --fix --config .golangci.yaml $@
+# lint/fix nix code with nixpkgs-fmt
+lint-nix:
+  git ls-files '*.nix' | nixpkgs-fmt
 
 # build the localias cli
 build:
   #!/usr/bin/env bash
   ldflags=$(./scripts/golang-ldflags.sh)
   go build -ldflags "$ldflags" -o bin/localias ./cmd/localias
+

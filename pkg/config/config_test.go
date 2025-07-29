@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/peterldowns/testy/assert"
 )
 
 var exampleEntries = []Entry{ //nolint:gochecknoglobals
@@ -18,10 +18,9 @@ var exampleEntries = []Entry{ //nolint:gochecknoglobals
 func TestReadConfig(t *testing.T) {
 	t.Parallel()
 	cfg, err := Open("./example.roundtrip.yaml")
-	require.NoError(t, err)
-	require.Equal(t, "./example.roundtrip.yaml", cfg.Path)
-	require.ElementsMatch(t, exampleEntries, cfg.Entries)
-	require.Equal(t, exampleEntries, cfg.Entries)
+	assert.NoError(t, err)
+	assert.Equal(t, "./example.roundtrip.yaml", cfg.Path)
+	assert.Equal(t, exampleEntries, cfg.Entries)
 }
 
 func TestWriteConfig(t *testing.T) { //nolint:paralleltest // weird race on the file
@@ -30,20 +29,20 @@ func TestWriteConfig(t *testing.T) { //nolint:paralleltest // weird race on the 
 		Entries: exampleEntries,
 	}
 	err := cfg.Save()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 }
 
 func TestConfigRoundtripsPreservingOrder(t *testing.T) { //nolint:paralleltest // weird race on the file
 	cfg, err := Open("./example.roundtrip.yaml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	err = cfg.Save()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	cfg2, err := Open(cfg.Path)
-	require.NoError(t, err)
-	require.Equal(t, cfg.Path, cfg2.Path)
-	require.Equal(t, cfg.Entries, cfg2.Entries)
+	assert.NoError(t, err)
+	assert.Equal(t, cfg.Path, cfg2.Path)
+	assert.Equal(t, cfg.Entries, cfg2.Entries)
 }
 
 func TestUpsertUpdatesExistingEntry(t *testing.T) { //nolint:paralleltest // weird race on the file
@@ -61,19 +60,19 @@ func TestUpsertUpdatesExistingEntry(t *testing.T) { //nolint:paralleltest // wei
 	expected := []Entry{
 		{Alias: "dev.test", Port: 9000},
 	}
-	require.Equal(t, expected, cfg.Entries)
+	assert.Equal(t, expected, cfg.Entries)
 
-	require.NoError(t, cfg.Save())
+	assert.NoError(t, cfg.Save())
 	cfg2, err := Open(cfg.Path)
-	require.NoError(t, err)
-	require.Equal(t, expected, cfg2.Entries)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, cfg2.Entries)
 }
 
 func TestDefaultPath(t *testing.T) {
 	t.Parallel()
 	path, err := Path(nil)
-	require.NoError(t, err)
-	require.NotEqual(t, "", path)
+	assert.NoError(t, err)
+	assert.NotEqual(t, "", path)
 }
 
 func TestImport(t *testing.T) {
@@ -91,12 +90,12 @@ func TestImport(t *testing.T) {
 		},
 	}
 	added, updated := cfg.Import(other)
-	require.Equal(t, []Entry{{Alias: "c", Port: 4}}, added)
-	require.Equal(t, []Entry{{Alias: "b", Port: 3}}, updated)
+	assert.Equal(t, []Entry{{Alias: "c", Port: 4}}, added)
+	assert.Equal(t, []Entry{{Alias: "b", Port: 3}}, updated)
 	expected := []Entry{
 		{Alias: "a", Port: 1},
 		{Alias: "b", Port: 3},
 		{Alias: "c", Port: 4},
 	}
-	require.ElementsMatch(t, expected, cfg.Entries)
+	assert.Equal(t, expected, cfg.Entries)
 }

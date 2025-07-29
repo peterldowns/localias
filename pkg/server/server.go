@@ -7,7 +7,9 @@ import (
 	"syscall"
 
 	"github.com/caddyserver/caddy/v2"
+	// enable all the default plugins and modules for caddy
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
+
 	"github.com/fatih/color"
 	"github.com/hashicorp/mdns"
 
