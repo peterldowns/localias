@@ -148,29 +148,8 @@ func (c Config) Caddyfile() string {
 		}
 	}
 
-	# Allow the internal CA to re-issue certificates for all of the sites
-	# in this file at the same time, every second. We have to put a configuration
-	# here or the logs will show a scary security warning.
-	# https://caddyserver.com/docs/automatic-https#on-demand-tls
-	on_demand_tls {
-		interval 1s
-		burst %d
-		ask http://127.0.0.1:2019
-	}
 }
-:2019 {
-	bind 127.0.0.1 ::1
-
-	map {query.domain} {allowed} {
-		%s
-		default 0
-	}
-
-	@allowed %s{allowed} == "1"%s
-	respond @allowed 200
-	respond 400
-}
-`), path, len(c.Entries)+1, allowedMap, "`", "`")
+`), path)
 	blocks := []string{global}
 	for _, x := range c.Entries {
 		blocks = append(blocks, x.Caddyfile())
@@ -213,14 +192,10 @@ func (entry Entry) Caddyfile() string {
 	if a.Scheme == "https" {
 		tls = strings.TrimSpace(`
 	tls {
+		on_demand
 		issuer internal {
 			ca local
-			# allow on_demand issuing, but doesn't turn it on
-			on_demand
 		}
-		# turn on on_demand issuing to automatically renew certs
-		# when they expire
-		on_demand
 	}
 `)
 	}
