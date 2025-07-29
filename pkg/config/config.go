@@ -226,7 +226,7 @@ func (entry Entry) Caddyfile() string {
 	}
 	return fmt.Sprintf(strings.TrimSpace(`
 %s {
-	reverse_proxy :%d
+	reverse_proxy localhost:%d
 	%s
 }
 	`), entry.Alias, entry.Port, tls)
