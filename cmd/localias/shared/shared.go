@@ -3,6 +3,7 @@ package shared
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/hostctl"
 	"github.com/peterldowns/localias/pkg/wsl"
@@ -53,4 +54,20 @@ func Controller() hostctl.Controller {
 
 func VersionString() string {
 	return fmt.Sprintf("%s+commit.%s", Version, Commit)
+}
+
+// PrintUpdate is a helper for printing a newly added or updated config entry,
+// used by the `set` and `import` commands. It's responsible for pretty colors
+// and consistent formatting.
+func PrintUpdate(entry config.Entry, updated bool) {
+	action := "[added]"
+	if updated {
+		action = "[updated]"
+	}
+	fmt.Printf(
+		"%s %s -> %s\n",
+		color.New(color.FgGreen).Sprint(action),
+		color.New(color.FgBlue).Sprintf(entry.Alias),
+		color.New(color.FgWhite).Sprintf("%d", entry.Port),
+	)
 }

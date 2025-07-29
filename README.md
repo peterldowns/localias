@@ -1,6 +1,6 @@
 # 🏠 localias
 
-![Latest Version](https://badgers.space/badge/latest%20version/v2.1.0/blueviolet?corner_radius=m)
+![Latest Version](https://badgers.space/badge/latest%20version/v2.3.0/blueviolet?corner_radius=m)
 ![Golang](https://badgers.space/badge/golang/1.18+/blue?corner_radius=m)
 
 Localias is a tool for developers to securely manage local aliases for development servers.
@@ -100,6 +100,8 @@ localias clear
 localias list
 # remove an alias
 localias remove <alias>
+# import all the aliases from another config file
+localias import path/to/another/config/localias.yaml
 ```
 
 The configuration file is just a YAML map of `<alias>: <port>`! For example, this is a valid configuration file:
@@ -246,12 +248,14 @@ Examples:
   localias list
   # Clear all aliases
   localias clear
+  # Import aliases from another config file
+  localias import path/to/another/config/localias.yaml
   
   # Start the proxy server as a daemon process
   localias start
   # Show the status of the daemon process
   localias status
-  # Apply the latest configuration to the proxy server in the daemon process
+  # Apply the latest configuration and relaunch the daemon process
   localias reload
   # Stop the daemon process
   localias stop
@@ -261,8 +265,8 @@ Examples:
 Available Commands:
   clear       clear all aliases
   help        Help about any command
+  import      import all aliases from another config file
   list        list all aliases
-  reload      apply the latest configuration to the proxy server in the daemon process
   rm          remove an alias
   run         run the proxy server in the foreground
   set         add or edit an alias

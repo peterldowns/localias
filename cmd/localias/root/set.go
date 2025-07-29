@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/cmd/localias/shared"
@@ -72,16 +71,10 @@ func setImpl(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	action := "[added]"
-	if updated {
-		action = "[updated]"
-	}
-	fmt.Printf(
-		"%s %s -> %s\n",
-		color.New(color.FgGreen).Sprint(action),
-		color.New(color.FgBlue).Sprintf(alias),
-		color.New(color.FgWhite).Sprintf("%d", port),
-	)
+	shared.PrintUpdate(config.Entry{
+		Alias: alias,
+		Port:  port,
+	}, updated)
 	return nil
 }
 

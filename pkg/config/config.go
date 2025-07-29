@@ -40,6 +40,19 @@ func (c *Config) Set(d Entry) bool {
 	return false
 }
 
+// Import merges the entries from another config into the current one.
+// It returns the entries that were added and updated.
+func (c *Config) Import(other *Config) (added []Entry, updated []Entry) {
+	for _, entry := range other.Entries {
+		if c.Set(entry) {
+			updated = append(updated, entry)
+		} else {
+			added = append(added, entry)
+		}
+	}
+	return added, updated
+}
+
 // Remove removes all entries from the config that match
 // any of the specified aliases.
 func (c *Config) Remove(aliases ...string) []Entry {
