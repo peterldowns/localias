@@ -31,6 +31,6 @@ func main() {
 func onError(err error) {
 	err = shared.ConvertErr(err)
 	msg := fmt.Sprintf("error: %s", err)
-	fmt.Fprintln(os.Stderr, color.New(color.FgRed, color.Italic).Sprintf(msg))
+	fmt.Fprintln(os.Stderr, color.New(color.FgRed, color.Italic).Sprint(msg))
 	os.Exit(1)
 }

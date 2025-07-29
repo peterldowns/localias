@@ -68,7 +68,7 @@ func PrintUpdate(entry config.Entry, updated bool) {
 	fmt.Printf(
 		"%s %s -> %s\n",
 		color.New(color.FgGreen).Sprint(action),
-		color.New(color.FgBlue).Sprintf(entry.Alias),
+		color.New(color.FgBlue).Sprint(entry.Alias),
 		color.New(color.FgWhite).Sprintf("%d", entry.Port),
 	)
 }

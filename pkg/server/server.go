@@ -50,7 +50,7 @@ func (s *Server) StartMDNS() error {
 	if err != nil {
 		warn := color.New(color.FgYellow, color.Italic)
 		fmt.Fprintln(os.Stderr, warn.Sprintf("failed to start mDNS server:"))
-		fmt.Fprintln(os.Stderr, warn.Sprintf(err.Error()))
+		fmt.Fprintln(os.Stderr, warn.Sprint(err.Error()))
 	}
 	return nil
 }
