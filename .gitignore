@@ -27,6 +27,9 @@ tmp/
 # configfile
 .localias.yaml
 
+# used while testing
+index.html
+
 # artifacts
 dist/
 build/
