@@ -1,137 +1,175 @@
 # yaml-language-server: $schema=https://json.schemastore.org/golangci-lint.json
 # https://golangci-lint.run/usage/configuration/
-linters-settings:
-  gocritic:
-    disabled-checks:
-      - ifElseChain
-  goimports:
-    local-prefixes: github.com/peterldowns/panoctocon
-  govet:
-    enable-all: true
-    disable:
-      - fieldalignment
-  exhaustive:
-    default-signifies-exhaustive: true
-  nolintlint:
-    allow-unused: false
-    allow-no-explanation:
-      - gochecknoglobals
-      - gochecknoinits
-      - unparam
-    require-explanation: true
-    require-specific: true
-  # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md
-  revive:
-    enable-all-rules: false
-    rules:
-      - name: atomic
-      #- name: blank-imports
-      - name: bare-return
-      - name: bool-literal-in-expr
-      - name: call-to-gc
-      - name: comment-spacings
-        arguments: ["nolint"]
-      - name: confusing-results
-      - name: constant-logical-expr
-      - name: context-as-argument
-        arguments:
-          - allowTypesBefore: "*testing.T"
-      - name: context-keys-type
-      - name: datarace
-      - name: deep-exit
-      - name: defer
-      - name: dot-imports
-      - name: duplicated-imports
-      - name: early-return
-      - name: empty-block
-      - name: empty-lines
-      - name: error-naming
-      - name: error-return
-      - name: error-strings
-      - name: errorf
-      - name: exported
-      - name: function-result-limit
-        arguments: [3]
-      - name: get-return
-      - name: identical-branches
-      - name: if-return
-      - name: imports-blacklist
-        arguments:
-          - "github.com/stretchr/testify"
-          - "github.com/stretchr/testify/require"
-          - "github.com/stretchr/testify/assert"
-      - name: import-shadowing
-      - name: increment-decrement
-      - name: indent-error-flow
-      - name: modifies-parameter
-      - name: modifies-value-receiver
-      - name: nested-structs
-      - name: package-comments
-      - name: range
-      - name: range-val-address
-      - name: range-val-in-closure
-      - name: receiver-naming
-      - name: redefines-builtin-id
-      - name: string-format
-      - name: string-of-int
-      - name: struct-tag
-      - name: superfluous-else
-      - name: time-equal
-      - name: time-naming
-      - name: unconditional-recursion
-      - name: unexported-naming
-      - name: unexported-return
-      - name: unhandled-error
-        arguments:
-          - "fmt.*"
-          - "strings.Builder.WriteString"
-      - name: unnecessary-stmt
-      - name: unreachable-code
-      - name: unused-parameter
-      - name: unused-receiver
-      - name: use-any
-      - name: useless-break
-      - name: var-declaration
-      - name: waitgroup-by-value
+version: "2"
 run:
   tests: true
-  timeout: 1m
-  args:
-    - "--skip-dirs-use-default"
-    - "."
-  dirs:
-    - "."
-
 # https://golangci-lint.run/usage/linters/
 linters:
-  disable-all: true
+  default: none
   enable:
     - asciicheck
     - errcheck
+    - errname
+    - errorlint
     - exhaustive
     - gocritic
+    - gomodguard
+    - govet
+    - importas
+    - ineffassign
+    - loggercheck
+    - nolintlint
+    - paralleltest
+    - revive
+    - staticcheck
+    - unparam
+    - unused
+    - usetesting
+    - whitespace
+  settings:
+    exhaustive:
+      check:
+        - switch
+        - map
+      default-signifies-exhaustive: false
+    gocritic:
+      # We explicitly do not enable the `commentedOutCode` linter
+      # because when developing, it's really annoying to temporarily comment
+      # something out and then have your editor yell at you about it.
+      #
+      # The tradeoff is that we must be responsible and not allow PRs to introduce
+      # a bunch of commented-out junk.
+      #
+      # We should revisit this decision in the future if it causes trouble.
+      #enabled-checks:
+      #  - commentedOutCode
+      disabled-checks:
+        - ifElseChain
+        - appendAssign
+    govet:
+      disable:
+        - fieldalignment
+      enable-all: true
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-no-explanation:
+        - gochecknoglobals
+        - gochecknoinits
+        - unparam
+        - unused
+        - errname
+      allow-unused: false
+    # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md
+    revive:
+      enable-all-rules: false
+      rules:
+        - name: atomic
+        - name: blank-imports
+        - name: bare-return
+        - name: bool-literal-in-expr
+        - name: call-to-gc
+        - name: comment-spacings
+          arguments:
+            - nolint
+        - name: confusing-results
+        - name: constant-logical-expr
+        - name: context-as-argument
+          arguments:
+            - allowTypesBefore: "*testing.T"
+        - name: context-keys-type
+        # - name: deep-exit
+        - name: datarace
+        - name: defer
+        - name: dot-imports
+        - name: duplicated-imports
+        - name: early-return
+        - name: empty-block
+        - name: empty-lines
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        # - name: exported
+        - name: function-result-limit
+          arguments:
+            - 3
+        - name: get-return
+        - name: identical-branches
+        - name: if-return
+        - name: imports-blocklist
+          arguments:
+            - github.com/stretchr/testify
+            - github.com/stretchr/testify/require
+            - github.com/stretchr/testify/assert
+        - name: import-shadowing
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: modifies-parameter
+        - name: modifies-value-receiver
+        # - name: nested-structs
+        # - name: package-comments
+        - name: range
+        - name: range-val-address
+        - name: range-val-in-closure
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: string-format
+        - name: string-of-int
+        - name: struct-tag
+        - name: superfluous-else
+        - name: time-equal
+        - name: time-naming
+        - name: unconditional-recursion
+        - name: unexported-naming
+        - name: unexported-return
+        - name: unhandled-error
+          arguments:
+            - fmt.*
+            - strings.Builder.WriteString
+        - name: unnecessary-stmt
+        - name: unreachable-code
+        - name: unused-parameter
+        - name: unused-receiver
+        - name: use-any
+        - name: useless-break
+        - name: var-declaration
+        - name: waitgroup-by-value
+  exclusions:
+    generated: lax
+    rules:
+      # Allow shadowing of `err` because it's so common
+      - path: (.+)\.go$
+        text: declaration of "err" shadows declaration at
+      # Allow writing tags on non-exported fields, necessary for graphql
+      - path: (.+)\.go$
+        text: tag on not-exported field
+      # Upstream Defaults from https://golangci-lint.run/usage/false-positives/#default-exclusions
+      - path: (.+)\.go$
+        text: Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*print(f|ln)?|os\.(Un)?Setenv). is not checked
+      - linters: [staticcheck]
+        text: SA1019
+      - linters: [staticcheck]
+        text: QF1008
+    paths:
+      - ^/nix/store/.*
+      - .*/.toolchain-*/.*
+      - vendor/*
+issues:
+  max-issues-per-linter: 10000
+  max-same-issues: 10000
+formatters:
+  enable:
     - gofmt
     - gofumpt
     - goimports
-    - gomodguard
-    - govet
-    - ineffassign
-    - nolintlint
-    - revive
-    - staticcheck
-    - typecheck
-    - unused
-    - whitespace
-    - paralleltest
-    - errname
-    - errorlint
-    - gosimple
-    - unparam
-issues:
-  exclude:
-    # Allow shadowing of `err` because it's so common
-    - 'declaration of "err" shadows declaration at'
-  max-same-issues: 10000
-  max-issues-per-linter: 10000
-  exclude-dirs:
-    - pkg/database/models
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/peterldowns/localias
+  exclusions:
+    generated: lax
+    paths:
+      - ^/nix/store/.*
+      - .*/.toolchain-*/.*
+      - vendor/*

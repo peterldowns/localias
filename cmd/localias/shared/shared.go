@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
+
 	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/hostctl"
 	"github.com/peterldowns/localias/pkg/wsl"

@@ -21,6 +21,11 @@ jobs:
         run: go test ./...
   lint:
     runs-on: ubuntu-latest
+    # https://github.com/golangci/golangci-lint-action#annotations
+    permissions:
+      contents: read # read the repo
+      pull-requests: read # allows the 'only-new-issues' option to work
+      checks: write # annotate code in the PR
     steps:
       - uses: actions/checkout@v4
       - name: setup-go
@@ -30,15 +35,13 @@ jobs:
           cache: true
           cache-dependency-path: go.sum
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v5
+        uses: golangci/golangci-lint-action@v7.0.0
         with:
           install-mode: "binary"
-          version: "v1.58.0"
-          # https://github.com/golangci/golangci-lint-action/issues/244
-          # https://github.com/Kong/mesh-perf/pull/168
-          skip-cache: true
+          version: "v2.0.2" # matches `golangci-lint --version` in nix devshell
+          # the default behavior as of v7.0.0:
+          verify: true
       - name: go mod tidy
         run: go mod tidy
-      - name: check for any changes
-        run: |
-          [[ $(git status --porcelain) == "" ]] || (echo "changes detected" && exit 1)
+      - name: assert no changed files
+        run: ./scripts/check-for-differences.sh
