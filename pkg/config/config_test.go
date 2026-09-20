@@ -68,6 +68,12 @@ func TestUpsertUpdatesExistingEntry(t *testing.T) { //nolint:paralleltest // wei
 	assert.Equal(t, expected, cfg2.Entries)
 }
 
+func TestOpenRejectsNonIntegerPort(t *testing.T) {
+	t.Parallel()
+	_, err := Open("./example.invalidport.yaml")
+	assert.Error(t, err)
+}
+
 func TestDefaultPath(t *testing.T) {
 	t.Parallel()
 	path, err := Path(nil)
