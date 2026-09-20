@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -64,9 +65,17 @@ func Open(path string) (*Config, error) {
 	}
 	c := Config{Path: path}
 	for _, entry := range entries {
+		alias, ok := entry.Key.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid config in %s: alias %v must be a string, got %T", path, entry.Key, entry.Key)
+		}
+		port, ok := entry.Value.(int)
+		if !ok {
+			return nil, fmt.Errorf("invalid config in %s: port for alias %q must be an integer, got %T (%v)", path, alias, entry.Value, entry.Value)
+		}
 		c.Set(Entry{
-			Alias: entry.Key.(string),
-			Port:  entry.Value.(int),
+			Alias: alias,
+			Port:  port,
 		})
 	}
 	return &c, nil
