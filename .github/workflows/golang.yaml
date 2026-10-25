@@ -8,11 +8,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: setup-go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
-          go-version: '1.22'
+          go-version: '1.24'
           cache: true
           cache-dependency-path: go.sum
       - name: build
@@ -27,18 +27,18 @@ jobs:
       pull-requests: read # allows the 'only-new-issues' option to work
       checks: write # annotate code in the PR
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: setup-go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
-          go-version: '1.22'
+          go-version: '1.24'
           cache: true
           cache-dependency-path: go.sum
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7.0.0
+        uses: golangci/golangci-lint-action@v9
         with:
           install-mode: "binary"
-          version: "v2.0.2" # matches `golangci-lint --version` in nix devshell
+          version: "v2.1.6"
           # the default behavior as of v7.0.0:
           verify: true
       - name: go mod tidy
