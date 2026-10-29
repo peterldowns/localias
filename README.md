@@ -1,7 +1,7 @@
 # 🏠 localias
 
 ![Latest Version](https://badgers.space/badge/latest%20version/v3.0.0/blueviolet?corner_radius=m)
-![Golang](https://badgers.space/badge/golang/1.21+/blue?corner_radius=m)
+![Golang](https://badgers.space/badge/golang/1.26.9+/blue?corner_radius=m)
 
 Localias is a tool for developers to securely manage local aliases for development servers.
 
@@ -37,6 +37,9 @@ brew install peterldowns/tap/localias
 ```
 
 #### Golang:
+
+Building or installing from source requires Go 1.26.9 or newer.
+
 ```bash
 # run it
 go run github.com/peterldowns/localias/cmd/localias@latest --help
@@ -138,6 +141,29 @@ Localias requires elevated privileges to perform these actions as part of runnin
 When you run Localias, each time it needs to do these things, it will open a subshell using `sudo` to perform these actions, and this will prompt you for your password. Localias *does not read or interact with your password*.
 
 Localias is entirely local and performs no telemetry.
+
+#### Streaming responses
+
+Development servers can return the response header `Incremental: ?1` to request
+immediate forwarding of streaming responses. Caddy handles this automatically,
+without additional Localias configuration. See Caddy's
+[streaming documentation](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#streaming).
+
+#### Request limits and headers
+
+Localias uses Caddy's defaults:
+
+- Request headers are limited to 16 KiB. Large cookies or tokens can cause
+  `431 Request Header Fields Too Large` responses.
+- A request body read or response write that stalls for one minute is aborted.
+  Pauses between writes, such as quiet server-sent event streams, do not count
+  toward this timeout.
+- Request headers containing underscores or dots are dropped to prevent
+  header-name aliasing. Use hyphens in custom header names.
+
+The YAML configuration maps aliases to ports and does not expose these Caddy
+server settings. See Caddy's
+[server options](https://caddyserver.com/docs/caddyfile/options#servers) for details.
 
 # Quickstart
 
