@@ -9,7 +9,7 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
-	"github.com/go-yaml/yaml"
+	"go.yaml.in/yaml/v2"
 )
 
 type Config struct {

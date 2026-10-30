@@ -13,7 +13,7 @@ linters:
     - errorlint
     - exhaustive
     - gocritic
-    - gomodguard
+    - gomodguard_v2
     - govet
     - importas
     - ineffassign
@@ -30,7 +30,7 @@ linters:
     exhaustive:
       check:
         - switch
-        - map
+        - mapliteral
       default-signifies-exhaustive: false
     gocritic:
       # We explicitly do not enable the `commentedOutCode` linter

@@ -7,7 +7,7 @@ import (
 
 	"github.com/Integralist/go-findroot/find"
 	"github.com/adrg/xdg"
-	"github.com/go-yaml/yaml"
+	"go.yaml.in/yaml/v2"
 )
 
 // Path returns a path to a config file by checking the following list of options.

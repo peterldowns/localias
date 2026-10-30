@@ -1,7 +1,7 @@
 # 🏠 localias
 
 ![Latest Version](https://badgers.space/badge/latest%20version/v3.0.0/blueviolet?corner_radius=m)
-![Golang](https://badgers.space/badge/golang/1.21+/blue?corner_radius=m)
+![Golang](https://badgers.space/badge/golang/1.26.9+/blue?corner_radius=m)
 
 Localias is a tool for developers to securely manage local aliases for development servers.
 
@@ -37,6 +37,9 @@ brew install peterldowns/tap/localias
 ```
 
 #### Golang:
+
+Building or installing from source requires Go 1.26.9 or newer.
+
 ```bash
 # run it
 go run github.com/peterldowns/localias/cmd/localias@latest --help
@@ -138,6 +141,29 @@ Localias requires elevated privileges to perform these actions as part of runnin
 When you run Localias, each time it needs to do these things, it will open a subshell using `sudo` to perform these actions, and this will prompt you for your password. Localias *does not read or interact with your password*.
 
 Localias is entirely local and performs no telemetry.
+
+#### Streaming responses
+
+Development servers can return the response header `Incremental: ?1` to request
+immediate forwarding of streaming responses. Caddy handles this automatically,
+without additional Localias configuration. See Caddy's
+[streaming documentation](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#streaming).
+
+#### Request limits and headers
+
+Localias uses Caddy's defaults:
+
+- Request headers are limited to 16 KiB. Large cookies or tokens can cause
+  `431 Request Header Fields Too Large` responses.
+- A request body read or response write that stalls for one minute is aborted.
+  Pauses between writes, such as quiet server-sent event streams, do not count
+  toward this timeout.
+- Request headers containing underscores or dots are dropped to prevent
+  header-name aliasing. Use hyphens in custom header names.
+
+The YAML configuration maps aliases to ports and does not expose these Caddy
+server settings. See Caddy's
+[server options](https://caddyserver.com/docs/caddyfile/options#servers) for details.
 
 # Quickstart
 
@@ -266,7 +292,7 @@ Available Commands:
   clear       clear all aliases
   help        Help about any command
   import      import all aliases from another config file
-  list        list all aliases
+  list        list aliases from the saved configuration
   rm          remove an alias
   run         run the proxy server in the foreground
   set         add or edit an alias
@@ -282,6 +308,37 @@ Flags:
 
 Use "localias [command] --help" for more information about a command.
 ```
+
+## JSON output for preflight checks
+
+Use `localias status --json` to check the background daemon process:
+
+```json
+{"running":true,"pid":98213}
+```
+
+A stopped daemon is a successful result with `{"running":false,"pid":null}`.
+This checks the process recorded in the daemon PID file; it does not check proxy
+readiness or detect a server started in the foreground with `localias run`.
+
+Use `localias list --json` to read aliases from the saved configuration selected
+by `--configfile`, `LOCALIAS_CONFIGFILE`, or the usual configuration search:
+
+```json
+{"aliases":{"api-test.movie-tickets.localhost":14201,"embed.movie-tickets.localhost":14204}}
+```
+
+An empty configuration returns `{"aliases":{}}`. Ports are JSON integers.
+`list --format json` is equivalent to `list --json`. Choose either `--json` or
+`--format`; the default output format is text.
+
+Successful JSON commands write one JSON document to stdout. Errors exit with a
+nonzero status and write plain diagnostics to stderr.
+
+`list` reports saved configuration, even when a daemon is running. Editing saved
+ports does not change the running daemon until `localias reload` is called.
+There is currently no live configuration query, so these commands cannot detect
+whether the daemon is still serving old ports.
 
 # Errata
 

@@ -22,15 +22,23 @@ var Flags struct { //nolint:gochecknoglobals
 }
 
 func Config() *config.Config {
+	cfg, err := LoadConfig()
+	if err != nil {
+		panic(err)
+	}
+	return cfg
+}
+
+func LoadConfig() (*config.Config, error) {
 	path, err := config.Path(Flags.Configfile)
 	if err != nil {
-		panic(fmt.Errorf("failed to find config: %w", err))
+		return nil, fmt.Errorf("failed to find config: %w", err)
 	}
 	cfg, err := config.Open(path)
 	if err != nil {
-		panic(fmt.Errorf("failed to load config: %w", err))
+		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
-	return cfg
+	return cfg, nil
 }
 
 func Controller() hostctl.Controller {
