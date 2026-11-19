@@ -1,0 +1,20 @@
+services:
+  frontend:
+    image: python:3.13-alpine
+    command: ["python", "/fixture/frontend.py"]
+    volumes:
+      - ./frontend.py:/fixture/frontend.py:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5173/')"]
+      interval: 1s
+      timeout: 2s
+      retries: 30
+  test:
+    build:
+      context: ../..
+      dockerfile: integration/sibling-container/Dockerfile
+    environment:
+      LOCALIAS_TEST_SIBLING_UPSTREAM: frontend:5173
+    depends_on:
+      frontend:
+        condition: service_healthy

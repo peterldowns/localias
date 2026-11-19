@@ -1,0 +1,6 @@
+.git
+.direnv
+.toolchain
+bin
+dist
+build
