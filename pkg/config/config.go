@@ -12,19 +12,24 @@ import (
 	"go.yaml.in/yaml/v2"
 )
 
+// Config files are readable by other users, but writable only by their owner.
+const configFileMode = 0o644
+
 type Config struct {
 	Path    string
 	Entries []Entry
 }
 
+// Entry maps an alias to an HTTP target. Exactly one of Port or Upstream is set.
 type Entry struct {
-	Alias string
-	Port  int
+	Alias    string
+	Port     int
+	Upstream string
 }
 
 // Set will add or update the existing list of entries.  If there is
-// already a entry with the same upstream/alias, its downstream/port will be
-// updated. If there is not already a entry with the same upstream/alias,
+// already an entry with the same alias, its target will be
+// updated. If there is not already an entry with the same alias,
 // the new entry will be added to the list.
 //
 // Returns `true` if an existing entry was updated, `false` if the entry
@@ -85,17 +90,29 @@ func (c *Config) Clear() []Entry {
 
 // Save writes the config to disk.
 func (c *Config) Save() error {
+	// Build an ordered YAML mapping with integers for local ports and strings
+	// for addresses. Validate every entry before writing so a programmatically
+	// constructed invalid target cannot overwrite the saved configuration.
 	entries := yaml.MapSlice{}
 	for _, d := range c.Entries {
+		normalized, err := d.NormalizeTarget()
+		if err != nil {
+			return d.invalidTargetError(err)
+		}
+		d = normalized
+		var value any = d.Port
+		if d.Upstream != "" {
+			value = d.Upstream
+		}
 		entries = append(entries, yaml.MapItem{
 			Key:   d.Alias,
-			Value: d.Port,
+			Value: value,
 		})
 	}
 	bytes := []byte(strings.TrimSpace(`
 # localias config file syntax
 #
-# 	alias: port
+#   alias: port or "host:port"
 #
 # for example,
 #
@@ -103,6 +120,10 @@ func (c *Config) Save() error {
 #   implicitly_secure.test: 9002 # serves over https and http
 #   https://explicit_secure.test: 9000 # serves over https and http
 #   http://explicit_insecure.test: 9001 # serves over http only
+#   api.test: "192.168.1.10:8000" # HTTP upstream at an explicit address
+#   frontend.test: "frontend:5173" # HTTP upstream resolved by Caddy
+#
+# Ports use localhost on the machine or container running localias.
 #
 	`) + "\n")
 	if len(entries) != 0 {
@@ -112,7 +133,7 @@ func (c *Config) Save() error {
 		}
 		bytes = append(bytes, entryBytes...)
 	}
-	return os.WriteFile(c.Path, bytes, 0o644)
+	return os.WriteFile(c.Path, bytes, configFileMode)
 }
 
 func (Config) CaddyStatePath() string {
@@ -128,6 +149,10 @@ func (Config) CaddyStatePath() string {
 }
 
 func (c Config) Caddyfile() string {
+	return c.caddyfile(false)
+}
+
+func (c Config) caddyfile(normalized bool) string {
 	path := c.CaddyStatePath()
 	allowedMap := ""
 	for _, entry := range c.Entries {
@@ -153,14 +178,31 @@ func (c Config) Caddyfile() string {
 `), path)
 	blocks := []string{global}
 	for _, x := range c.Entries {
-		blocks = append(blocks, x.Caddyfile())
+		if normalized {
+			blocks = append(blocks, x.caddyfileWithUpstream(x.rawUpstreamAddress()))
+		} else {
+			blocks = append(blocks, x.Caddyfile())
+		}
 	}
 	// extra newline prevents "caddy fmt" warning in logs
 	return strings.Join(blocks, "\n") + "\n"
 }
 
 func (c Config) CaddyJSON() ([]byte, []caddyconfig.Warning, error) {
-	caddyfile := c.Caddyfile()
+	// Callers can construct entries without going through the YAML or CLI parser.
+	// Revalidate before interpolating targets into Caddy's configuration syntax.
+	// Copy the slice before normalizing to avoid changing the caller's entries.
+	entries := make([]Entry, len(c.Entries))
+	for i, entry := range c.Entries {
+		normalized, err := entry.NormalizeTarget()
+		if err != nil {
+			return nil, nil, entry.invalidTargetError(err)
+		}
+		entries[i] = normalized
+	}
+	normalizedConfig := c
+	normalizedConfig.Entries = entries
+	caddyfile := normalizedConfig.caddyfile(true)
 	cfgAdapter := caddyconfig.GetAdapter("caddyfile")
 	if cfgAdapter == nil {
 		return nil, nil, fmt.Errorf("failed to load caddyfile adapater")
@@ -175,7 +217,7 @@ func (c Config) CaddyJSON() ([]byte, []caddyconfig.Warning, error) {
 }
 
 func (entry Entry) String() string {
-	return fmt.Sprintf("%s: %d", entry.Alias, entry.Port)
+	return fmt.Sprintf("%s: %s", entry.Alias, entry.Target())
 }
 
 func (entry Entry) Host() string {
@@ -184,6 +226,10 @@ func (entry Entry) Host() string {
 }
 
 func (entry Entry) Caddyfile() string {
+	return entry.caddyfileWithUpstream(entry.UpstreamAddress())
+}
+
+func (entry Entry) caddyfileWithUpstream(upstream string) string {
 	tls := "# tls disabled"
 	a, _ := httpcaddyfile.ParseAddress(entry.Alias)
 	// If no scheme is given, default to https.
@@ -202,8 +248,8 @@ func (entry Entry) Caddyfile() string {
 	}
 	return fmt.Sprintf(strings.TrimSpace(`
 %s {
-	reverse_proxy localhost:%d
+	reverse_proxy %s
 	%s
 }
-	`), entry.Alias, entry.Port, tls)
+	`), entry.Alias, upstream, tls)
 }
