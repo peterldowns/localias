@@ -96,6 +96,12 @@ func TestListStructuredOutput(t *testing.T) {
 			want:     `{"aliases":{"api.test":14201}}`,
 		},
 		{
+			name:     "mixed targets",
+			contents: "web.test: 5173\napi.test: backend:8080\n",
+			args:     []string{"--json"},
+			want:     `{"aliases":{"web.test":5173,"api.test":"backend:8080"}}`,
+		},
+		{
 			name: "empty json",
 			args: []string{"--json"},
 			want: `{"aliases":{}}`,
@@ -215,8 +221,8 @@ func TestCLIErrorOutput(t *testing.T) {
 			dir := t.TempDir()
 			assert.NoError(t, os.WriteFile(filepath.Join(dir, "config.yaml"), []byte("invalid: [\n"), 0o600))
 			stdout, stderr, err := runCLI(t, dir, tc.args...)
-			var exitError *exec.ExitError
-			assert.Equal(t, true, errors.As(err, &exitError))
+			_, isExitError := errors.AsType[*exec.ExitError](err)
+			assert.Equal(t, true, isExitError)
 			assert.Equal(t, "", stdout)
 			assert.Equal(t, true, strings.Contains(stderr, tc.want))
 			assert.Equal(t, false, strings.Contains(stderr, "\x1b"))
@@ -238,11 +244,335 @@ func TestStatusPIDErrors(t *testing.T) {
 				assert.NoError(t, os.WriteFile(pidFile, []byte(pid), 0o600))
 			}
 			stdout, stderr, err := runCLI(t, dir, "status", "--json")
-			var exitError *exec.ExitError
-			assert.Equal(t, true, errors.As(err, &exitError))
+			_, isExitError := errors.AsType[*exec.ExitError](err)
+			assert.Equal(t, true, isExitError)
 			assert.Equal(t, "", stdout)
 			assert.Equal(t, true, strings.Contains(stderr, "daemon PID"))
 			assert.Equal(t, false, strings.Contains(stderr, "\x1b"))
+		})
+	}
+}
+
+func TestSetTargets(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	for _, tc := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"set", "api.test", "9000"}, `{"aliases":{"api.test":9000}}`},
+		{[]string{"set", "api.test", "backend:8080"}, `{"aliases":{"api.test":"backend:8080"}}`},
+		{[]string{"set", "--alias", "api.test", "--port", "9001"}, `{"aliases":{"api.test":9001}}`},
+		{[]string{"set", "--alias", "api.test", "--upstream", "[::1]:8080"}, `{"aliases":{"api.test":"[::1]:8080"}}`},
+	} {
+		stdout, stderr, err := runCLI(t, dir, tc.args...)
+		assert.NoError(t, err)
+		assert.Equal(t, "", stderr)
+		assert.Equal(t, true, strings.Contains(stdout, tc.args[len(tc.args)-1]))
+		stdout, stderr, err = runCLI(t, dir, "list", "--json")
+		assert.NoError(t, err)
+		assert.Equal(t, "", stderr)
+		assertJSONDocument(t, stdout, tc.want)
+	}
+	stdout, _, err := runCLI(t, dir, "list")
+	assert.NoError(t, err)
+	assert.Equal(t, true, strings.Contains(stdout, "[::1]:8080"))
+	stdout, _, err = runCLI(t, dir, "rm", "api.test")
+	assert.NoError(t, err)
+	assert.Equal(t, true, strings.Contains(stdout, "[::1]:8080"))
+}
+
+func TestSetRejectsInvalidArguments(t *testing.T) {
+	t.Parallel()
+	for _, args := range [][]string{
+		{"set"},
+		{"set", "api.test"},
+		{"set", "api.test", "9000", "extra"},
+		{"set", "api.test", "9000", "--alias", ""},
+		{"set", "api.test", "9000", "--port", "0"},
+		{"set", "--alias", "api.test"},
+		{"set", "--port", "9000"},
+		{"set", "--upstream", "backend:8080"},
+		{"set", "api.test", "9000", "--upstream", "backend:8080"},
+		{"set", "--alias", "api.test", "--port", "9000", "--upstream", "backend:8080"},
+		{"set", "--alias", "api.test", "--port", "0"},
+		{"set", "--alias", "api.test", "--upstream", ""},
+		{"set", "--alias", "api.test", "--upstream", "9000"},
+		{"set", "--alias", "api.test", "--upstream", "00080"},
+		{"set", "api.test", "https://backend:8080"},
+	} {
+		t.Run(strings.Join(args, "_"), func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			path := filepath.Join(dir, "config.yaml")
+			original := []byte("existing.test: 1234\n")
+			assert.NoError(t, os.WriteFile(path, original, 0o600))
+			stdout, stderr, err := runCLI(t, dir, args...)
+			_, isExitError := errors.AsType[*exec.ExitError](err)
+			assert.Equal(t, true, isExitError)
+			assert.Equal(t, "", stdout)
+			assert.Equal(t, true, stderr != "" && !strings.Contains(stderr, "panic:"))
+			contents, readErr := os.ReadFile(path)
+			assert.NoError(t, readErr)
+			assert.Equal(t, string(original), string(contents))
+		})
+	}
+}
+
+func TestImportAndClearUpstream(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "import.yaml")
+	assert.NoError(t, os.WriteFile(path, []byte("api.test: backend:8080\n"), 0o600))
+	stdout, stderr, err := runCLI(t, dir, "import", path)
+	assert.NoError(t, err)
+	assert.Equal(t, "", stderr)
+	assert.Equal(t, true, strings.Contains(stdout, "backend:8080"))
+	stdout, stderr, err = runCLI(t, dir, "list", "--json")
+	assert.NoError(t, err)
+	assert.Equal(t, "", stderr)
+	assertJSONDocument(t, stdout, `{"aliases":{"api.test":"backend:8080"}}`)
+	stdout, _, err = runCLI(t, dir, "clear")
+	assert.NoError(t, err)
+	assert.Equal(t, true, strings.Contains(stdout, "backend:8080"))
+}
+
+func TestQuotedNumericTargetNormalizesOnSave(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	assert.NoError(t, os.WriteFile(path, []byte("api.test: \"9000\"\n"), 0o600))
+	stdout, _, err := runCLI(t, dir, "list", "--json")
+	assert.NoError(t, err)
+	assertJSONDocument(t, stdout, `{"aliases":{"api.test":9000}}`)
+	_, _, err = runCLI(t, dir, "set", "other.test", "9001")
+	assert.NoError(t, err)
+	contents, err := os.ReadFile(path)
+	assert.NoError(t, err)
+	assert.Equal(t, true, strings.Contains(string(contents), "api.test: 9000\n"))
+	stdout, _, err = runCLI(t, dir, "list", "--json")
+	assert.NoError(t, err)
+	assertJSONDocument(t, stdout, `{"aliases":{"api.test":9000,"other.test":9001}}`)
+}
+
+func TestMutatingCommandsRejectInvalidSavedConfig(t *testing.T) {
+	t.Parallel()
+	for _, contents := range []string{"invalid: [\n", "api.test: https://backend:8080\n"} {
+		for _, args := range [][]string{{"import", "import.yaml"}, {"remove", "api.test"}, {"clear"}} {
+			t.Run(args[0]+"/"+contents, func(t *testing.T) {
+				t.Parallel()
+				dir := t.TempDir()
+				path := filepath.Join(dir, "config.yaml")
+				assert.NoError(t, os.WriteFile(path, []byte(contents), 0o600))
+				assert.NoError(t, os.WriteFile(filepath.Join(dir, "import.yaml"), []byte("other.test: 9000\n"), 0o600))
+				stdout, stderr, err := runCLI(t, dir, args...)
+				_, isExitError := errors.AsType[*exec.ExitError](err)
+				assert.Equal(t, true, isExitError)
+				assert.Equal(t, "", stdout)
+				assert.Equal(t, true, strings.Contains(stderr, "failed to load config"))
+				assert.Equal(t, false, strings.Contains(stderr, "panic:"))
+				after, readErr := os.ReadFile(path)
+				assert.NoError(t, readErr)
+				assert.Equal(t, contents, string(after))
+			})
+		}
+	}
+}
+
+func TestSetUpstreamErrorMessages(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		name string
+		args []string
+		want string
+	}{
+		{
+			name: "empty upstream",
+			args: []string{"set", "--alias", "api.test", "--upstream", ""},
+			want: "invalid target: target must not be empty",
+		},
+		{
+			name: "numeric upstream",
+			args: []string{"set", "--alias", "api.test", "--upstream", "9000"},
+			want: "invalid target: upstream must be a host:port address",
+		},
+		{
+			name: "leading zero numeric upstream",
+			args: []string{"set", "--alias", "api.test", "--upstream", "00080"},
+			want: "invalid target: upstream must be a host:port address",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			stdout, stderr, err := runCLI(t, dir, tc.args...)
+			_, isExitError := errors.AsType[*exec.ExitError](err)
+			assert.Equal(t, true, isExitError)
+			assert.Equal(t, "", stdout)
+			assert.Equal(t, true, strings.Contains(stderr, tc.want))
+			assert.Equal(t, false, strings.Contains(stderr, "panic:"))
+		})
+	}
+}
+
+func TestImportValidatesAllFilesBeforeSavingOrPrinting(t *testing.T) {
+	t.Parallel()
+	for _, invalidContents := range []string{"invalid: [\n", "bad.test: https://backend:8080\n"} {
+		t.Run(invalidContents, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			configPath := filepath.Join(dir, "config.yaml")
+			original := "existing.test: 1234\n"
+			assert.NoError(t, os.WriteFile(configPath, []byte(original), 0o600))
+			assert.NoError(t, os.WriteFile(filepath.Join(dir, "valid.yaml"), []byte("valid.test: 9000\n"), 0o600))
+			assert.NoError(t, os.WriteFile(filepath.Join(dir, "invalid.yaml"), []byte(invalidContents), 0o600))
+
+			stdout, stderr, err := runCLI(t, dir, "import", "valid.yaml", "invalid.yaml")
+			_, isExitError := errors.AsType[*exec.ExitError](err)
+			assert.Equal(t, true, isExitError)
+			assert.Equal(t, "", stdout)
+			assert.Equal(t, true, stderr != "" && !strings.Contains(stderr, "panic:"))
+
+			after, readErr := os.ReadFile(configPath)
+			assert.NoError(t, readErr)
+			assert.Equal(t, original, string(after))
+		})
+	}
+}
+
+func TestImportMultipleFilesPreservesOutputOrder(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	assert.NoError(t, os.WriteFile(filepath.Join(dir, "config.yaml"), []byte("a.test: 9000\n"), 0o600))
+	assert.NoError(t, os.WriteFile(filepath.Join(dir, "first.yaml"), []byte("b.test: 9001\na.test: 9002\n"), 0o600))
+	assert.NoError(t, os.WriteFile(filepath.Join(dir, "second.yaml"), []byte("c.test: backend:8080\nb.test: 9003\n"), 0o600))
+
+	stdout, stderr, err := runCLI(t, dir, "import", "first.yaml", "second.yaml")
+	assert.NoError(t, err)
+	assert.Equal(t, "", stderr)
+	lines := strings.Split(strings.TrimSuffix(stdout, "\n"), "\n")
+	assert.Equal(t, 4, len(lines))
+	expected := []struct {
+		action string
+		alias  string
+		target string
+	}{
+		{"[added]", "b.test", "9001"},
+		{"[updated]", "a.test", "9002"},
+		{"[added]", "c.test", "backend:8080"},
+		{"[updated]", "b.test", "9003"},
+	}
+	for i, want := range expected {
+		assert.Equal(t, true, strings.Contains(lines[i], want.action))
+		assert.Equal(t, true, strings.Contains(lines[i], want.alias))
+		assert.Equal(t, true, strings.Contains(lines[i], want.target))
+	}
+
+	listOut, listErrOut, listErr := runCLI(t, dir, "list", "--json")
+	assert.NoError(t, listErr)
+	assert.Equal(t, "", listErrOut)
+	assertJSONDocument(t, listOut, `{"aliases":{"a.test":9002,"b.test":9003,"c.test":"backend:8080"}}`)
+}
+
+func TestRuntimeAndDebugCommandsRejectInvalidSavedConfig(t *testing.T) {
+	t.Parallel()
+	for _, contents := range []string{"invalid: [\n", "api.test: https://backend:8080\n"} {
+		for _, tc := range []struct {
+			name    string
+			args    []string
+			livePID bool
+		}{
+			{name: "debug_caddyfile", args: []string{"debug", "caddyfile"}},
+			{name: "debug_hostctl_apply", args: []string{"debug", "hostctl", "apply"}},
+			{name: "run", args: []string{"run"}},
+			{name: "start", args: []string{"start"}},
+			{name: "start_with_live_pid", args: []string{"start"}, livePID: true},
+		} {
+			t.Run(tc.name+"/"+contents, func(t *testing.T) {
+				t.Parallel()
+				dir := t.TempDir()
+				path := filepath.Join(dir, "config.yaml")
+				assert.NoError(t, os.WriteFile(path, []byte(contents), 0o600))
+				if tc.livePID {
+					pidFile := filepath.Join(dir, "localias", "daemon.pid")
+					assert.NoError(t, os.MkdirAll(filepath.Dir(pidFile), 0o700))
+					assert.NoError(t, os.WriteFile(pidFile, fmt.Appendf(nil, "%d", os.Getpid()), 0o600))
+				}
+
+				stdout, stderr, err := runCLI(t, dir, tc.args...)
+				_, isExitError := errors.AsType[*exec.ExitError](err)
+				assert.Equal(t, true, isExitError)
+				assert.Equal(t, "", stdout)
+				assert.Equal(t, true, strings.Contains(stderr, "failed to load config"))
+				assert.Equal(t, false, strings.Contains(stderr, "panic:"))
+			})
+		}
+	}
+}
+
+func TestDebugConfigAllowsInvalidAndMissingConfig(t *testing.T) {
+	t.Parallel()
+	for _, contents := range []string{"invalid: [\n", "api.test: https://backend:8080\n"} {
+		t.Run(contents, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			path := filepath.Join(dir, "config.yaml")
+			assert.NoError(t, os.WriteFile(path, []byte(contents), 0o600))
+
+			stdout, stderr, err := runCLI(t, dir, "debug", "config")
+			assert.NoError(t, err)
+			assert.Equal(t, "", stderr)
+			assert.Equal(t, path+"\n", stdout)
+
+			stdout, stderr, err = runCLI(t, dir, "debug", "config", "--print")
+			assert.NoError(t, err)
+			assert.Equal(t, "", stderr)
+			assert.Equal(t, contents+"\n", stdout)
+		})
+	}
+
+	t.Run("missing_config", func(t *testing.T) {
+		t.Parallel()
+		dir := t.TempDir()
+		path := filepath.Join(dir, "config.yaml")
+
+		stdout, stderr, err := runCLI(t, dir, "debug", "config")
+		assert.NoError(t, err)
+		assert.Equal(t, "", stderr)
+		assert.Equal(t, path+"\n", stdout)
+		_, statErr := os.Stat(path)
+		assert.Equal(t, true, errors.Is(statErr, os.ErrNotExist))
+	})
+}
+
+func TestDebugCertAllowsInvalidAndMissingConfig(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		name     string
+		contents string
+		create   bool
+	}{
+		{name: "invalid_yaml", contents: "invalid: [\n", create: true},
+		{name: "invalid_target", contents: "api.test: https://backend:8080\n", create: true},
+		{name: "missing_config", create: false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			configPath := filepath.Join(dir, "config.yaml")
+			if tc.create {
+				assert.NoError(t, os.WriteFile(configPath, []byte(tc.contents), 0o600))
+			}
+
+			stdout, stderr, err := runCLI(t, dir, "debug", "cert")
+			assert.NoError(t, err)
+			assert.Equal(t, "", stderr)
+			wantCertPath := filepath.Join(dir, "localias", "caddy", "pki", "authorities", "local", "root.crt")
+			assert.Equal(t, wantCertPath+"\n", stdout)
+			if !tc.create {
+				_, statErr := os.Stat(configPath)
+				assert.Equal(t, true, errors.Is(statErr, os.ErrNotExist))
+			}
 		})
 	}
 }

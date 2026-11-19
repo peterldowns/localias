@@ -8,7 +8,10 @@ import (
 )
 
 func applyImpl(_ *cobra.Command, _ []string) error {
-	cfg := shared.Config()
+	cfg, err := shared.LoadConfig()
+	if err != nil {
+		return err
+	}
 	hctl := shared.Controller()
 	return config.Apply(hctl, cfg)
 }

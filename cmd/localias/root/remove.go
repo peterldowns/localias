@@ -18,7 +18,10 @@ var removeCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func removeImpl(_ *cobra.Command, aliases []string) error {
-	cfg := shared.Config()
+	cfg, err := shared.LoadConfig()
+	if err != nil {
+		return err
+	}
 	removed := cfg.Remove(aliases...)
 	if err := cfg.Save(); err != nil {
 		return err
@@ -28,7 +31,7 @@ func removeImpl(_ *cobra.Command, aliases []string) error {
 			"%s %s -> %s\n",
 			color.New(color.FgRed).Sprint("[removed]"),
 			color.New(color.FgBlue).Sprint(d.Alias),
-			color.New(color.FgWhite).Sprint(d.Port),
+			color.New(color.FgWhite).Sprint(d.Target()),
 		)
 	}
 	return nil

@@ -23,6 +23,10 @@ Apply the current configuration and start the proxy server as a daemon process.
 }
 
 func startImpl(_ *cobra.Command, _ []string) error {
+	cfg, err := shared.LoadConfig()
+	if err != nil {
+		return err
+	}
 	// Warn if the daemon was already running
 	existing, err := daemon.Status()
 	if err != nil {
@@ -33,7 +37,6 @@ func startImpl(_ *cobra.Command, _ []string) error {
 	}
 	// Apply the config to /etc/hosts
 	hctl := shared.Controller()
-	cfg := shared.Config()
 	if err := config.Apply(hctl, cfg); err != nil {
 		return err
 	}

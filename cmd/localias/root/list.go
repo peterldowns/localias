@@ -49,7 +49,7 @@ func listImpl(cmd *cobra.Command, _ []string) error {
 			if _, err := fmt.Fprintf(w,
 				"%s -> %s\n",
 				color.New(color.FgBlue).Sprint(entry.Alias),
-				color.New(color.FgWhite).Sprintf("%d", entry.Port),
+				color.New(color.FgWhite).Sprint(entry.Target()),
 			); err != nil {
 				return err
 			}
@@ -65,17 +65,23 @@ func init() {
 	listCmd.MarkFlagsMutuallyExclusive("json", "format")
 }
 
-func aliasMap(entries []config.Entry) map[string]int {
-	aliases := make(map[string]int, len(entries))
+func aliasMap(entries []config.Entry) map[string]any {
+	// Keep numeric JSON values for existing port consumers; explicit addresses
+	// use strings, matching the target types in the YAML configuration.
+	aliases := make(map[string]any, len(entries))
 	for _, entry := range entries {
-		aliases[entry.Alias] = entry.Port
+		if entry.Upstream != "" {
+			aliases[entry.Alias] = entry.Upstream
+		} else {
+			aliases[entry.Alias] = entry.Port
+		}
 	}
 	return aliases
 }
 
 func outputJSON(w io.Writer, entries []config.Entry) error {
 	output := struct {
-		Aliases map[string]int `json:"aliases"`
+		Aliases map[string]any `json:"aliases"`
 	}{Aliases: aliasMap(entries)}
 	if err := json.NewEncoder(w).Encode(output); err != nil {
 		return fmt.Errorf("write JSON: %w", err)
