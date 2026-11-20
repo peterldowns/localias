@@ -1,13 +1,14 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/Integralist/go-findroot/find"
 	"github.com/adrg/xdg"
-	"github.com/go-yaml/yaml"
+	"go.yaml.in/yaml/v2"
 )
 
 // Path returns a path to a config file by checking the following list of options.
@@ -47,7 +48,7 @@ func lookup(path string) string {
 
 // Open reads and parses a [Config] struct from a yaml file on disk.
 func Open(path string) (*Config, error) {
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0o644)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, configFileMode)
 	if err != nil {
 		return nil, err
 	}
@@ -57,17 +58,26 @@ func Open(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Use a MapSlice in order to preserve order
+	// A map slice keeps file order so replacements stay in their original position.
 	var entries yaml.MapSlice
 	if err := yaml.Unmarshal(contents, &entries); err != nil {
 		return nil, err
 	}
 	c := Config{Path: path}
+	// YAML values may have types other than the supported integer/string targets.
+	// Check keys and parse targets explicitly so errors identify the offending
+	// alias instead of panicking on a type assertion.
 	for _, entry := range entries {
-		c.Set(Entry{
-			Alias: entry.Key.(string),
-			Port:  entry.Value.(int),
-		})
+		alias, ok := entry.Key.(string)
+		if !ok || alias == "" {
+			return nil, fmt.Errorf("invalid alias %#v: expected a nonempty string", entry.Key)
+		}
+		target, err := ParseTarget(entry.Value)
+		if err != nil {
+			return nil, fmt.Errorf("alias %q: invalid target %v: %w", alias, entry.Value, err)
+		}
+		target.Alias = alias
+		c.Set(target)
 	}
 	return &c, nil
 }

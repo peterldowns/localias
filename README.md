@@ -1,7 +1,7 @@
 # 🏠 localias
 
 ![Latest Version](https://badgers.space/badge/latest%20version/v3.0.0/blueviolet?corner_radius=m)
-![Golang](https://badgers.space/badge/golang/1.21+/blue?corner_radius=m)
+![Golang](https://badgers.space/badge/golang/1.26.9+/blue?corner_radius=m)
 
 Localias is a tool for developers to securely manage local aliases for development servers.
 
@@ -37,6 +37,9 @@ brew install peterldowns/tap/localias
 ```
 
 #### Golang:
+
+Building or installing from source requires Go 1.26.9 or newer.
+
 ```bash
 # run it
 go run github.com/peterldowns/localias/cmd/localias@latest --help
@@ -65,7 +68,7 @@ Localias has two parts:
 - the configuration file
 - the proxy server
 
-The configuration file is where Localias keeps track of your aliases, and to which local ports they should be pointing. The proxy server then runs and actually proxies requests based on the configuration.
+The configuration file is where Localias keeps track of your aliases, and to which upstream addresses they should point. The proxy server then runs and actually proxies requests based on the configuration.
 
 ### configuration file
 Every time you run `localias`, it looks for a config file in the following places, using the first one that it finds:
@@ -93,7 +96,10 @@ The following commands all interact directly with the configuration file:
 
 ```shell
 # add or edit an alias
-localias set <alias> <port>
+localias set <alias> <port-or-host:port>
+# alternatively, use named flags
+localias set --alias frontend.test --port 5173
+localias set --alias api.test --upstream backend:8080
 # clear all aliases
 localias clear
 # list all aliases
@@ -104,20 +110,30 @@ localias remove <alias>
 localias import path/to/another/config/localias.yaml
 ```
 
-The configuration file is just a YAML map of `<alias>: <port>`! For example, this is a valid configuration file:
+The configuration file is a YAML map of aliases to ports or upstream addresses. For example:
 
 ```yaml
 bareTLD: 9003 # serves over https and http
 implicitly_secure.test: 9002 # serves over https and http
 https://explicit_secure.test: 9000 # serves over https and http
 http://explicit_insecure.test: 9001 # serves over http only
+api.test: backend:8080 # forwards to an HTTP service at backend:8080
+frontend.test: frontend:5173 # forwards to a service named frontend
+ipv4.test: "192.168.1.10:8080"
+ipv6.test: "[::1]:8080"
 ```
+
+With named flags, supply `--alias` and exactly one of `--port` or `--upstream`; do not mix these flags with positional arguments. Ports must be in the range 1–65535. Quoted numeric YAML values such as `"9000"` are treated as ports and saved as integers.
+
+A numeric port forwards to `localhost` on the machine or container running Localias. An explicit upstream is a `host:port` HTTP address without a scheme or path. It must be reachable and resolvable by Localias; for example, a container service name requires DNS resolution in the Localias container. Caddy resolves upstream names when connecting, not when the configuration is loaded. The alias scheme controls browser-facing HTTPS as before, independently of the HTTP upstream connection. Localias maps aliases to loopback in `/etc/hosts`, regardless of the upstream address.
+
+The [sibling-container integration test](integration/sibling-container) demonstrates routing to `frontend:5173` using Docker DNS, without an additional proxy.
 
 ### proxy server
 
 When you execute `localias run` or `localias start` to run the proxy server, Localias performs the following operations:
 
-- Reads the current Localias configuration file to find all the current aliases and the ports to which they're pointing.
+- Reads the current Localias configuration file to find all the current aliases and their upstream targets.
 - Checks the `/etc/hosts` file to make sure that every alias is present
   - Adds any new aliases that aren't already present
   - Removes any old aliases that are no longer in the Localias config
@@ -126,7 +142,7 @@ When you execute `localias run` or `localias start` to run the proxy server, Loc
   - If Caddy has not already generated a local root certificate:
     - Generate a local root certificate to sign TLS certificates
     - Install the local root certificate to the system's trust stores, and the Firefox certificate store if it exists and an be accessed.
-  - Generate a Caddy configuration telling it how to redirect each alias to the correct local port.
+  - Generate a Caddy configuration telling it how to redirect each alias to the correct upstream target.
   - Generate and sign TLS certificates for each of the aliases currently in use
   - Bind to ports 80/443 in order to proxy requests
 
@@ -138,6 +154,29 @@ Localias requires elevated privileges to perform these actions as part of runnin
 When you run Localias, each time it needs to do these things, it will open a subshell using `sudo` to perform these actions, and this will prompt you for your password. Localias *does not read or interact with your password*.
 
 Localias is entirely local and performs no telemetry.
+
+#### Streaming responses
+
+Development servers can return the response header `Incremental: ?1` to request
+immediate forwarding of streaming responses. Caddy handles this automatically,
+without additional Localias configuration. See Caddy's
+[streaming documentation](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#streaming).
+
+#### Request limits and headers
+
+Localias uses Caddy's defaults:
+
+- Request headers are limited to 16 KiB. Large cookies or tokens can cause
+  `431 Request Header Fields Too Large` responses.
+- A request body read or response write that stalls for one minute is aborted.
+  Pauses between writes, such as quiet server-sent event streams, do not count
+  toward this timeout.
+- Request headers containing underscores or dots are dropped to prevent
+  header-name aliasing. Use hyphens in custom header names.
+
+The YAML configuration maps aliases to ports or upstream addresses and does not expose these Caddy
+server settings. See Caddy's
+[server options](https://caddyserver.com/docs/caddyfile/options#servers) for details.
 
 # Quickstart
 
@@ -266,7 +305,7 @@ Available Commands:
   clear       clear all aliases
   help        Help about any command
   import      import all aliases from another config file
-  list        list all aliases
+  list        list aliases from the saved configuration
   rm          remove an alias
   run         run the proxy server in the foreground
   set         add or edit an alias
@@ -282,6 +321,45 @@ Flags:
 
 Use "localias [command] --help" for more information about a command.
 ```
+
+## JSON output for preflight checks
+
+Use `localias status --json` to check the background daemon process:
+
+```json
+{"running":true,"pid":98213}
+```
+
+A stopped daemon is a successful result with `{"running":false,"pid":null}`.
+This checks the process recorded in the daemon PID file; it does not check proxy
+readiness or detect a server started in the foreground with `localias run`.
+
+Use `localias list --json` to read aliases from the saved configuration selected
+by `--configfile`, `LOCALIAS_CONFIGFILE`, or the usual configuration search:
+
+```json
+{"aliases":{"api-test.movie-tickets.localhost":14201,"embed.movie-tickets.localhost":14204}}
+```
+
+Ports are JSON integers and explicit `host:port` upstream addresses are JSON
+strings, matching the target types in the YAML configuration. For example, a
+configuration with mixed targets returns:
+
+```json
+{"aliases":{"api.test":"backend:8080","web.test":5173}}
+```
+
+An empty configuration returns `{"aliases":{}}`. `list --format json` is
+equivalent to `list --json`. Choose either `--json` or `--format`; the default
+output format is text.
+
+Successful JSON commands write one JSON document to stdout. Errors exit with a
+nonzero status and write plain diagnostics to stderr.
+
+`list` reports saved configuration, even when a daemon is running. Editing saved
+ports does not change the running daemon until `localias reload` is called.
+There is currently no live configuration query, so these commands cannot detect
+whether the daemon is still serving old ports.
 
 # Errata
 

@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/peterldowns/localias/cmd/localias/shared"
+	"github.com/peterldowns/localias/pkg/config"
 )
 
 var configFlags struct { //nolint:gochecknoglobals
@@ -14,23 +15,29 @@ var configFlags struct { //nolint:gochecknoglobals
 }
 
 func caddyImpl(_ *cobra.Command, _ []string) error {
-	cfg := shared.Config()
+	cfg, err := shared.LoadConfig()
+	if err != nil {
+		return err
+	}
 	caddy := cfg.Caddyfile()
 	fmt.Println(caddy)
 	return nil
 }
 
 func configImpl(_ *cobra.Command, _ []string) error {
-	cfg := shared.Config()
+	path, err := config.Path(shared.Flags.Configfile)
+	if err != nil {
+		return fmt.Errorf("failed to find config: %w", err)
+	}
 	if *configFlags.Print {
-		content, err := os.ReadFile(cfg.Path)
+		content, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(content))
 		return nil
 	}
-	fmt.Println(cfg.Path)
+	fmt.Println(path)
 	return nil
 }
 

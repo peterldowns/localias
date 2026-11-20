@@ -1,6 +1,6 @@
 # localias config file syntax
 #
-# 	alias: port
+#   alias: port or "host:port"
 #
 # for example,
 #
@@ -8,6 +8,10 @@
 #   implicitly_secure.test: 9002 # serves over https and http
 #   https://explicit_secure.test: 9000 # serves over https and http
 #   http://explicit_insecure.test: 9001 # serves over http only
+#   api.test: "192.168.1.10:8000" # HTTP upstream at an explicit address
+#   frontend.test: "frontend:5173" # HTTP upstream resolved by Caddy
+#
+# Ports use localhost on the machine or container running localias.
 #
 bare: 9003
 bare.test: 9002

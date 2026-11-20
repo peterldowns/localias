@@ -18,9 +18,12 @@ var runCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func runImpl(_ *cobra.Command, _ []string) error {
+	cfg, err := shared.LoadConfig()
+	if err != nil {
+		return err
+	}
 	// Apply the config to /etc/hosts
 	hctl := shared.Controller()
-	cfg := shared.Config()
 	if err := config.Apply(hctl, cfg); err != nil {
 		return err
 	}

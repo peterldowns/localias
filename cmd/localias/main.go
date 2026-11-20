@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fatih/color"
-
 	"github.com/peterldowns/localias/cmd/localias/root"
 	"github.com/peterldowns/localias/cmd/localias/shared"
 )
@@ -31,6 +29,6 @@ func main() {
 func onError(err error) {
 	err = shared.ConvertErr(err)
 	msg := fmt.Sprintf("error: %s", err)
-	fmt.Fprintln(os.Stderr, color.New(color.FgRed, color.Italic).Sprint(msg))
+	fmt.Fprintln(os.Stderr, msg)
 	os.Exit(1)
 }

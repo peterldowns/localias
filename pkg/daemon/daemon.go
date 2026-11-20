@@ -2,7 +2,11 @@ package daemon
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"os"
+	"path/filepath"
+	"syscall"
 
 	"github.com/adrg/xdg"
 	godaemon "github.com/sevlyar/go-daemon"
@@ -15,9 +19,8 @@ import (
 // sigint/sigterm/sigabrt.
 // Start will fork and start the daemon process, which will start the caddy
 // server and the mdns server (if needed) to proxy routes based on the current
-// configuration. It also starts an RPC server that will handle requests to
-// reload the server with a new configuration or stop the servers and exit the
-// daemon.
+// configuration. Reloading replaces this process with a new daemon; there is
+// currently no RPC server for querying or reloading its configuration.
 func Start(cfg *config.Config) error {
 	if err := Kill(); err != nil {
 		return err
@@ -46,10 +49,29 @@ func Start(cfg *config.Config) error {
 // Status will determine whether or not the daemon process is running. If it is,
 // it returns the non-nil os.Process of that daemon.
 func Status() (*os.Process, error) {
-	cntxt := daemonContext()
-	proc, err := cntxt.Search()
-	if err != nil && !isIgnorableError(err) {
-		return nil, err
+	// Avoid Search: it treats permission errors when probing the process as
+	// proof that it is stopped, and attempts to remove the PID file.
+	pidFile := filepath.Join(xdg.StateHome, "localias", "daemon.pid")
+	pid, err := godaemon.ReadPidFile(pidFile)
+	if errors.Is(err, os.ErrNotExist) || errors.Is(err, io.EOF) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("read daemon PID: %w", err)
+	}
+	if pid <= 0 {
+		return nil, fmt.Errorf("invalid daemon PID %d", pid)
+	}
+	proc, err := os.FindProcess(pid)
+	if err != nil {
+		return nil, fmt.Errorf("find daemon process %d: %w", pid, err)
+	}
+	if err := proc.Signal(syscall.Signal(0)); err != nil {
+		_ = proc.Release()
+		if errors.Is(err, os.ErrProcessDone) || errors.Is(err, syscall.ESRCH) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("check daemon process %d: %w", pid, err)
 	}
 	return proc, nil
 }

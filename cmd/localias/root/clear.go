@@ -16,7 +16,10 @@ var clearCmd = &cobra.Command{ //nolint:gochecknoglobals
 }
 
 func clearImpl(_ *cobra.Command, _ []string) error {
-	cfg := shared.Config()
+	cfg, err := shared.LoadConfig()
+	if err != nil {
+		return err
+	}
 	removed := cfg.Clear()
 	if err := cfg.Save(); err != nil {
 		return err
@@ -26,7 +29,7 @@ func clearImpl(_ *cobra.Command, _ []string) error {
 			"%s %s -> %s\n",
 			color.New(color.FgRed).Sprint("[removed]"),
 			color.New(color.FgBlue).Sprint(d.Alias),
-			color.New(color.FgWhite).Sprint(d.Port),
+			color.New(color.FgWhite).Sprint(d.Target()),
 		)
 	}
 	return nil

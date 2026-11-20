@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/peterldowns/localias/cmd/localias/shared"
+	"github.com/peterldowns/localias/pkg/config"
 	"github.com/peterldowns/localias/pkg/wsl"
 )
 
@@ -17,8 +17,7 @@ var certFlags struct { //nolint:gochecknoglobals
 }
 
 func certImpl(_ *cobra.Command, _ []string) error {
-	cfg := shared.Config()
-	caddyStatePath := cfg.CaddyStatePath()
+	caddyStatePath := (config.Config{}).CaddyStatePath()
 	rootCrtPath := filepath.Join(caddyStatePath, "pki/authorities/local/root.crt")
 	if *certFlags.Print {
 		content, err := os.ReadFile(rootCrtPath)

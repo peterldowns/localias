@@ -21,16 +21,16 @@ var Flags struct { //nolint:gochecknoglobals
 	Configfile *string
 }
 
-func Config() *config.Config {
+func LoadConfig() (*config.Config, error) {
 	path, err := config.Path(Flags.Configfile)
 	if err != nil {
-		panic(fmt.Errorf("failed to find config: %w", err))
+		return nil, fmt.Errorf("failed to find config: %w", err)
 	}
 	cfg, err := config.Open(path)
 	if err != nil {
-		panic(fmt.Errorf("failed to load config: %w", err))
+		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
-	return cfg
+	return cfg, nil
 }
 
 func Controller() hostctl.Controller {
@@ -69,6 +69,6 @@ func PrintUpdate(entry config.Entry, updated bool) {
 		"%s %s -> %s\n",
 		color.New(color.FgGreen).Sprint(action),
 		color.New(color.FgBlue).Sprint(entry.Alias),
-		color.New(color.FgWhite).Sprintf("%d", entry.Port),
+		color.New(color.FgWhite).Sprint(entry.Target()),
 	)
 }
